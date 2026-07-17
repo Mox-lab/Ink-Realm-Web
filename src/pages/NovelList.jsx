@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, BookOpen, Trash2, Loader2, Globe, Lock, Sparkles, FileText, Compass, X, LayoutTemplate } from 'lucide-react';
+import { Plus, BookOpen, Trash2, Loader2, Globe, Lock, Sparkles, FileText, Compass, X, LayoutTemplate, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { listNovels, deleteNovel } from '../api/index.js';
 import { useI18n } from '../context/I18nContext.jsx';
@@ -11,7 +11,7 @@ import NovelTemplatePicker from '../components/NovelTemplatePicker.jsx';
 const LAST_CLICK_KEY = 'novel.lastClickMap';
 
 /**
- * 我的小说列表(登录后第一屏)。
+ * 小说列表(登录后第一屏)。
  *
  * <ul>
  *   <li>卡片墙(grid)展示当前用户拥有的全部小说</li>
@@ -66,6 +66,10 @@ export default function NovelList() {
     () => [...novels].sort((a, b) => (clickMap[b.id] || 0) - (clickMap[a.id] || 0)),
     [novels, clickMap]
   );
+
+  // BASE-11:区分"小说"与"我协作的小说"
+  const myNovels = useMemo(() => sortedNovels.filter((n) => !n.collaborator), [sortedNovels]);
+  const collabNovels = useMemo(() => sortedNovels.filter((n) => n.collaborator), [sortedNovels]);
 
   const handleOpen = (id) => {
     // 记录最近点击,刷新后仍保持排序
@@ -129,14 +133,112 @@ export default function NovelList() {
     }
   };
 
+  /**
+   * 渲染单张小说卡片(BASE-11 复用)。
+   * @param {Object} novel 小说 VO
+   * @param {boolean} showDelete 是否显示删除按钮(协作者不能删除他人小说)
+   */
+  const renderCard = (novel, showDelete) => (
+    <div
+      key={novel.id}
+      onClick={() => handleOpen(novel.id)}
+      className="sf-scan group relative cursor-pointer rounded border border-cyan-400/15 bg-black/40 p-5 transition hover:border-cyan-300/50 hover:bg-cyan-400/[0.04]"
+    >
+      {/* 顶部标识 */}
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-2xs tracking-widest text-cyan-300/40">
+          <BookOpen className="h-3 w-3" />
+          NOVEL
+        </div>
+        <div className="flex items-center gap-2">
+          <span
+            className={`flex items-center gap-1 rounded px-2 py-0.5 text-2xs ${
+              novel.sharedForReference
+                ? 'bg-cyan-400/10 text-cyan-300'
+                : 'bg-white/5 text-white/40'
+            }`}
+          >
+            {novel.sharedForReference ? (
+              <>
+                <Globe className="h-3 w-3" />
+                {t('novel.list.card.shared')}
+              </>
+            ) : (
+              <>
+                <Lock className="h-3 w-3" />
+                {t('novel.list.card.private')}
+              </>
+            )}
+          </span>
+          {/* 协作标识(BASE-11) */}
+          {novel.collaborator && (
+            <span className="flex items-center gap-1 rounded bg-purple-400/10 px-2 py-0.5 text-2xs text-purple-300">
+              <Users className="h-3 w-3" />
+              {t(novel.collaboratorRole === 'viewer'
+                ? 'novel.collaborator.role.viewer'
+                : 'novel.collaborator.role.editor')}
+            </span>
+          )}
+          {showDelete && (
+            <button
+              onClick={(e) => handleDeleteClick(e, novel)}
+              disabled={deletingId === novel.id}
+              title={t('common.delete')}
+              className="rounded p-1 text-white/30 transition hover:bg-red-500/10 hover:text-red-300 disabled:opacity-50"
+            >
+              {deletingId === novel.id ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Trash2 className="h-3.5 w-3.5" />
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* 标题 */}
+      <div
+        className="mb-1 text-lg font-bold leading-tight text-white"
+        style={{
+          fontFamily:
+            '"Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif'
+        }}
+      >
+        {novel.title || '(未命名)'}
+      </div>
+      <div className="mb-3 text-xs tracking-wider text-cyan-300/40">
+        {novel.author || user?.username || '—'}
+      </div>
+
+      {/* 简介 */}
+      <div className="mb-4 line-clamp-2 min-h-[2.4em] text-xs leading-relaxed text-white/60">
+        {novel.description || '—'}
+      </div>
+
+      {/* 时间 */}
+      <div className="border-t border-cyan-400/10 pt-2 text-2xs tracking-wider text-white/30">
+        <div>{t('novel.list.card.createdAt')}: {formatTime(novel.createdAt)}</div>
+        <div className="mt-0.5">
+          {t('novel.list.card.updatedAt')}: {formatTime(novel.updatedAt)}
+        </div>
+      </div>
+
+      {/* 进入提示 */}
+      <div className="mt-3 flex items-center justify-end gap-1 text-xs tracking-widest text-cyan-300/60 opacity-0 transition group-hover:opacity-100">
+        {t('novel.list.card.open')}
+        <Plus className="h-3 w-3 rotate-45" />
+      </div>
+    </div>
+  );
+
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="sf-page flex min-h-full flex-col">
       {/* 头部 */}
       <header className="border-b border-cyan-400/10 px-4 py-6 sm:px-8 sm:py-8">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="sf-heading">{t('novel.list.title')}</div>
-            <p className="mt-2 pl-4 text-[12px] tracking-wide text-cyan-300/50">
+            <p className="mt-2 pl-4 text-xs tracking-wide text-cyan-300/50">
               {t('novel.list.subtitle')}
             </p>
           </div>
@@ -147,7 +249,7 @@ export default function NovelList() {
               title={t('novel.shared.list.title')}
             >
               <Compass className="h-4 w-4" />
-              {t('novel.shared.action.browse')}
+              <span className="hidden sm:inline">{t('novel.shared.action.browse')}</span>
             </button>
           </div>
         </div>
@@ -168,7 +270,7 @@ export default function NovelList() {
               <div className="text-base tracking-wide text-cyan-300/80">
                 {t('novel.onboard.welcome.title')}
               </div>
-              <p className="mx-auto mt-2 max-w-xl text-[12px] leading-relaxed text-white/50">
+              <p className="mx-auto mt-2 max-w-xl text-xs leading-relaxed text-white/50">
                 {t('novel.onboard.welcome.desc')}
               </p>
 
@@ -182,11 +284,11 @@ export default function NovelList() {
                     key={key}
                     className="rounded border border-cyan-400/10 bg-black/30 p-3"
                   >
-                    <div className="mb-1 flex items-center gap-2 text-[11px] tracking-widest text-cyan-300/60">
+                    <div className="mb-1 flex items-center gap-2 text-xs tracking-widest text-cyan-300/60">
                       <Icon className="h-3 w-3" />
                       {t(`novel.onboard.${key}.title`)}
                     </div>
-                    <div className="text-[11px] leading-relaxed text-white/40">
+                    <div className="text-xs leading-relaxed text-white/40">
                       {t(`novel.onboard.${key}.desc`)}
                     </div>
                   </div>
@@ -211,7 +313,7 @@ export default function NovelList() {
                   <div className="text-sm tracking-wide text-cyan-300/70">
                     {t('novel.template.title')}
                   </div>
-                  <div className="mt-0.5 text-[11px] text-white/30">
+                  <div className="mt-0.5 text-xs text-white/30">
                     {t('novel.template.subtitle')}
                   </div>
                 </div>
@@ -220,131 +322,72 @@ export default function NovelList() {
             </div>
           </div>
         ) : (
-          <div className="novel-card-wall grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {/* 创作卡片(头部入口) */}
-            <div className="relative">
-              <button
-                onClick={() => setMenuOpen((v) => !v)}
-                className="flex h-full min-h-[180px] w-full flex-col items-center justify-center gap-3 rounded border-2 border-dashed border-cyan-400/30 bg-cyan-400/[0.03] p-5 text-cyan-300/80 transition hover:border-cyan-300/60 hover:bg-cyan-400/[0.07]"
-              >
-                <Plus className="h-8 w-8" />
-                <div className="text-base font-medium tracking-wide">
-                  {t('novel.cardwall.create')}
-                </div>
-              </button>
-
-              {/* 子菜单:空白创建 / 模板创建 */}
-              {menuOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setMenuOpen(false)}
-                  />
-                  <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded border border-cyan-400/20 bg-black/90 shadow-xl backdrop-blur-md">
-                    <button
-                      onClick={handleCreate}
-                      className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-white/80 transition hover:bg-cyan-400/10"
-                    >
-                      <FileText className="h-4 w-4 text-cyan-300" />
-                      {t('novel.cardwall.create.blank')}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setMenuOpen(false);
-                        setPickerOpen(true);
-                      }}
-                      className="flex w-full items-center gap-2 border-t border-white/5 px-4 py-3 text-left text-sm text-white/80 transition hover:bg-cyan-400/10"
-                    >
-                      <LayoutTemplate className="h-4 w-4 text-cyan-300" />
-                      {t('novel.cardwall.create.template')}
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* 小说卡片 */}
-            {sortedNovels.map((novel) => (
-              <div
-                key={novel.id}
-                onClick={() => handleOpen(novel.id)}
-                className="sf-scan group relative cursor-pointer rounded border border-cyan-400/15 bg-black/40 p-5 transition hover:border-cyan-300/50 hover:bg-cyan-400/[0.04]"
-              >
-                {/* 顶部标识 */}
-                <div className="mb-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-[10px] tracking-widest text-cyan-300/40">
-                    <BookOpen className="h-3 w-3" />
-                    NOVEL
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`flex items-center gap-1 rounded px-2 py-0.5 text-[10px] ${
-                        novel.sharedForReference
-                          ? 'bg-cyan-400/10 text-cyan-300'
-                          : 'bg-white/5 text-white/40'
-                      }`}
-                    >
-                      {novel.sharedForReference ? (
-                        <>
-                          <Globe className="h-3 w-3" />
-                          {t('novel.list.card.shared')}
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="h-3 w-3" />
-                          {t('novel.list.card.private')}
-                        </>
-                      )}
-                    </span>
-                    <button
-                      onClick={(e) => handleDeleteClick(e, novel)}
-                      disabled={deletingId === novel.id}
-                      title={t('common.delete')}
-                      className="rounded p-1 text-white/30 transition hover:bg-red-500/10 hover:text-red-300 disabled:opacity-50"
-                    >
-                      {deletingId === novel.id ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-3.5 w-3.5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                {/* 标题 */}
-                <div
-                  className="mb-1 text-lg font-bold leading-tight text-white"
-                  style={{
-                    fontFamily:
-                      '"Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif'
-                  }}
-                >
-                  {novel.title || '(未命名)'}
-                </div>
-                <div className="mb-3 text-[11px] tracking-wider text-cyan-300/40">
-                  {novel.author || user?.username || '—'}
-                </div>
-
-                {/* 简介 */}
-                <div className="mb-4 line-clamp-2 min-h-[2.4em] text-[12px] leading-relaxed text-white/60">
-                  {novel.description || '—'}
-                </div>
-
-                {/* 时间 */}
-                <div className="border-t border-cyan-400/10 pt-2 text-[10px] tracking-wider text-white/30">
-                  <div>{t('novel.list.card.createdAt')}: {formatTime(novel.createdAt)}</div>
-                  <div className="mt-0.5">
-                    {t('novel.list.card.updatedAt')}: {formatTime(novel.updatedAt)}
-                  </div>
-                </div>
-
-                {/* 进入提示 */}
-                <div className="mt-3 flex items-center justify-end gap-1 text-[11px] tracking-widest text-cyan-300/60 opacity-0 transition group-hover:opacity-100">
-                  {t('novel.list.card.open')}
-                  <Plus className="h-3 w-3 rotate-45" />
-                </div>
+          <div className="space-y-10">
+            {/* 小说 */}
+            <section>
+              <div className="mb-4 flex items-center gap-2 text-sm tracking-widest text-cyan-300/60">
+                <BookOpen className="h-4 w-4" />
+                {t('novel.list.myTitle')}
               </div>
-            ))}
+              <div className="novel-card-wall grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {/* 创作卡片(头部入口) */}
+                <div className="relative">
+                  <button
+                    onClick={() => setMenuOpen((v) => !v)}
+                    className="flex h-full min-h-[180px] w-full flex-col items-center justify-center gap-3 rounded border-2 border-dashed border-cyan-400/30 bg-cyan-400/[0.03] p-5 text-cyan-300/80 transition hover:border-cyan-300/60 hover:bg-cyan-400/[0.07]"
+                  >
+                    <Plus className="h-8 w-8" />
+                    <div className="text-base font-medium tracking-wide">
+                      {t('novel.cardwall.create')}
+                    </div>
+                  </button>
+
+                  {/* 子菜单:空白创建 / 模板创建 */}
+                  {menuOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setMenuOpen(false)}
+                      />
+                      <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded border border-cyan-400/20 bg-black/90 shadow-xl backdrop-blur-md">
+                        <button
+                          onClick={handleCreate}
+                          className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-white/80 transition hover:bg-cyan-400/10"
+                        >
+                          <FileText className="h-4 w-4 text-cyan-300" />
+                          {t('novel.cardwall.create.blank')}
+                        </button>
+                        <button
+                          onClick={() => {
+                            setMenuOpen(false);
+                            setPickerOpen(true);
+                          }}
+                          className="flex w-full items-center gap-2 border-t border-white/5 px-4 py-3 text-left text-sm text-white/80 transition hover:bg-cyan-400/10"
+                        >
+                          <LayoutTemplate className="h-4 w-4 text-cyan-300" />
+                          {t('novel.cardwall.create.template')}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {myNovels.map((novel) => renderCard(novel, true))}
+              </div>
+            </section>
+
+            {/* 我协作的小说(BASE-11 多用户协作) */}
+            {collabNovels.length > 0 && (
+              <section>
+                <div className="mb-4 flex items-center gap-2 text-sm tracking-widest text-cyan-300/60">
+                  <Users className="h-4 w-4" />
+                  {t('novel.list.collabTitle')}
+                </div>
+                <div className="novel-card-wall grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {collabNovels.map((novel) => renderCard(novel, false))}
+                </div>
+              </section>
+            )}
           </div>
         )}
       </div>
@@ -381,7 +424,7 @@ export default function NovelList() {
               <Trash2 className="h-4 w-4 text-red-300" />
               {t('novel.overview.action.delete')}
             </div>
-            <p className="mb-5 text-[13px] leading-relaxed text-white/70">
+            <p className="mb-5 text-sm leading-relaxed text-white/70">
               {t('novel.list.delete.confirm', `确认删除小说《${pendingDelete.title}》?`).replace(
                 '{{title}}',
                 pendingDelete.title
@@ -390,14 +433,14 @@ export default function NovelList() {
             <div className="flex items-center justify-end gap-2">
               <button
                 onClick={() => setPendingDelete(null)}
-                className="rounded px-3 py-1.5 text-[12px] text-white/50 transition hover:bg-white/5 hover:text-white"
+                className="rounded px-3 py-1.5 text-xs text-white/50 transition hover:bg-white/5 hover:text-white"
               >
                 {t('common.cancel')}
               </button>
               <button
                 onClick={() => confirmDelete(pendingDelete)}
                 disabled={deletingId === pendingDelete.id}
-                className="flex items-center gap-1.5 rounded bg-red-500/15 px-3 py-1.5 text-[12px] font-medium text-red-300 transition hover:bg-red-500/25 disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded bg-red-500/15 px-3 py-1.5 text-xs font-medium text-red-300 transition hover:bg-red-500/25 disabled:opacity-50"
               >
                 {deletingId === pendingDelete.id ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />

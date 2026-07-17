@@ -12,7 +12,8 @@ import {
   Menu,
   X,
   Settings,
-  Activity
+  Activity,
+  LayoutGrid
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useI18n } from '../context/I18nContext.jsx';
@@ -49,7 +50,7 @@ function useIsDesktop() {
 /**
  * 应用主框架:右侧可折叠侧栏 + 两级菜单。
  *
- * <p>菜单分两组:对话(单轮对话)/ 创作。「创作」分组常驻展示其首项"我的小说"
+ * <p>菜单分两组:对话/ 创作。「创作」分组常驻展示其首项"小说"
  * (/novels,即小说创作入口);进入某本小说的工作台(URL 形如 /novels/:novelId/...)
  * 后,再追加展示人物·设定·大纲·章节·写作等子模块(链接指向带 novelId 的真实路由,
  * 避免点击落回初始页)。</p>
@@ -79,7 +80,7 @@ export default function MainLayout() {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   // 桌面端侧栏展开态:默认收为窄栏,点击主内容其他区域自动收回
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const sidebarRef = useRef(null);
   const mainRef = useRef(null);
   // 仅桌面端区分窄栏/完整;移动端抽屉始终完整展开
@@ -101,7 +102,7 @@ export default function MainLayout() {
   }, [open]);
 
   // 两级菜单分组结构。
-  // 「创作」分组始终展示其首项"我的小说"(小说创作入口,链接 /novels);
+  // 「创作」分组始终展示其首项"小说"(小说创作入口,链接 /novels);
   // 进入某本小说工作台(URL /novels/:novelId/...)后,再追加展示
   // 人物/设定/大纲/章节/写作等子模块(链接指向带 novelId 的真实路由)。
   const creationBase = inWorkspace ? `/novels/${workspaceNovelId}` : null;
@@ -110,15 +111,19 @@ export default function MainLayout() {
       id: 'chat',
       label: t('nav.group.chat'),
       icon: MessageSquare,
-      items: [{ to: '/chat', label: t('nav.chat.single'), icon: MessageSquare }]
+      items: [{ to: '/chat', label: t('nav.chat.single'), short: t('nav.chat.singleShort'), icon: MessageSquare }]
     },
     {
       id: 'creation',
       label: t('nav.group.creation'),
       icon: PenLine,
       items: [
-        // 小说创作入口:始终展示,指向小说列表(/novels)
-        { to: '/novels', label: t('nav.novels'), icon: PenLine },
+        // 小说创作入口:未进入小说时显示"小说"(→/novels);
+        // 进入某本小说工作台(URL /novels/:novelId/...)后改为"总览"(→/novels/:novelId),
+        // 点击总览页返回按钮回到 /novels 列表即切回"小说"
+        inWorkspace
+          ? { to: creationBase, label: t('nav.overview'), short: t('nav.overview'), icon: LayoutGrid }
+          : { to: '/novels', label: t('nav.novels'), short: t('nav.novelsShort'), icon: PenLine },
         // 以下子模块仅在进入某本小说工作台后展示
         ...(creationBase
           ? [
@@ -133,8 +138,21 @@ export default function MainLayout() {
     }
   ];
 
-  // 移动端底部 Tab 的扁平入口(6 个主模块)
-  const tabItems = navGroups.flatMap((g) => g.items);
+  // 移动端底部 Tab:精选主模块,等宽均分填满屏幕(上下文感知)
+  // - 未进入小说工作台:对话 / 小说(2 项各半)
+  // - 进入小说工作台:对话 / 总览 / 写作 / 大纲 / 人物(精选核心 5 项,避免溢出)
+  const bottomTabs = inWorkspace
+    ? [
+        { to: '/chat', label: t('nav.chat.single'), short: t('nav.chat.singleShort'), icon: MessageSquare },
+        { to: creationBase, label: t('nav.overview'), short: t('nav.overview'), icon: LayoutGrid },
+        { to: `${creationBase}/writing`, label: t('nav.writing'), icon: PenLine },
+        { to: `${creationBase}/outline`, label: t('nav.outline'), icon: ListTree },
+        { to: `${creationBase}/character`, label: t('nav.character'), icon: UserCircle2 }
+      ]
+    : [
+        { to: '/chat', label: t('nav.chat.single'), short: t('nav.chat.singleShort'), icon: MessageSquare },
+        { to: '/novels', label: t('nav.novels'), short: t('nav.novelsShort'), icon: PenLine }
+      ];
 
   const toggleSidebar = () => setOpen((prev) => !prev);
 
@@ -151,7 +169,7 @@ export default function MainLayout() {
 
   const closeDrawer = () => setDrawerOpen(false);
 
-  // 窄栏(railMode)图标统一格式:以「我的小说」导航项收起态为准
+  // 窄栏(railMode)图标统一格式:以「小说」导航项收起态为准
   // (无边框、居中、px-0 py-2.5、圆角、hover 淡底、次要字色→主色)
   const railIconClass =
     'flex items-center justify-center rounded px-0 py-2.5 text-[var(--sf-text-dim)] transition hover:bg-[rgb(var(--sf-accent-r),var(--sf-accent-g),var(--sf-accent-b),0.05)] hover:text-[var(--sf-text)]';
@@ -197,10 +215,10 @@ export default function MainLayout() {
     <aside
       ref={sidebarRef}
       className={`relative flex h-full flex-col border-l border-[var(--sf-border)] bg-[var(--sf-panel)] backdrop-blur-xl transition-[width] duration-300 ${
-        railMode ? 'w-14' : 'w-72 lg:w-64'
+        railMode ? 'w-14' : 'w-60'
       }`}
     >
-      {/* 窄栏(隐藏)态:所有图标以「我的小说」导航项格式为准,统一无框/居中/h-5 w-5 */}
+      {/* 窄栏(隐藏)态:所有图标以「小说」导航项格式为准,统一无框/居中/h-5 w-5 */}
       {railMode ? (
         <div className="flex h-full flex-col items-center py-3">
           {/* 顶部品牌标记(纯图标,无底色框) */}
@@ -233,8 +251,21 @@ export default function MainLayout() {
             ))}
           </nav>
 
-          {/* 底部:token 用量 + 主题/语言 + 展开(|||) + 退出(统一格式) */}
+          {/* 底部:展开(|||)+ token 用量 + 主题/语言 + 退出(统一格式) */}
           <div className="mt-2 flex flex-col items-center gap-1">
+            {/* ||| 展开侧栏(置于 token 上方) */}
+            <button
+              onClick={toggleSidebar}
+              title={t('nav.sidebar.expand')}
+              aria-label={t('nav.sidebar.expand')}
+              className={railIconClass}
+            >
+              <span className="flex items-center gap-[3px] text-[var(--sf-accent)]">
+                <span className="h-5 w-[2px] rounded bg-current" />
+                <span className="h-5 w-[2px] rounded bg-current" />
+                <span className="h-5 w-[2px] rounded bg-current" />
+              </span>
+            </button>
             <button
               onClick={toggleSidebar}
               title={t('usage.title')}
@@ -245,19 +276,6 @@ export default function MainLayout() {
             </button>
             <ThemeSwitcher variant="minimal" size="h-5 w-5" btnClass={railIconClass} padding="" />
             <LangSwitcher variant="minimal" size="h-5 w-5" btnClass={railIconClass} padding="" />
-            <button
-              onClick={toggleSidebar}
-              title={t('nav.sidebar.expand')}
-              aria-label={t('nav.sidebar.expand')}
-              className={railIconClass}
-            >
-              {/* ||| 展开标记 */}
-              <span className="flex items-center gap-[3px] text-[var(--sf-accent)]">
-                <span className="h-5 w-[2px] rounded bg-current" />
-                <span className="h-5 w-[2px] rounded bg-current" />
-                <span className="h-5 w-[2px] rounded bg-current" />
-              </span>
-            </button>
             <button
               onClick={handleLogout}
               title={t('common.logout')}
@@ -273,47 +291,48 @@ export default function MainLayout() {
           {/* 顶部品牌区:border-b 与主内容区 header 横线水平对齐(full-bleed) */}
           <div className="border-b border-[var(--sf-border)]">
             {!isMobileDrawer ? (
-              /* 桌面端:Logo+名(左) / 通知+管理(右);昵称独立一行靠右 */
-              <>
-                <div className="flex items-center justify-between gap-3 px-4 py-6">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <Logo size={28} className="shrink-0 text-[var(--sf-accent)]" />
-                    <div
-                      className="truncate text-base font-bold tracking-[0.15em] text-[var(--sf-heading-color)]"
-                      style={XINWEI_FONT}
-                    >
-                      {t('common.appName')}
-                    </div>
+              /* 桌面端:左为 Logo + 名称,右为 图标行 + 个人昵称 */
+              <div className="flex items-start justify-between gap-2 px-4 py-4">
+                {/* 左:Logo(大) + 名称(在 Logo 下方) */}
+                <div className="flex min-w-0 flex-col items-start gap-1.5">
+                  <Logo size={36} className="shrink-0 text-[var(--sf-accent)]" />
+                  <div
+                    className="max-w-full truncate text-sm font-bold tracking-[0.15em] text-[var(--sf-heading-color)]"
+                    style={XINWEI_FONT}
+                  >
+                    {t('common.appName')}
                   </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <NotificationBell />
+                </div>
+                {/* 右:图标行(主题/语言/通知/后台管理) + 个人昵称,整体靠右 */}
+                <div className="flex shrink-0 flex-col items-end gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <ThemeSwitcher variant="minimal" btnClass="sf-icon-btn" />
+                    <LangSwitcher variant="minimal" btnClass="sf-icon-btn" />
+                    <NotificationBell btnClass="sf-icon-btn" />
                     {isAdmin && (
                       <NavLink
                         to="/admin"
                         title={t('nav.admin')}
                         aria-label={t('nav.admin')}
-                        className="sf-btn-ghost !px-2 !py-1 flex items-center justify-center text-[var(--sf-text-dim)] transition hover:text-[var(--sf-accent)]"
+                        className="sf-icon-btn h-8 w-8"
                       >
-                        <Settings className="h-3.5 w-3.5" />
+                        <Settings className="h-4 w-4" />
                       </NavLink>
                     )}
                   </div>
-                </div>
-                {/* 昵称:绿点 + 昵称,靠右(沿用之前的绿点状态形式) */}
-                {displayName && (
-                  <div className="flex justify-end px-4 pb-3">
+                  {displayName && (
                     <button
                       type="button"
                       onClick={openProfile}
                       title={t('nav.profile')}
-                      className="flex max-w-[180px] items-center gap-1.5 text-[15px] tracking-wide text-[var(--sf-text-dim)] transition hover:text-[var(--sf-text)]"
+                      className="flex max-w-[120px] items-center gap-1.5 text-sm tracking-wide text-[var(--sf-text-dim)] transition hover:text-[var(--sf-text)]"
                     >
                       <span className="sf-dot shrink-0" />
                       <span className="truncate">{displayName}</span>
                     </button>
-                  </div>
-                )}
-              </>
+                  )}
+                </div>
+              </div>
             ) : (
               /* 手机端:图标(Logo)靠左;昵称 + 管理 置于同行最右侧(管理在最右);
                  通知已由顶栏提供,此处不显示 */
@@ -333,7 +352,7 @@ export default function MainLayout() {
                       type="button"
                       onClick={openProfile}
                       title={t('nav.profile')}
-                      className="flex max-w-[130px] items-center gap-1.5 text-[15px] tracking-wide text-[var(--sf-text-dim)] transition hover:text-[var(--sf-text)]"
+                      className="flex max-w-[130px] items-center gap-1.5 text-base tracking-wide text-[var(--sf-text-dim)] transition hover:text-[var(--sf-text)]"
                     >
                       <span className="sf-dot shrink-0" />
                       <span className="truncate">{displayName}</span>
@@ -348,7 +367,7 @@ export default function MainLayout() {
           <nav className="flex-1 overflow-y-auto px-3 py-3">
             {navGroups.map((group) => (
               <div key={group.id} className="mb-3">
-                <div className="mb-1 flex items-center gap-2 px-2 text-[13px] tracking-[0.2em] text-[var(--sf-text-dim)]">
+                <div className="mb-1 flex items-center gap-2 px-2 text-sm tracking-[0.2em] text-[var(--sf-text-dim)]">
                   <span className="h-px flex-1 bg-[var(--sf-border)]" />
                   <span>{group.label}</span>
                   <span className="h-px flex-1 bg-[var(--sf-border)]" />
@@ -358,39 +377,20 @@ export default function MainLayout() {
             ))}
           </nav>
 
-          {/* 底部:token 用量 + (桌面:主题/语言 + 退出) / (手机:退出居中) */}
+          {/* 底部:token 用量 + 退出登录(居中,桌面/手机统一) */}
           <div className="border-t border-[var(--sf-border)] bg-[rgb(var(--sf-accent-r),var(--sf-accent-g),var(--sf-accent-b),0.04)]">
             <UsagePanel variant="sidebar" />
             {/* 亮眼横线:分隔 token 用量与下方操作区 */}
             <div className="mx-3 h-px bg-gradient-to-r from-transparent via-[var(--sf-accent)] to-transparent shadow-[0_0_8px_var(--sf-accent)]" />
-            {!isMobileDrawer ? (
-              <div className="flex items-center justify-between gap-2 p-3">
-                {/* 左下:主题 / 语言切换(桌面端显示) */}
-                <div className="flex items-center gap-1.5">
-                  <ThemeSwitcher variant="minimal" />
-                  <LangSwitcher variant="minimal" />
-                </div>
-                {/* 右下:退出登录 */}
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 rounded px-3 py-2 text-base tracking-wider text-[var(--sf-text-dim)] transition hover:bg-red-500/10 hover:text-red-300"
-                >
-                  <LogOut className="h-4 w-4" />
-                  {t('common.logout').toUpperCase()}
-                </button>
-              </div>
-            ) : (
-              /* 手机端:退出登录置于侧栏最下方居中 */
-              <div className="flex justify-center p-3">
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 rounded px-3 py-2 text-base tracking-wider text-[var(--sf-text-dim)] transition hover:bg-red-500/10 hover:text-red-300"
-                >
-                  <LogOut className="h-4 w-4" />
-                  {t('common.logout').toUpperCase()}
-                </button>
-              </div>
-            )}
+            <div className="flex justify-center p-3">
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 rounded px-3 py-2 text-base tracking-wider text-[var(--sf-text-dim)] transition hover:bg-red-500/10 hover:text-red-300"
+              >
+                <LogOut className="h-4 w-4" />
+                {t('common.logout').toUpperCase()}
+              </button>
+            </div>
           </div>
         </>
       )}
@@ -425,9 +425,9 @@ export default function MainLayout() {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1">
-            <NotificationBell />
-            <ThemeSwitcher variant="minimal" />
-            <LangSwitcher variant="minimal" />
+            <NotificationBell btnClass="sf-icon-btn" />
+            <ThemeSwitcher variant="minimal" btnClass="sf-icon-btn" />
+            <LangSwitcher variant="minimal" btnClass="sf-icon-btn" />
             {isAdmin && (
               <NavLink
                 to="/admin"
@@ -441,22 +441,23 @@ export default function MainLayout() {
           </div>
         </header>
 
-        {/* 移动端底部 Tab 栏 */}
-        <nav className="sf-scroll-x sticky bottom-0 z-30 flex shrink-0 items-stretch gap-0.5 overflow-x-auto border-t border-cyan-400/15 bg-black/85 backdrop-blur-md lg:hidden">
-          {tabItems.map((item) => {
+        {/* 移动端底部 Tab 栏:精选主模块等宽均分,无横向滚动 */}
+        <nav className="sticky bottom-0 z-30 flex shrink-0 items-stretch border-t border-cyan-400/15 bg-black/85 backdrop-blur-md lg:hidden">
+          {bottomTabs.map((item) => {
             const Icon = item.icon;
+            const label = item.short || item.label;
             return (
               <NavLink
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `flex min-w-[64px] flex-1 flex-col items-center gap-0.5 px-2 py-2 text-[13px] tracking-wider transition ${
+                  `flex flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 text-xs tracking-wider transition ${
                     isActive ? 'text-cyan-300' : 'text-white/50'
                   }`
                 }
               >
                 <Icon className="h-5 w-5" />
-                <span>{item.label}</span>
+                <span className="w-full truncate text-center">{label}</span>
               </NavLink>
             );
           })}

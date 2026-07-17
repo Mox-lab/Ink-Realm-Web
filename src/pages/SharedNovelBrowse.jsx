@@ -161,7 +161,7 @@ export default function SharedNovelBrowse() {
   ];
 
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="sf-page flex min-h-full flex-col">
       {/* 头部 */}
       <header className="border-b border-cyan-400/10 px-4 py-6 sm:px-8 sm:py-8">
         <div className="flex items-start gap-4">
@@ -173,7 +173,7 @@ export default function SharedNovelBrowse() {
             <ArrowLeft className="h-4 w-4" />
           </button>
           <div className="flex-1">
-            <div className="flex items-center gap-2 text-[10px] tracking-widest text-cyan-300/40">
+            <div className="flex items-center gap-2 text-2xs tracking-widest text-cyan-300/40">
               <Sparkles className="h-3 w-3" />
               {t('novel.shared.badge')}
             </div>
@@ -186,15 +186,15 @@ export default function SharedNovelBrowse() {
             >
               {detail.title || '(未命名)'}
             </div>
-            <div className="mt-1 text-[11px] tracking-wider text-cyan-300/40">
+            <div className="mt-1 text-xs tracking-wider text-cyan-300/40">
               {detail.author || '—'}
             </div>
             {detail.description && (
-              <p className="mt-3 max-w-2xl text-[12px] leading-relaxed text-white/60">
+              <p className="mt-3 max-w-2xl text-xs leading-relaxed text-white/60">
                 {detail.description}
               </p>
             )}
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-[10px] tracking-wider text-white/30">
+            <div className="mt-3 flex flex-wrap items-center gap-3 text-2xs tracking-wider text-white/30">
               <span>{t('novel.list.card.createdAt')}: {formatTime(detail.createdAt)}</span>
               <span>{t('novel.list.card.updatedAt')}: {formatTime(detail.updatedAt)}</span>
               <span className="flex items-center gap-1 rounded bg-cyan-400/10 px-2 py-0.5 text-cyan-300">
@@ -214,7 +214,7 @@ export default function SharedNovelBrowse() {
                 key={s.label}
                 className="rounded border border-cyan-400/15 bg-black/40 p-3"
               >
-                <div className="mb-1 flex items-center gap-1 text-[10px] tracking-widest text-cyan-300/40">
+                <div className="mb-1 flex items-center gap-1 text-2xs tracking-widest text-cyan-300/40">
                   <Icon className="h-3 w-3" />
                   {s.label}
                 </div>
@@ -236,7 +236,7 @@ export default function SharedNovelBrowse() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center gap-2 px-3 py-2 text-[12px] tracking-wide transition ${
+                className={`flex items-center gap-2 px-3 py-2 text-xs tracking-wide transition ${
                   isActive
                     ? 'border-b-2 border-cyan-300 text-cyan-300'
                     : 'border-b-2 border-transparent text-white/50 hover:text-white'
@@ -244,7 +244,7 @@ export default function SharedNovelBrowse() {
               >
                 <Icon className="h-3.5 w-3.5" />
                 {tab.label}
-                <span className="rounded bg-white/5 px-1.5 py-0.5 text-[9px] text-white/40">
+                <span className="rounded bg-white/5 px-1.5 py-0.5 text-2xs text-white/40">
                   {tab.count}
                 </span>
               </button>
@@ -262,7 +262,7 @@ export default function SharedNovelBrowse() {
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 placeholder={t(`novel.shared.search.${activeTab}`)}
-                className="w-full rounded border border-cyan-400/20 bg-black/40 py-2 pl-9 pr-9 text-[12px] text-white/80 placeholder-white/30 outline-none focus:border-cyan-300/60"
+                className="w-full rounded border border-cyan-400/20 bg-black/40 py-2 pl-9 pr-9 text-xs text-white/80 placeholder-white/30 outline-none focus:border-cyan-300/60"
               />
               {keyword && (
                 <button
@@ -281,7 +281,7 @@ export default function SharedNovelBrowse() {
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <ul className="space-y-1.5 lg:col-span-1">
               {filteredChapters.length === 0 ? (
-                <li className="py-12 text-center text-[12px] text-white/30">
+                <li className="py-12 text-center text-xs text-white/30">
                   {t('novel.shared.empty.chapters')}
                 </li>
               ) : (
@@ -296,16 +296,16 @@ export default function SharedNovelBrowse() {
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[10px] text-cyan-300/50">
+                      <span className="font-mono text-2xs text-cyan-300/50">
                         #{ch.chapterNo ?? '-'}
                       </span>
-                      <span className="flex-1 truncate text-[12px] text-white/85">
+                      <span className="flex-1 truncate text-xs text-white/85">
                         {ch.title || '(未命名)'}
                       </span>
                       <ChevronRight className="h-3 w-3 text-white/30" />
                     </div>
                     {ch.contentPreview && (
-                      <div className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-white/40">
+                      <div className="mt-1 line-clamp-2 text-xs leading-relaxed text-white/40">
                         {ch.contentPreview}
                       </div>
                     )}
@@ -317,7 +317,7 @@ export default function SharedNovelBrowse() {
               {selectedChapter ? (
                 <article className="rounded border border-cyan-400/15 bg-black/40 p-5">
                   <div className="mb-3 border-b border-cyan-400/10 pb-3">
-                    <div className="text-[10px] tracking-widest text-cyan-300/40">
+                    <div className="text-2xs tracking-widest text-cyan-300/40">
                       {t('novel.shared.readonlyHint')}
                     </div>
                     <div
@@ -329,19 +329,19 @@ export default function SharedNovelBrowse() {
                     >
                       第 {selectedChapter.chapterNo} 章 · {selectedChapter.title}
                     </div>
-                    <div className="mt-1 text-[10px] tracking-wider text-white/30">
+                    <div className="mt-1 text-2xs tracking-wider text-white/30">
                       {t('novel.shared.wordCount').replace(
                         '{{count}}',
                         String(selectedChapter.wordCount ?? 0)
                       )}
                     </div>
                   </div>
-                  <pre className="whitespace-pre-wrap break-words font-sans text-[13px] leading-loose text-white/80">
+                  <pre className="whitespace-pre-wrap break-words font-sans text-sm leading-loose text-white/80">
                     {selectedChapter.contentPreview || t('novel.shared.empty.chapterContent')}
                   </pre>
                 </article>
               ) : (
-                <div className="flex h-64 items-center justify-center text-[12px] text-white/30">
+                <div className="flex h-64 items-center justify-center text-xs text-white/30">
                   {t('novel.shared.empty.chapterContent')}
                 </div>
               )}
@@ -354,7 +354,7 @@ export default function SharedNovelBrowse() {
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <ul className="space-y-1.5 lg:col-span-1">
               {detail.outlines?.length === 0 ? (
-                <li className="py-12 text-center text-[12px] text-white/30">
+                <li className="py-12 text-center text-xs text-white/30">
                   {t('novel.shared.empty.outlines')}
                 </li>
               ) : (
@@ -370,21 +370,21 @@ export default function SharedNovelBrowse() {
                   >
                     <div className="flex items-center gap-2">
                       {o.active ? (
-                        <span className="rounded bg-cyan-400/15 px-1.5 py-0.5 text-[9px] tracking-widest text-cyan-300">
+                        <span className="rounded bg-cyan-400/15 px-1.5 py-0.5 text-2xs tracking-widest text-cyan-300">
                           {t('novel.overview.stat.activeOutline.yes')}
                         </span>
                       ) : (
-                        <span className="font-mono text-[10px] text-white/30">
+                        <span className="font-mono text-2xs text-white/30">
                           v{o.version ?? '-'}
                         </span>
                       )}
-                      <span className="flex-1 truncate text-[12px] text-white/85">
+                      <span className="flex-1 truncate text-xs text-white/85">
                         {o.title || `#${o.id}`}
                       </span>
                       <ChevronRight className="h-3 w-3 text-white/30" />
                     </div>
                     {o.theme && (
-                      <div className="mt-1 text-[11px] text-white/40">{o.theme}</div>
+                      <div className="mt-1 text-xs text-white/40">{o.theme}</div>
                     )}
                   </li>
                 ))
@@ -394,7 +394,7 @@ export default function SharedNovelBrowse() {
               {selectedOutline ? (
                 <article className="rounded border border-cyan-400/15 bg-black/40 p-5">
                   <div className="mb-3 border-b border-cyan-400/10 pb-3">
-                    <div className="text-[10px] tracking-widest text-cyan-300/40">
+                    <div className="text-2xs tracking-widest text-cyan-300/40">
                       {t('novel.shared.readonlyHint')}
                     </div>
                     <div
@@ -406,7 +406,7 @@ export default function SharedNovelBrowse() {
                     >
                       {selectedOutline.title}
                     </div>
-                    <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] tracking-wider text-white/40">
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-2xs tracking-wider text-white/40">
                       <span>v{selectedOutline.version}</span>
                       {selectedOutline.theme && <span>· {selectedOutline.theme}</span>}
                       <span>· {t('novel.shared.outlineLength').replace(
@@ -415,12 +415,12 @@ export default function SharedNovelBrowse() {
                       )}</span>
                     </div>
                   </div>
-                  <pre className="whitespace-pre-wrap break-words font-sans text-[13px] leading-loose text-white/80">
+                  <pre className="whitespace-pre-wrap break-words font-sans text-sm leading-loose text-white/80">
                     {selectedOutline.contentPreview || t('novel.shared.empty.outlineContent')}
                   </pre>
                 </article>
               ) : (
-                <div className="flex h-64 items-center justify-center text-[12px] text-white/30">
+                <div className="flex h-64 items-center justify-center text-xs text-white/30">
                   {t('novel.shared.empty.outlineContent')}
                 </div>
               )}
@@ -432,7 +432,7 @@ export default function SharedNovelBrowse() {
         {activeTab === 'characters' && (
           <div>
             {filteredCharacters.length === 0 ? (
-              <div className="py-12 text-center text-[12px] text-white/30">
+              <div className="py-12 text-center text-xs text-white/30">
                 {t('novel.shared.empty.characters')}
               </div>
             ) : (
@@ -454,7 +454,7 @@ export default function SharedNovelBrowse() {
                         {c.name || '(未命名)'}
                       </div>
                     </div>
-                    <div className="mb-2 flex flex-wrap gap-1.5 text-[10px] text-white/50">
+                    <div className="mb-2 flex flex-wrap gap-1.5 text-2xs text-white/50">
                       {c.age != null && (
                         <span className="rounded bg-white/5 px-1.5 py-0.5">
                           {c.age} {t('novel.shared.character.ageUnit')}
@@ -468,19 +468,19 @@ export default function SharedNovelBrowse() {
                       )}
                     </div>
                     {c.personality && (
-                      <div className="mb-2 text-[11px] leading-relaxed text-white/60">
+                      <div className="mb-2 text-xs leading-relaxed text-white/60">
                         <span className="text-cyan-300/60">{t('novel.shared.character.personality')}: </span>
                         {c.personality}
                       </div>
                     )}
                     {c.background && (
-                      <div className="mb-2 text-[11px] leading-relaxed text-white/60">
+                      <div className="mb-2 text-xs leading-relaxed text-white/60">
                         <span className="text-cyan-300/60">{t('novel.shared.character.background')}: </span>
                         {c.background}
                       </div>
                     )}
                     {c.weapon && (
-                      <div className="text-[11px] leading-relaxed text-white/60">
+                      <div className="text-xs leading-relaxed text-white/60">
                         <span className="text-cyan-300/60">{t('novel.shared.character.weapon')}: </span>
                         {c.weapon}
                       </div>
@@ -496,7 +496,7 @@ export default function SharedNovelBrowse() {
         {activeTab === 'settings' && (
           <div>
             {filteredSettings.length === 0 ? (
-              <div className="py-12 text-center text-[12px] text-white/30">
+              <div className="py-12 text-center text-xs text-white/30">
                 {t('novel.shared.empty.settings')}
               </div>
             ) : (
@@ -518,13 +518,13 @@ export default function SharedNovelBrowse() {
                         {s.keyword || '(未命名)'}
                       </div>
                       {s.category && (
-                        <span className="ml-auto rounded bg-amber-400/10 px-2 py-0.5 text-[10px] text-amber-300">
+                        <span className="ml-auto rounded bg-amber-400/10 px-2 py-0.5 text-2xs text-amber-300">
                           {s.category}
                         </span>
                       )}
                     </div>
                     {s.description && (
-                      <p className="text-[12px] leading-relaxed text-white/60">
+                      <p className="text-xs leading-relaxed text-white/60">
                         {s.description}
                       </p>
                     )}

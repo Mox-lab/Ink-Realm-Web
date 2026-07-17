@@ -249,7 +249,7 @@ export function CommandPalette() {
             placeholder={t('cmd.placeholder')}
             className="flex-1 bg-transparent text-sm text-white placeholder:text-white/30 focus:outline-none"
           />
-          <kbd className="rounded border border-white/20 px-1.5 py-0.5 text-[9px] tracking-wide text-white/40">
+          <kbd className="rounded border border-white/20 px-1.5 py-0.5 text-2xs tracking-wide text-white/40">
             ESC
           </kbd>
         </div>
@@ -257,14 +257,14 @@ export function CommandPalette() {
         {/* 结果区 */}
         <div className="max-h-[50vh] overflow-y-auto px-2 py-2">
           {flatItems.length === 0 ? (
-            <div className="py-8 text-center text-[12px] text-white/30">
+            <div className="py-8 text-center text-xs text-white/30">
               {t('cmd.noResults')}
             </div>
           ) : (
             <>
               {filteredCommands.length > 0 && (
                 <div className="mb-2">
-                  <div className="px-2 py-1 text-[10px] tracking-widest text-cyan-300/40">
+                  <div className="px-2 py-1 text-2xs tracking-widest text-cyan-300/40">
                     {t('cmd.group.goto')}
                   </div>
                   {filteredCommands.map((c, i) => {
@@ -278,7 +278,7 @@ export function CommandPalette() {
                           c.action();
                           closePalette();
                         }}
-                        className={`flex w-full items-center gap-2 rounded px-2 py-2 text-left text-[12px] transition ${
+                        className={`flex w-full items-center gap-2 rounded px-2 py-2 text-left text-xs transition ${
                           activeIdx === flatIdx
                             ? 'bg-cyan-400/10 text-cyan-300'
                             : 'text-white/70 hover:bg-white/[0.03]'
@@ -297,7 +297,7 @@ export function CommandPalette() {
 
               {filteredNovels.length > 0 && (
                 <div>
-                  <div className="px-2 py-1 text-[10px] tracking-widest text-cyan-300/40">
+                  <div className="px-2 py-1 text-2xs tracking-widest text-cyan-300/40">
                     {t('cmd.group.novels')}
                   </div>
                   {filteredNovels.map((n, i) => {
@@ -310,7 +310,7 @@ export function CommandPalette() {
                           navigate(`/novels/${n.id}/overview`);
                           closePalette();
                         }}
-                        className={`flex w-full items-center gap-2 rounded px-2 py-2 text-left text-[12px] transition ${
+                        className={`flex w-full items-center gap-2 rounded px-2 py-2 text-left text-xs transition ${
                           activeIdx === flatIdx
                             ? 'bg-cyan-400/10 text-cyan-300'
                             : 'text-white/70 hover:bg-white/[0.03]'
@@ -319,7 +319,7 @@ export function CommandPalette() {
                         <BookOpen className="h-3.5 w-3.5 shrink-0" />
                         <div className="min-w-0 flex-1">
                           <div className="truncate font-medium">{n.title || '(未命名)'}</div>
-                          <div className="truncate text-[10px] text-white/30">
+                          <div className="truncate text-2xs text-white/30">
                             {n.author || '—'}
                           </div>
                         </div>
@@ -333,7 +333,7 @@ export function CommandPalette() {
         </div>
 
         {/* 底部提示 */}
-        <div className="flex items-center justify-between border-t border-cyan-400/10 px-3 py-1.5 text-[10px] tracking-wide text-white/30">
+        <div className="flex items-center justify-between border-t border-cyan-400/10 px-3 py-1.5 text-2xs tracking-wide text-white/30">
           <div className="flex items-center gap-2">
             <kbd className="rounded border border-white/15 px-1 py-0.5">↑↓</kbd>
             <span>{t('cmd.hint.navigate')}</span>

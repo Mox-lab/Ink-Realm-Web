@@ -25,7 +25,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
  *   /login                                登录页(公开)
  *   /                                     → 重定向到 /novels
  *   /chat                                 顶层独立问答页(与小说上下文解耦)
- *   /novels                               我的小说列表(登录后第一屏)
+ *   /novels                               小说列表(登录后第一屏)
  *   /novels/new                           创建新小说表单
  *   /novels/:novelId                      → 重定向到 /novels/:novelId/overview
  *   /novels/:novelId/overview             小说总览(进入小说后第一屏)
@@ -54,7 +54,7 @@ export default function App() {
         }
       >
         <Route index element={<Navigate to="/novels" replace />} />
-        {/* 顶层独立 /chat:与小说上下文解耦,可在任何场景下单轮问答 */}
+        {/* 顶层独立 /chat:与小说上下文解耦,可在任何场景下问答 */}
         <Route path="chat" element={<Chat />} />
 
         {/* 小说列表(登录后第一屏) */}

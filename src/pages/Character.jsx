@@ -174,7 +174,7 @@ function RelationGraph({ characters, t }) {
         })}
       </svg>
 
-      <div className="flex items-center justify-between border-t border-cyan-400/10 bg-black/40 px-4 py-2 font-mono text-[10px] tracking-widest text-cyan-300/60">
+      <div className="flex items-center justify-between border-t border-cyan-400/10 bg-black/40 px-4 py-2 font-mono text-2xs tracking-widest text-cyan-300/60">
         <span className="flex items-center gap-2">
           <span className="sf-dot" />
           GRAPH · ACTIVE
@@ -227,7 +227,7 @@ function CharacterCard({ character, index, onChange, onRemove }) {
         </div>
         <button
           onClick={onRemove}
-          className="font-mono text-[10px] tracking-widest text-rose-300/50 hover:text-rose-300"
+          className="font-mono text-2xs tracking-widest text-rose-300/50 hover:text-rose-300"
         >
           REMOVE
         </button>
@@ -236,7 +236,7 @@ function CharacterCard({ character, index, onChange, onRemove }) {
       <div className="space-y-1.5 text-xs leading-relaxed">
         {FIELD_DEFS.map((f) => (
           <div key={f.key} className="flex gap-2">
-            <span className="w-14 shrink-0 font-mono text-[10px] tracking-widest text-cyan-300/60">
+            <span className="w-14 shrink-0 font-mono text-2xs tracking-widest text-cyan-300/60">
               {f.label}
             </span>
             {f.type === 'textarea' ? (
@@ -447,7 +447,7 @@ export default function Character() {
       <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="sf-heading">{t('character.heading')}</div>
-          <p className="mt-2 pl-4 text-[12px] tracking-wide text-cyan-300/50">
+          <p className="mt-2 pl-4 text-xs tracking-wide text-cyan-300/50">
             {t('character.subheading')}
           </p>
         </div>
@@ -457,13 +457,13 @@ export default function Character() {
               onClick={() => setView('graph')}
               className={`sf-btn-ghost ${view === 'graph' ? '!border-cyan-300 !text-cyan-300 !bg-cyan-300/10' : ''}`}
             >
-              <Network className="h-3.5 w-3.5" /> {t('character.graph')}
+              <Network className="h-4 w-4" /> {t('character.graph')}
             </button>
             <button
               onClick={() => setView('grid')}
               className={`sf-btn-ghost ${view === 'grid' ? '!border-cyan-300 !text-cyan-300 !bg-cyan-300/10' : ''}`}
             >
-              <Grid3x3 className="h-3.5 w-3.5" /> {t('character.cards')}
+              <Grid3x3 className="h-4 w-4" /> {t('character.cards')}
             </button>
           </div>
         )}
@@ -481,7 +481,7 @@ export default function Character() {
         )}
         {/* 输入区 */}
         <div className="sf-panel-hud mb-6 p-4">
-          <label className="mb-2 block text-[10px] tracking-widest text-cyan-300/60">{t('character.sourceText')}</label>
+          <label className="mb-2 block text-2xs tracking-widest text-cyan-300/60">{t('character.sourceText')}</label>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -489,16 +489,16 @@ export default function Character() {
             placeholder={t('character.sourcePlaceholder')}
             className="sf-input w-full resize-none"
           />
-          <div className="mt-2 flex items-center justify-between text-[10px] tracking-widest text-white/30">
+          <div className="mt-2 flex items-center justify-between text-2xs tracking-widest text-white/30">
             <span>{t('character.charCount').replace('{n}', String(text.length))}</span>
             <span>{t('character.charHint')}</span>
           </div>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-cyan-400/10 pt-3">
-            <div className="flex items-center gap-2 text-[11px] tracking-wide text-cyan-300/60">
+            <div className="flex items-center gap-2 text-xs tracking-wide text-cyan-300/60">
               <span className="sf-dot" />
               {t('character.ready')}
               {/* UX-05 自动保存状态指示 */}
-              <span className="ml-2 inline-flex items-center gap-1 text-[10px] tracking-widest text-cyan-300/40">
+              <span className="ml-2 inline-flex items-center gap-1 text-2xs tracking-widest text-cyan-300/40">
                 {autoSave.status === 'pending' && (
                   <>
                     <span className="sf-dot" />
@@ -521,12 +521,12 @@ export default function Character() {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <button onClick={openHistory} className="sf-btn-ghost">
-                <History className="h-3 w-3" /> {t('character.history')}
+                <History className="h-4 w-4" /> {t('character.history')}
               </button>
               {hasCharacters && <SaveButton onClick={handleSave} label={t('character.saveAll')} />}
               {(text || hasCharacters) && !loading && (
                 <button onClick={reset} className="sf-btn-ghost">
-                  <Trash2 className="h-3 w-3" /> {t('common.reset')}
+                  <Trash2 className="h-4 w-4" /> {t('common.reset')}
                 </button>
               )}
               <button onClick={extract} disabled={loading} className="sf-btn">
@@ -582,7 +582,7 @@ export default function Character() {
             <div className="sf-panel rounded border border-dashed border-cyan-400/10 py-20 text-center text-white/30">
               <Network className="mx-auto mb-3 h-12 w-12 opacity-40" />
               <div className="text-xs tracking-wide text-white/40">{t('character.awaiting')}</div>
-              <div className="mt-1 text-[10px] text-white/30">{t('character.awaitingHint')}</div>
+              <div className="mt-1 text-2xs text-white/30">{t('character.awaitingHint')}</div>
             </div>
           )
         )}

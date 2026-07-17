@@ -1,4 +1,5 @@
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import Breadcrumb from './Breadcrumb.jsx';
 import { useI18n } from '../context/I18nContext.jsx';
 
@@ -7,12 +8,12 @@ import { useI18n } from '../context/I18nContext.jsx';
  *
  * <p>路由约定(见 App.jsx):</p>
  * <pre>
- *   /novels/:novelId/overview     → 我的小说 / {novelTitle} / 总览
- *   /novels/:novelId/writing      → 我的小说 / {novelTitle} / 多轮写作
- *   /novels/:novelId/outline      → 我的小说 / {novelTitle} / 大纲
- *   /novels/:novelId/chapter      → 我的小说 / {novelTitle} / 章节
- *   /novels/:novelId/character    → 我的小说 / {novelTitle} / 人物
- *   /novels/:novelId/lore         → 我的小说 / {novelTitle} / 世界观
+ *   /novels/:novelId/overview     → 小说 / {novelTitle} / 总览
+ *   /novels/:novelId/writing      → 小说 / {novelTitle} / 多轮写作
+ *   /novels/:novelId/outline      → 小说 / {novelTitle} / 大纲
+ *   /novels/:novelId/chapter      → 小说 / {novelTitle} / 章节
+ *   /novels/:novelId/character    → 小说 / {novelTitle} / 人物
+ *   /novels/:novelId/lore         → 小说 / {novelTitle} / 世界观
  * </pre>
  *
  * <p>novelTitle 由 NovelContext 之外的轻量来源提供:进入 overview 时已通过
@@ -61,6 +62,7 @@ export const writeCachedNovelTitle = (novelId, title) => {
 
 export default function NovelBreadcrumbBar() {
   const { t } = useI18n();
+  const navigate = useNavigate();
   const { novelId } = useParams();
   const location = useLocation();
   const seg = location.pathname.split('/').filter(Boolean).pop();
@@ -75,7 +77,18 @@ export default function NovelBreadcrumbBar() {
 
   return (
     <div className="border-b border-cyan-400/10 bg-black/30 px-4 py-2 backdrop-blur-sm sm:px-8">
-      <Breadcrumb items={items} />
+      <div className="flex items-center gap-2">
+        {/* 左上角返回:回到小说列表 */}
+        <button
+          onClick={() => navigate('/novels')}
+          title={t('nav.backToNovels')}
+          aria-label={t('nav.backToNovels')}
+          className="flex shrink-0 items-center justify-center rounded p-1 text-cyan-300/70 transition hover:bg-cyan-400/10 hover:text-cyan-300"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </button>
+        <Breadcrumb items={items} />
+      </div>
     </div>
   );
 }

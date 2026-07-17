@@ -84,6 +84,13 @@ input, textarea, select {
 
 /* ================ 移动端适配 ================ */
 
+/* 桌面端(≥641px)放大基准字号,100% 缩放下整体更易读(影响所有 rem 单位文本) */
+@media (min-width: 641px) {
+  html {
+    font-size: 17px;
+  }
+}
+
 /* 100vh 修正:iOS Safari 地址栏会导致 100vh 抖动,用 -webkit-fill-available 兜底 */
 .sf-h-screen-dynamic {
   height: 100vh;
@@ -98,8 +105,8 @@ input, textarea, select {
     font-size: 12px;
   }
   .sf-btn-ghost {
-    min-height: 36px;
-    padding: 6px 10px;
+    min-height: 40px;
+    padding: 8px 14px;
   }
   .sf-input {
     padding: 9px 12px;

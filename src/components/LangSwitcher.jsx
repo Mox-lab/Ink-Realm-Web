@@ -46,7 +46,7 @@ export default function LangSwitcher({ variant = 'ghost', className = '', size =
       title={isZh ? 'Switch to English' : '切换为中文'}
     >
       <Languages className="h-3.5 w-3.5" />
-      <span className="font-mono text-[10px] tracking-widest">{isZh ? 'EN' : '中'}</span>
+      <span className="font-mono text-2xs tracking-widest">{isZh ? 'EN' : '中'}</span>
     </button>
   );
 }

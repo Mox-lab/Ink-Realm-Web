@@ -62,7 +62,7 @@ export default function NicknameModal() {
 
         {/* 昵称输入 */}
         <div className="mb-2">
-          <label className="mb-2 flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] text-cyan-300/50">
+          <label className="mb-2 flex items-center gap-2 font-mono text-2xs tracking-[0.2em] text-cyan-300/50">
             <span className="h-px w-3 bg-cyan-300/40" />
             {t('common.nickname').toUpperCase()}
           </label>
@@ -79,7 +79,7 @@ export default function NicknameModal() {
               maxLength={20}
             />
           </div>
-          <div className="mt-1.5 flex justify-end font-mono text-[10px] tracking-widest text-cyan-300/40">
+          <div className="mt-1.5 flex justify-end font-mono text-2xs tracking-widest text-cyan-300/40">
             {value.length}/20
           </div>
         </div>

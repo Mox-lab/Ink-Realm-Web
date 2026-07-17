@@ -159,7 +159,7 @@ export default function Lore() {
     <div className="flex h-full min-h-0 flex-col">
       <header className="border-b border-cyan-400/10 px-4 py-4 sm:px-8 sm:py-5">
         <div className="sf-heading">{t('lore.heading')}</div>
-        <p className="mt-2 pl-4 text-[12px] tracking-wide text-cyan-300/50">
+        <p className="mt-2 pl-4 text-xs tracking-wide text-cyan-300/50">
           {t('lore.subheading')}
         </p>
       </header>
@@ -190,24 +190,24 @@ export default function Lore() {
       <div className="flex-1 overflow-auto px-4 py-4 sm:px-8 sm:py-6">
         <div className="mx-auto max-w-4xl">
           {tab === 'ask' && (
-            <div className="flex h-full flex-col">
+            <div className="flex h-full min-h-0 flex-col">
               <div className="mb-3 flex flex-wrap items-center gap-2 sm:gap-3">
-                <label className="text-[11px] tracking-wide text-cyan-300/60">{t('lore.session')}</label>
+                <label className="text-xs tracking-wide text-cyan-300/60">{t('lore.session')}</label>
                 <input
                   value={sessionId}
                   onChange={(e) => setSessionId(e.target.value)}
                   className="sf-input min-w-0 flex-1 sm:max-w-[200px]"
                 />
-                <span className="hidden text-[10px] tracking-wider text-white/30 sm:inline">{t('lore.sessionHint')}</span>
+                <span className="hidden text-2xs tracking-wider text-white/30 sm:inline">{t('lore.sessionHint')}</span>
               </div>
 
-              <div ref={scrollRef} className="flex-1 space-y-4 overflow-auto pb-4">
+              <div ref={scrollRef} className="flex-1 min-h-0 space-y-4 overflow-auto pb-4">
                 {history.length === 0 && !loading && (
                   <div className="flex h-full items-center justify-center text-white/20">
                     <div className="text-center">
                       <Compass className="mx-auto mb-3 h-12 w-12 opacity-40" />
                       <div className="text-sm tracking-wide text-white/40">{t('lore.awaiting')}</div>
-                      <div className="mt-1 text-[10px] text-white/30">{t('lore.awaitingHint')}</div>
+                      <div className="mt-1 text-2xs text-white/30">{t('lore.awaitingHint')}</div>
                     </div>
                   </div>
                 )}
@@ -220,7 +220,7 @@ export default function Lore() {
                           : 'border-cyan-400/15 bg-black/40 text-white/90'
                       }`}
                     >
-                      <div className="mb-1 flex items-center gap-2 font-mono text-[9px] tracking-widest text-cyan-300/50">
+                      <div className="mb-1 flex items-center gap-2 font-mono text-2xs tracking-widest text-cyan-300/50">
                         {m.role === 'user' ? (
                           <>
                             <Terminal className="h-2.5 w-2.5" /> {t('lore.user')}
@@ -249,7 +249,7 @@ export default function Lore() {
           {tab === 'import' && (
             <div className="space-y-4">
               <div className="sf-panel-hud p-4">
-                <label className="mb-2 block text-[10px] tracking-widest text-cyan-300/60">{t('lore.title')}</label>
+                <label className="mb-2 block text-2xs tracking-widest text-cyan-300/60">{t('lore.title')}</label>
                 <input
                   value={loreTitle}
                   onChange={(e) => setLoreTitle(e.target.value)}
@@ -259,8 +259,8 @@ export default function Lore() {
               </div>
               <div className="sf-panel-hud p-4">
                 <div className="mb-2 flex items-center justify-between">
-                  <label className="text-[10px] tracking-widest text-cyan-300/60">{t('lore.content')}</label>
-                  <span className="text-[10px] tracking-widest text-white/30">
+                  <label className="text-2xs tracking-widest text-cyan-300/60">{t('lore.content')}</label>
+                  <span className="text-2xs tracking-widest text-white/30">
                     {t('lore.charCount').replace('{n}', String(loreContent.length))}
                   </span>
                 </div>
@@ -273,7 +273,7 @@ export default function Lore() {
                 />
               </div>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-[11px] tracking-wide text-cyan-300/60">
+                <div className="flex items-center gap-2 text-xs tracking-wide text-cyan-300/60">
                   <span className="sf-dot" />
                   {t('lore.ready')}
                 </div>
@@ -305,7 +305,7 @@ export default function Lore() {
               <div className="sf-panel-hud p-4">
                 <div className="mb-3 flex items-center justify-between">
                   <span className="sf-chip">NEW</span>
-                  <span className="text-[10px] tracking-widest text-white/30">{t('lore.archiveHint')}</span>
+                  <span className="text-2xs tracking-widest text-white/30">{t('lore.archiveHint')}</span>
                 </div>
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-[160px_140px_1fr_auto] sm:gap-2">
                   <input
@@ -364,7 +364,7 @@ export default function Lore() {
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
                             <div className="mb-1 flex items-center gap-2">
-                              <span className="rounded border border-cyan-300/30 bg-cyan-300/10 px-1.5 py-0.5 font-mono text-[9px] tracking-widest text-cyan-300">
+                              <span className="rounded border border-cyan-300/30 bg-cyan-300/10 px-1.5 py-0.5 font-mono text-2xs tracking-widest text-cyan-300">
                                 {(s.category || 'GENERAL').toUpperCase()}
                               </span>
                               <span className="text-sm font-bold text-white">
@@ -379,7 +379,7 @@ export default function Lore() {
                           </div>
                           <button
                             onClick={() => removeArchiveItem(s.id)}
-                            className="font-mono text-[10px] tracking-widest text-rose-300/50 hover:text-rose-300"
+                            className="font-mono text-2xs tracking-widest text-rose-300/50 hover:text-rose-300"
                           >
                             <Trash2 className="h-3 w-3" />
                           </button>
@@ -399,8 +399,8 @@ export default function Lore() {
                 <UsagePanel variant="inline" />
               </div>
               <div className="sf-panel-hud p-4">
-                <label className="mb-2 block text-[10px] tracking-widest text-cyan-300/60">{t('lore.architectureTitle')}</label>
-                <pre className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-white/60">
+                <label className="mb-2 block text-2xs tracking-widest text-cyan-300/60">{t('lore.architectureTitle')}</label>
+                <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-white/60">
 {t('lore.architecture')}
                 </pre>
               </div>
@@ -410,7 +410,7 @@ export default function Lore() {
           {tab === 'search' && (
             <div className="space-y-4">
               <div className="sf-panel-hud p-4">
-                <label className="mb-2 block text-[10px] tracking-widest text-cyan-300/60">{t('lore.query')}</label>
+                <label className="mb-2 block text-2xs tracking-widest text-cyan-300/60">{t('lore.query')}</label>
                 <div className="flex flex-wrap gap-2 sm:flex-nowrap">
                   <input
                     value={query}
@@ -443,7 +443,7 @@ export default function Lore() {
                               #{String(i + 1).padStart(3, '0')} · {r.title || r.id || 'UNTITLED'}
                             </span>
                             {r.score && (
-                              <span className="font-mono text-[10px] tracking-widest text-white/40">
+                              <span className="font-mono text-2xs tracking-widest text-white/40">
                                 SCORE: {Number(r.score).toFixed(4)}
                               </span>
                             )}
@@ -465,7 +465,7 @@ export default function Lore() {
                 <div className="sf-panel rounded border border-dashed border-cyan-400/10 py-20 text-center text-white/30">
                   <Search className="mx-auto mb-3 h-12 w-12 opacity-40" />
                   <div className="text-sm tracking-wide text-white/40">{t('lore.hitsAwaiting')}</div>
-                  <div className="mt-1 text-[10px] text-white/30">{t('lore.hitsAwaitingHint')}</div>
+                  <div className="mt-1 text-2xs text-white/30">{t('lore.hitsAwaitingHint')}</div>
                 </div>
               )}
             </div>
@@ -475,26 +475,26 @@ export default function Lore() {
 
       {tab === 'ask' && (
         <div className="border-t border-cyan-400/10 px-4 py-3 sm:px-8 sm:py-4">
-          <div className="mx-auto flex max-w-4xl items-end gap-2">
-            <div className="flex-1">
-              <label className="mb-1 block text-[10px] tracking-widest text-cyan-300/60">{t('lore.question')}</label>
+          <div className="mx-auto flex max-w-4xl flex-col gap-1">
+            <label className="text-2xs tracking-widest text-cyan-300/60">{t('lore.question')}</label>
+            <div className="flex items-stretch gap-2">
               <textarea
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 onKeyDown={onAskKeyDown}
                 rows={2}
                 placeholder={t('lore.questionPlaceholder')}
-                className="sf-input w-full resize-none"
+                className="sf-input flex-1 resize-none"
               />
+              <button
+                onClick={ask}
+                disabled={loading || !question.trim()}
+                className="sf-btn px-4"
+                title={t('common.send')}
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              </button>
             </div>
-            <button
-              onClick={ask}
-              disabled={loading || !question.trim()}
-              className="sf-btn h-[56px] px-4 sm:h-[64px]"
-              title={t('common.send')}
-            >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            </button>
           </div>
           {loading && <div className="sf-loader-bar mx-auto mt-3 max-w-4xl" />}
         </div>

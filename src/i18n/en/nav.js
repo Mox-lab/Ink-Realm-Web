@@ -23,6 +23,7 @@ export const nav = {
   'nav.noRole': 'No role',
   'nav.logoutConfirm': 'Logged out',
   'nav.novels': 'My Novels',
+  'nav.novelsShort': 'Novels',
   'nav.novelsDesc': 'Novel list',
   'nav.overview': 'Overview',
   'nav.overviewDesc': 'Novel overview',
@@ -34,6 +35,7 @@ export const nav = {
   'nav.group.chat': 'Chat',
   'nav.group.creation': 'Creation',
   'nav.chat.single': 'Single Chat',
+  'nav.chat.singleShort': 'Single',
   'nav.sidebar.collapse': 'Collapse Sidebar',
   'nav.sidebar.expand': 'Expand Sidebar',
 

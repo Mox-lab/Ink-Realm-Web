@@ -49,3 +49,13 @@ export function logout() {
   tokenStore.clear();
 }
 
+/**
+ * 刷新令牌:用 refreshToken 换新的 access + refresh token。
+ * 用于 AuthContext 启动恢复或拦截器外的主动续期。
+ */
+export async function refresh(refreshToken) {
+  const { data } = await api.post('/auth/refresh', { refreshToken });
+  tokenStore.set(data.accessToken, data.refreshToken);
+  return data;
+}
+

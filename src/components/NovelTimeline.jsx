@@ -32,11 +32,11 @@ export default function NovelTimeline({ events }) {
   if (decorated.length === 0) {
     return (
       <section className="rounded border border-cyan-400/15 bg-black/40 p-4">
-        <div className="mb-3 flex items-center gap-2 text-[11px] tracking-widest text-cyan-300/60">
+        <div className="mb-3 flex items-center gap-2 text-xs tracking-widest text-cyan-300/60">
           <Activity className="h-3.5 w-3.5" />
           {t('novel.timeline.title')}
         </div>
-        <div className="flex items-center gap-2 py-6 text-center text-[12px] text-white/30">
+        <div className="flex items-center gap-2 py-6 text-center text-xs text-white/30">
           <Clock className="h-4 w-4 opacity-50" />
           {t('novel.timeline.empty')}
         </div>
@@ -47,11 +47,11 @@ export default function NovelTimeline({ events }) {
   return (
     <section className="rounded border border-cyan-400/15 bg-black/40 p-4">
       <div className="mb-3 flex items-center justify-between border-b border-cyan-400/10 pb-2">
-        <div className="flex items-center gap-2 text-[11px] tracking-widest text-cyan-300/60">
+        <div className="flex items-center gap-2 text-xs tracking-widest text-cyan-300/60">
           <Activity className="h-3.5 w-3.5" />
           {t('novel.timeline.title')}
         </div>
-        <span className="text-[10px] tracking-widest text-white/30">
+        <span className="text-2xs tracking-widest text-white/30">
           {decorated.length}
         </span>
       </div>
@@ -73,15 +73,15 @@ export default function NovelTimeline({ events }) {
               </span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
-                  <div className="truncate text-[12px] font-medium text-white/85">
+                  <div className="truncate text-xs font-medium text-white/85">
                     {title}
                   </div>
-                  <span className="shrink-0 text-[10px] tracking-wider text-white/30">
+                  <span className="shrink-0 text-2xs tracking-wider text-white/30">
                     {formatRelative(ev.timestamp)}
                   </span>
                 </div>
                 {ev.description && (
-                  <div className="mt-0.5 truncate text-[11px] text-white/40">
+                  <div className="mt-0.5 truncate text-xs text-white/40">
                     {ev.description}
                   </div>
                 )}

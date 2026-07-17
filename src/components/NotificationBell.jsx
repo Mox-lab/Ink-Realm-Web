@@ -80,7 +80,7 @@ export default function NotificationBell({ size = 'h-3.5 w-3.5', btnClass = 'sf-
       >
         <Bell className={size} />
         {unreadCount > 0 && (
-          <span className="absolute -right-1 -top-1 flex min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
+          <span className="absolute -right-1 -top-1 flex min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-2xs font-bold text-white">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
@@ -90,11 +90,11 @@ export default function NotificationBell({ size = 'h-3.5 w-3.5', btnClass = 'sf-
         <div className="absolute right-0 top-full z-50 mt-2 w-[340px] max-w-[90vw] overflow-hidden rounded border border-[var(--sf-border)] bg-[var(--sf-panel-solid)] text-[var(--sf-text)] shadow-2xl backdrop-blur-xl">
           {/* 顶部 */}
           <div className="flex items-center justify-between border-b border-cyan-400/10 px-3 py-2">
-            <div className="flex items-center gap-2 text-[11px] tracking-widest text-cyan-300/70">
+            <div className="flex items-center gap-2 text-xs tracking-widest text-cyan-300/70">
               <Bell className="h-3 w-3" />
               {t('notify.title')}
               {unreadCount > 0 && (
-                <span className="rounded bg-red-500/20 px-1.5 py-0.5 text-[9px] text-red-300">
+                <span className="rounded bg-red-500/20 px-1.5 py-0.5 text-2xs text-red-300">
                   {unreadCount}
                 </span>
               )}
@@ -122,7 +122,7 @@ export default function NotificationBell({ size = 'h-3.5 w-3.5', btnClass = 'sf-
           {/* 列表 */}
           <div className="max-h-[320px] overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="py-8 text-center text-[11px] tracking-wide text-white/30">
+              <div className="py-8 text-center text-xs tracking-wide text-white/30">
                 {t('notify.empty')}
               </div>
             ) : (
@@ -141,15 +141,15 @@ export default function NotificationBell({ size = 'h-3.5 w-3.5', btnClass = 'sf-
                       <Icon className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${color}`} />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2">
-                          <div className="truncate text-[12px] font-medium text-white/90">
+                          <div className="truncate text-xs font-medium text-white/90">
                             {n.title}
                           </div>
-                          <span className="shrink-0 text-[9px] tracking-wide text-white/30">
+                          <span className="shrink-0 text-2xs tracking-wide text-white/30">
                             {formatRelative(n.createdAt, lang)}
                           </span>
                         </div>
                         {n.body && (
-                          <div className="mt-0.5 line-clamp-2 text-[11px] leading-relaxed text-white/50">
+                          <div className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-white/50">
                             {n.body}
                           </div>
                         )}

@@ -60,7 +60,7 @@
   color: var(--sf-text);
   border-radius: var(--sf-radius-input, 4px);
   padding: 10px 14px;
-  font-size: 13px;
+  font-size: 14px;
   transition: all 0.2s ease;
 }
 .sf-input::placeholder { color: var(--sf-text-dim); }
@@ -80,7 +80,7 @@
   border: 1px solid var(--sf-accent);
   color: var(--sf-accent);
   padding: 10px 20px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -97,21 +97,37 @@
   cursor: not-allowed;
 }
 
-/* 次级按钮 */
+/* 次级按钮:与主按钮(.sf-btn)统一高度与字号,仅以配色/边框区分主次 */
 .sf-btn-ghost {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   background: transparent;
   border: 1px solid var(--sf-border);
   color: var(--sf-text-dim);
-  padding: 6px 12px;
-  font-size: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
   border-radius: var(--sf-radius-btn-ghost, 4px);
   transition: all 0.2s ease;
 }
 .sf-btn-ghost:hover {
   border-color: var(--sf-accent);
+  color: var(--sf-accent);
+  background: rgba(var(--sf-accent-r), var(--sf-accent-g), var(--sf-accent-b), 0.06);
+}
+
+/* 无边框图标按钮:顶栏/侧栏的铃铛、主题、语言等纯图标操作(无框、悬停淡底) */
+.sf-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--sf-text-dim);
+  border-radius: var(--sf-radius-btn-ghost, 4px);
+  transition: all 0.2s ease;
+}
+.sf-icon-btn:hover {
   color: var(--sf-accent);
   background: rgba(var(--sf-accent-r), var(--sf-accent-g), var(--sf-accent-b), 0.06);
 }
@@ -123,7 +139,7 @@
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   background: rgba(var(--sf-accent-r), var(--sf-accent-g), var(--sf-accent-b), 0.08);
@@ -138,7 +154,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   letter-spacing: 0.05em;
   color: var(--sf-heading-color);
@@ -292,3 +308,13 @@
 }
 /* 折叠态侧栏宽度收起(由 MainLayout 通过 w-0 控制,此处仅作语义占位) */
 .sidebar-collapsed { width: 0; overflow: hidden; }
+
+/* ================ 统一页面内容容器 ================
+ * 限宽居中,避免超宽屏内容被拉伸过宽、阅读疲劳;
+ * 各主页面最外层 flex 容器复用此类,保证全站阅读宽度一致。
+ * 水平内边距仍由各页面 header / 内容区自行控制(不在此处重复设定)。 */
+.sf-page {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+}

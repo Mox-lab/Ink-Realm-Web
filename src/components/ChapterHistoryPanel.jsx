@@ -59,7 +59,7 @@ export default function ChapterHistoryPanel({ open, chapterId, onRestore, onClos
     <div className="fixed inset-0 z-40 flex justify-end bg-black/50">
       <div className="flex h-full w-full max-w-3xl flex-col border-l border-cyan-400/20 bg-[#0a0e1a]">
         <div className="flex items-center justify-between border-b border-cyan-400/10 px-4 py-3">
-          <div className="flex items-center gap-2 text-[12px] tracking-widest text-cyan-300">
+          <div className="flex items-center gap-2 text-xs tracking-widest text-cyan-300">
             <History className="h-4 w-4" />
             {t('chapter.history.title')}
           </div>
@@ -80,7 +80,7 @@ export default function ChapterHistoryPanel({ open, chapterId, onRestore, onClos
                 {t('common.loading')}
               </div>
             ) : list.length === 0 ? (
-              <div className="py-8 text-center text-[11px] tracking-wide text-white/30">
+              <div className="py-8 text-center text-xs tracking-wide text-white/30">
                 {t('chapter.history.empty')}
               </div>
             ) : (
@@ -96,14 +96,14 @@ export default function ChapterHistoryPanel({ open, chapterId, onRestore, onClos
                       }`}
                     >
                       <div className="flex items-center gap-1.5">
-                        <span className="font-mono text-[10px] text-cyan-300/70">
+                        <span className="font-mono text-2xs text-cyan-300/70">
                           #{String(list.length - idx).padStart(2, '0')}
                         </span>
-                        <span className="truncate text-[11px] text-white/80">
+                        <span className="truncate text-xs text-white/80">
                           {h.title || t('chapter.history.untitled')}
                         </span>
                       </div>
-                      <div className="mt-0.5 text-[9px] tracking-wide text-white/30">
+                      <div className="mt-0.5 text-2xs tracking-wide text-white/30">
                         {h.wordCount || 0} {t('chapter.history.words')}
                         {h.createdAt && ` · ${formatTime(h.createdAt)}`}
                       </div>
@@ -122,13 +122,13 @@ export default function ChapterHistoryPanel({ open, chapterId, onRestore, onClos
                 {t('common.loading')}
               </div>
             ) : !detail ? (
-              <div className="py-12 text-center text-[11px] tracking-wide text-white/30">
+              <div className="py-12 text-center text-xs tracking-wide text-white/30">
                 {t('chapter.history.selectHint')}
               </div>
             ) : (
               <>
                 <div className="flex items-center justify-between border-b border-cyan-400/10 px-3 py-2">
-                  <div className="text-[11px] tracking-widest text-cyan-300/60">
+                  <div className="text-xs tracking-widest text-cyan-300/60">
                     {t('chapter.history.snapshotVersion')} #{detail.snapshotVersion ?? '-'}
                   </div>
                   <button
@@ -139,7 +139,7 @@ export default function ChapterHistoryPanel({ open, chapterId, onRestore, onClos
                     {t('chapter.history.restore')}
                   </button>
                 </div>
-                <div className="min-h-0 flex-1 overflow-auto px-3 py-2 font-mono text-[12px] leading-relaxed whitespace-pre-wrap text-white/80">
+                <div className="min-h-0 flex-1 overflow-auto px-3 py-2 font-mono text-xs leading-relaxed whitespace-pre-wrap text-white/80">
                   {detail.content}
                 </div>
               </>

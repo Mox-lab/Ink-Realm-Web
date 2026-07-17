@@ -66,7 +66,7 @@ export default function CharacterPanel({ onInsert }) {
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-cyan-400/10 px-3 py-2">
-        <div className="mb-1.5 flex items-center gap-1.5 text-[11px] tracking-widest text-cyan-300/60">
+        <div className="mb-1.5 flex items-center gap-1.5 text-xs tracking-widest text-cyan-300/60">
           <Users className="h-3.5 w-3.5" />
           {t('chapter.sidePane.tab.character')}
         </div>
@@ -76,7 +76,7 @@ export default function CharacterPanel({ onInsert }) {
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             placeholder={t('chapter.sidePane.character.searchPlaceholder')}
-            className="w-full rounded border border-cyan-400/15 bg-black/40 py-1.5 pl-7 pr-2 text-[12px] text-white/85 placeholder:text-white/30 focus:border-cyan-300/50 focus:outline-none"
+            className="w-full rounded border border-cyan-400/15 bg-black/40 py-1.5 pl-7 pr-2 text-xs text-white/85 placeholder:text-white/30 focus:border-cyan-300/50 focus:outline-none"
           />
         </div>
       </div>
@@ -88,7 +88,7 @@ export default function CharacterPanel({ onInsert }) {
             {t('common.loading')}
           </div>
         ) : isEmpty ? (
-          <div className="py-8 text-center text-[11px] tracking-wide text-white/30">
+          <div className="py-8 text-center text-xs tracking-wide text-white/30">
             {t('chapter.sidePane.character.empty')}
           </div>
         ) : (
@@ -101,7 +101,7 @@ export default function CharacterPanel({ onInsert }) {
                 <div className="flex items-center gap-2 px-2 py-1.5">
                   <button
                     onClick={() => handleInsert(c.name)}
-                    className="flex-1 truncate text-left text-[12px] font-medium text-cyan-200 hover:text-cyan-100 hover:underline"
+                    className="flex-1 truncate text-left text-xs font-medium text-cyan-200 hover:text-cyan-100 hover:underline"
                     title={c.name}
                   >
                     {c.name}
@@ -115,19 +115,19 @@ export default function CharacterPanel({ onInsert }) {
                   </button>
                 </div>
                 {c.identity && (
-                  <div className="px-2 pb-1 text-[10px] leading-relaxed text-white/40">
+                  <div className="px-2 pb-1 text-2xs leading-relaxed text-white/40">
                     {c.identity}
                   </div>
                 )}
                 {expandedId === c.id && (
                   <div className="border-t border-cyan-400/10 px-2 py-1.5">
                     {appearsLoading ? (
-                      <div className="flex items-center gap-1.5 text-[10px] text-cyan-300/60">
+                      <div className="flex items-center gap-1.5 text-2xs text-cyan-300/60">
                         <Loader2 className="h-3 w-3 animate-spin" />
                         {t('common.loading')}
                       </div>
                     ) : appears.length === 0 ? (
-                      <div className="text-[10px] tracking-wide text-white/30">
+                      <div className="text-2xs tracking-wide text-white/30">
                         {t('chapter.sidePane.character.appearEmpty')}
                       </div>
                     ) : (
@@ -135,7 +135,7 @@ export default function CharacterPanel({ onInsert }) {
                         {appears.map((ch) => (
                           <li
                             key={ch.id}
-                            className="truncate text-[10px] text-white/60"
+                            className="truncate text-2xs text-white/60"
                             title={`第 ${ch.chapterNo} 章 · ${ch.title || ''}`}
                           >
                             <span className="font-mono text-cyan-300/70">

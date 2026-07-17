@@ -1,18 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  ArrowLeft,
   BookOpen,
   ListTree,
   UserCircle2,
   Globe,
   AlertTriangle,
-  Edit3,
-  Trash2,
   PenLine,
   Loader2,
-  Compass,
-  Zap,
   CheckCircle2,
   Download,
   ChevronDown,
@@ -28,15 +23,29 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
-  deleteNovel,
   exportNovel,
   getContinuationSuggestion,
-  getNovelOverview
+  getNovelOverview,
+  listNovels,
+  updateNovel
 } from '../api/index.js';
 import { useI18n } from '../context/I18nContext.jsx';
 import { useNovelContext } from '../context/NovelContext.jsx';
 import { writeCachedNovelTitle } from '../components/NovelBreadcrumbBar.jsx';
 import NovelTimeline from '../components/NovelTimeline.jsx';
+
+/** 华为新魏字体栈(标题显示,全站统一)。 */
+const XINWEI_FONT = {
+  fontFamily: '"Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif'
+};
+
+/**
+ * 导出冷却映射:同一本小说 60 秒内仅允许触发一次,防御连续点击。
+ * key 为 novelId,value 为上次成功发起导出时的时间戳(ms)。
+ * 使用模块级 Map,使冷却跨组件重挂载依然生效。
+ */
+const EXPORT_COOLDOWN_MS = 60 * 1000;
+const lastExportAtByNovel = new Map();
 
 /**
  * 小说总览页(进入小说后第一屏)。
@@ -44,10 +53,9 @@ import NovelTimeline from '../components/NovelTimeline.jsx';
  * <p>第 6 阶段(以小说为主体):</p>
  * <ul>
  *   <li>调 getNovelOverview(novelId) 一次性拉取基础信息 + 各子模块统计 + 最近章节/大纲列表</li>
- *   <li>顶部展示小说标题/作者/简介 + 主操作按钮(继续写作 / 编辑信息 / 删除)</li>
+ *   <li>顶部展示小说标题/作者/简介 + 主操作按钮(继续写作 / 导出)</li>
  *   <li>中部展示 6 个统计卡片(章节/最新章节号/大纲版本/激活大纲/人物/设定/待审查问题)</li>
  *   <li>底部展示最近章节列表(最多 5 条)与大纲版本列表</li>
- *   <li>删除二次确认 + 调 deleteNovel,成功后跳回 /novels</li>
  * </ul>
  */
 export default function NovelOverview() {
@@ -57,11 +65,40 @@ export default function NovelOverview() {
   const { setActiveNovelId } = useNovelContext();
 
   const [loading, setLoading] = useState(true);
-  const [deleting, setDeleting] = useState(false);
   const [overview, setOverview] = useState(null);
   const [exporting, setExporting] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const exportMenuRef = useRef(null);
+  // 挂载标记:用于判断导出异步回调时本页是否仍可见,不可见则不再弹出任何提示
+  const mountedRef = useRef(true);
+
+  // 内联编辑状态(移除"编辑信息"按钮,改为标题/简介就地编辑)
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingDesc, setEditingDesc] = useState(false);
+  const [draftTitle, setDraftTitle] = useState('');
+  const [draftDesc, setDraftDesc] = useState('');
+  const [savingField, setSavingField] = useState(false);
+  const titleInputRef = useRef(null);
+  const descInputRef = useRef(null);
+  const titleMeasureRef = useRef(null);
+
+  // 标题输入框:宽度随输入内容自适应(测量节点含 padding/border),最小 120px
+  const autoSizeTitle = () => {
+    const input = titleInputRef.current;
+    const mirror = titleMeasureRef.current;
+    if (!input || !mirror) return;
+    mirror.textContent = input.value;
+    input.style.width = `${Math.max(mirror.offsetWidth, 120)}px`;
+  };
+  // 简介文本框:高度随输入内容自动撑开
+  const autoSizeDesc = () => {
+    const el = descInputRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  };
+  // 当前用户拥有的小说标题集合(内联改名时做重名校验,口径同 NovelEditor)
+  const [ownedTitles, setOwnedTitles] = useState(() => new Set());
 
   // BASE-12 AI 续写建议
   const [suggestion, setSuggestion] = useState(null);
@@ -109,14 +146,73 @@ export default function NovelOverview() {
     return () => document.removeEventListener('mousedown', onDown);
   }, [exportOpen]);
 
+  // 挂载标记:组件卸载后,导出异步回调不再弹出任何提示
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  // 加载本人拥有的小说标题,供内联改名时即时校验重名
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const list = await listNovels();
+        if (cancelled || !Array.isArray(list)) return;
+        const titles = new Set(
+          list
+            .filter((n) => !n.collaborator)
+            .map((n) => (n.title || '').trim())
+            .filter(Boolean)
+        );
+        if (!cancelled) setOwnedTitles(titles);
+      } catch {
+        /* 校验降级到后端 */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // 进入编辑态时自动聚焦并自适应尺寸
+  useEffect(() => {
+    if (editingTitle && titleInputRef.current) {
+      titleInputRef.current.focus();
+      titleInputRef.current.select();
+      autoSizeTitle();
+    }
+  }, [editingTitle]);
+  useEffect(() => {
+    if (editingDesc && descInputRef.current) {
+      descInputRef.current.focus();
+      autoSizeDesc();
+    }
+  }, [editingDesc]);
+
+  /**
+   * 导出小说:后端异步导出,本页显示转圈,下载开始即停止转圈;
+   * 离开本页后不再弹出任何提示;同一本小说 60 秒内仅允许导出一次。
+   */
   const handleExport = useCallback(
     async (format) => {
       setExportOpen(false);
+      // 防御:正在导出或冷却期内,直接拦截
       if (exporting) return;
+      const now = Date.now();
+      const last = lastExportAtByNovel.get(urlNovelId) || 0;
+      if (now - last < EXPORT_COOLDOWN_MS) {
+        if (mountedRef.current) toast.warning(t('novel.export.cooldown'));
+        return;
+      }
+      // 以本次点击时间计入冷却(无论成功失败,60 秒内不可再次触发)
+      lastExportAtByNovel.set(urlNovelId, now);
       setExporting(true);
-      toast.info(t('novel.export.started'));
       try {
         const { blob, filename } = await exportNovel(urlNovelId, format);
+        // 开始下载:创建临时链接并触发浏览器下载
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -125,11 +221,17 @@ export default function NovelOverview() {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        toast.success(`${t('novel.export.success')} · ${filename}`);
+        // 下载已触发 → 停止转圈(由 finally 置 exporting=false);仅在本页时提示完成
+        if (mountedRef.current) {
+          toast.success(`${t('novel.export.completed')} · ${filename}`);
+        }
       } catch (err) {
-        toast.error(t('novel.export.failed') + ':' + (err?.message || ''));
+        if (mountedRef.current) {
+          toast.error(t('novel.export.failed') + ':' + (err?.message || ''));
+        }
       } finally {
-        setExporting(false);
+        // 仅在本页时复位转圈状态,避免卸载后 setState 告警
+        if (mountedRef.current) setExporting(false);
       }
     },
     [t, urlNovelId, exporting]
@@ -137,10 +239,6 @@ export default function NovelOverview() {
 
   const handleContinueWriting = () => {
     navigate(`/novels/${urlNovelId}/writing`);
-  };
-
-  const handleEditInfo = () => {
-    navigate(`/novels/${urlNovelId}/edit`);
   };
 
   // BASE-12:生成 AI 续写建议
@@ -159,23 +257,83 @@ export default function NovelOverview() {
     }
   }, [suggesting, t, urlNovelId]);
 
-  const handleDelete = async () => {
-    if (!overview) return;
-    const ok = window.confirm(
-      t('novel.list.delete.confirm').replace('{{title}}', overview.title || '')
-    );
-    if (!ok) return;
-    setDeleting(true);
+  /** 内联保存:合并当前 overview 字段 + 局部补丁,调 updateNovel 并刷新本地状态。 */
+  const patchNovel = async (patch) => {
+    setSavingField(true);
     try {
-      await deleteNovel(urlNovelId);
-      toast.success(
-        t('novel.list.delete.success').replace('{{title}}', overview.title || '')
-      );
-      navigate('/novels', { replace: true });
+      const payload = {
+        title: overview.title,
+        description: overview.description ?? null,
+        sharedForReference: !!overview.sharedForReference,
+        ...patch
+      };
+      await updateNovel(urlNovelId, payload);
+      setOverview((prev) => ({ ...prev, ...patch }));
+      if (patch.title != null) writeCachedNovelTitle(urlNovelId, patch.title);
+      toast.success(t('novel.editor.edit.success'));
     } catch (err) {
-      toast.error(err.message || t('common.deleteFailed'));
+      toast.error(err.response?.data?.message || err.message || t('novel.overview.fetch.failed'));
     } finally {
-      setDeleting(false);
+      setSavingField(false);
+    }
+  };
+
+  /** 进入标题编辑:预填当前标题。 */
+  const startEditTitle = () => {
+    setDraftTitle(overview.title || '');
+    setEditingTitle(true);
+  };
+
+  /** 提交标题:空/未变/重名则取消或提示,否则保存。 */
+  const commitTitle = async () => {
+    const next = draftTitle.trim();
+    setEditingTitle(false);
+    setDraftTitle('');
+    if (!next || next === (overview.title || '').trim()) return;
+    if (ownedTitles.has(next)) {
+      toast.error(t('novel.editor.validate.title.duplicate'));
+      return;
+    }
+    await patchNovel({ title: next });
+  };
+
+  /** 进入简介编辑:预填当前简介。 */
+  const startEditDesc = () => {
+    setDraftDesc(overview.description || '');
+    setEditingDesc(true);
+  };
+
+  /** 提交简介:未变则取消,否则保存(null 表示清空)。 */
+  const commitDesc = async () => {
+    const next = draftDesc.trim();
+    setEditingDesc(false);
+    setDraftDesc('');
+    if (next === (overview.description || '').trim()) return;
+    await patchNovel({ description: next || null });
+  };
+
+  /** 切换公开/私有:仅 owner 可操作,复用 patchNovel 保存 sharedForReference 字段。 */
+  const toggleShared = () => {
+    if (!isOwner || savingField) return;
+    patchNovel({ sharedForReference: !overview.sharedForReference });
+  };
+
+  /** 标题输入框按键:Enter 提交,Esc 取消。 */
+  const onTitleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      commitTitle();
+    } else if (e.key === 'Escape') {
+      setEditingTitle(false);
+      setDraftTitle('');
+    }
+  };
+
+  /** 简介输入框按键:Esc 取消(多行,换行用默认行为)。 */
+  const onDescKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      setEditingDesc(false);
+      setDraftDesc('');
     }
   };
 
@@ -231,39 +389,6 @@ export default function NovelOverview() {
     return items;
   }, [overview, urlNovelId]);
 
-  // 快捷动作:基于当前小说状态给出最相关的 3 个动作
-  const quickActions = useMemo(() => {
-    if (!overview) return [];
-    const actions = [];
-    if ((overview.chapterCount ?? 0) === 0) {
-      actions.push({
-        key: 'gotoChapter',
-        icon: PenLine,
-        to: `/novels/${urlNovelId}/writing`
-      });
-    } else {
-      actions.push({
-        key: 'continueWriting',
-        icon: PenLine,
-        to: `/novels/${urlNovelId}/writing`,
-        labelKey: 'novel.overview.action.continueWriting'
-      });
-    }
-    actions.push({
-      key: 'gotoOutline',
-      icon: ListTree,
-      to: `/novels/${urlNovelId}/outline`,
-      labelKey: 'novel.overview.action.gotoOutline'
-    });
-    actions.push({
-      key: 'gotoCharacter',
-      icon: UserCircle2,
-      to: `/novels/${urlNovelId}/character`,
-      labelKey: 'novel.overview.action.gotoCharacter'
-    });
-    return actions;
-  }, [overview, urlNovelId]);
-
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center text-cyan-300/60">
@@ -288,19 +413,8 @@ export default function NovelOverview() {
     );
   }
 
+  // 按实际小说创作顺序展示:大纲 → 激活大纲 → 人物 → 设定 → 章节 → 最新章节 → 待审查问题
   const stats = [
-    {
-      key: 'chapters',
-      label: t('novel.overview.stat.chapters'),
-      value: overview.chapterCount ?? 0,
-      icon: BookOpen
-    },
-    {
-      key: 'latestChapter',
-      label: t('novel.overview.stat.latestChapter'),
-      value: overview.latestChapterNo ? `#${overview.latestChapterNo}` : '-',
-      icon: PenLine
-    },
     {
       key: 'outlines',
       label: t('novel.overview.stat.outlines'),
@@ -328,6 +442,18 @@ export default function NovelOverview() {
       icon: Globe
     },
     {
+      key: 'chapters',
+      label: t('novel.overview.stat.chapters'),
+      value: overview.chapterCount ?? 0,
+      icon: BookOpen
+    },
+    {
+      key: 'latestChapter',
+      label: t('novel.overview.stat.latestChapter'),
+      value: overview.latestChapterNo ? `#${overview.latestChapterNo}` : '-',
+      icon: PenLine
+    },
+    {
       key: 'issues',
       label: t('novel.overview.stat.issues'),
       value: overview.unresolvedIssueCount ?? 0,
@@ -338,6 +464,16 @@ export default function NovelOverview() {
   const recentChapters = overview.recentChapters || [];
   const outlines = overview.outlines || [];
   const timeline = overview.timeline || [];
+
+  // 当前用户是否本书 owner(BASE-11):协作者管理面板 / 编辑·删除按钮仅 owner 可见
+  const isOwner = overview?.role === 'owner';
+
+  // 内联改名时的重名校验(排除自身原标题)
+  const titleInvalid =
+    editingTitle &&
+    !!draftTitle.trim() &&
+    ownedTitles.has(draftTitle.trim()) &&
+    draftTitle.trim() !== (overview.title || '').trim();
 
   // 格式化建议生成时间
   const formatGeneratedAt = (ts) => {
@@ -354,121 +490,190 @@ export default function NovelOverview() {
       {/* 头部 */}
       <header className="border-b border-cyan-400/10 px-4 py-6 sm:px-8 sm:py-8">
         <div className="flex items-start gap-4">
-          <button
-            onClick={() => navigate('/novels')}
-            className="mt-1 rounded border border-cyan-400/30 px-2 py-1 text-cyan-300/70 transition hover:bg-cyan-400/10"
-            title={t('nav.backToNovels')}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </button>
           <div className="flex-1">
-            <div className="flex items-center gap-2 text-[10px] tracking-widest text-cyan-300/40">
-              <Compass className="h-3 w-3" />
-              {t('novel.overview.title')}
+            {/* 页面标题 + 公开/私有切换:切换按钮紧贴标题文本右侧 */}
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="sf-heading">{t('novel.overview.title')}</div>
+              {/* 公开/私有切换:仅 owner 可点击切换,非 owner 仅展示状态 */}
+              {isOwner ? (
+                <button
+                  onClick={toggleShared}
+                  disabled={savingField}
+                  className={`flex shrink-0 items-center gap-1 rounded px-2 py-0.5 text-2xs transition disabled:opacity-50 ${
+                    overview.sharedForReference
+                      ? 'bg-cyan-400/10 text-cyan-300 hover:bg-cyan-400/20'
+                      : 'bg-white/5 text-white/40 hover:bg-white/10'
+                  }`}
+                  title={
+                    overview.sharedForReference
+                      ? t('novel.overview.togglePrivate')
+                      : t('novel.overview.toggleShared')
+                  }
+                >
+                  <Globe className="h-3 w-3" />
+                  {overview.sharedForReference
+                    ? t('novel.list.card.shared')
+                    : t('novel.list.card.private')}
+                </button>
+              ) : (
+                <span
+                  className={`flex shrink-0 items-center gap-1 rounded px-2 py-0.5 text-2xs ${
+                    overview.sharedForReference ? 'bg-cyan-400/10 text-cyan-300' : 'bg-white/5 text-white/40'
+                  }`}
+                >
+                  <Globe className="h-3 w-3" />
+                  {overview.sharedForReference ? t('novel.list.card.shared') : t('novel.list.card.private')}
+                </span>
+              )}
             </div>
-            <div
-              className="mt-2 text-2xl font-bold leading-tight text-white"
-              style={{
-                fontFamily:
-                  '"Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif'
-              }}
-            >
-              {overview.title || '(未命名)'}
-            </div>
-            <div className="mt-1 text-[11px] tracking-wider text-cyan-300/40">
-              {overview.author || '—'}
-            </div>
-            {overview.description && (
-              <p className="mt-3 max-w-2xl text-[12px] leading-relaxed text-white/60">
-                {overview.description}
-              </p>
-            )}
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-[10px] tracking-wider text-white/30">
-              <span>{t('novel.list.card.createdAt')}: {formatTime(overview.createdAt)}</span>
-              <span>{t('novel.list.card.updatedAt')}: {formatTime(overview.updatedAt)}</span>
-              <span
-                className={`flex items-center gap-1 rounded px-2 py-0.5 ${
-                  overview.sharedForReference
-                    ? 'bg-cyan-400/10 text-cyan-300'
-                    : 'bg-white/5 text-white/40'
-                }`}
-              >
-                {overview.sharedForReference ? (
-                  <>
-                    <Globe className="h-3 w-3" />
-                    {t('novel.list.card.shared')}
-                  </>
-                ) : (
-                  <>
-                    <Globe className="h-3 w-3" />
-                    {t('novel.list.card.private')}
-                  </>
-                )}
-              </span>
-            </div>
-          </div>
-        </div>
 
-        {/* 主操作按钮 */}
-        <div className="mt-5 flex flex-wrap items-center gap-2">
-          <button
-            onClick={handleContinueWriting}
-            className="flex items-center gap-2 rounded border border-cyan-400/40 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-300 transition hover:bg-cyan-400/20"
-          >
-            <PenLine className="h-4 w-4" />
-            {t('novel.overview.action.continueWriting')}
-          </button>
-          <button
-            onClick={handleEditInfo}
-            className="flex items-center gap-2 rounded border border-white/20 px-4 py-2 text-sm text-white/70 transition hover:bg-white/5"
-          >
-            <Edit3 className="h-4 w-4" />
-            {t('novel.overview.action.editInfo')}
-          </button>
-          <button
-            onClick={handleDelete}
-            disabled={deleting}
-            className="flex items-center gap-2 rounded border border-red-500/30 px-4 py-2 text-sm text-red-300/80 transition hover:bg-red-500/10 disabled:opacity-50"
-          >
-            {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-            {t('novel.overview.action.delete')}
-          </button>
+            {/* 信息区:左=基础信息三行(标题/作者/简介);右=操作按钮,整体下沉贴 header 底线 */}
+            <div className="mt-2 flex items-end justify-between gap-4">
+              {/* 左:基础信息(标题 + 改名 + 公开/私有 + 作者/时间 + 简介) */}
+              <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                {/* 标题行:小说名(可内联改名) */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {editingTitle ? (
+                    <>
+                      <input
+                        ref={titleInputRef}
+                        value={draftTitle}
+                        onChange={(e) => {
+                          setDraftTitle(e.target.value);
+                          autoSizeTitle();
+                        }}
+                        onKeyDown={onTitleKeyDown}
+                        onBlur={commitTitle}
+                        maxLength={20}
+                        className={`sf-input shrink-0 !py-1 text-2xl font-bold ${
+                          titleInvalid ? 'border-red-400/60' : ''
+                        }`}
+                      />
+                      {/* 隐藏测量节点:用于标题输入框宽度自适应(含 padding/border) */}
+                      <span
+                        ref={titleMeasureRef}
+                        className="pointer-events-none invisible absolute whitespace-nowrap text-2xl font-bold"
+                        style={{ padding: '0 14px', border: '1px solid transparent', boxSizing: 'border-box' }}
+                      >
+                        {draftTitle}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="group relative inline-flex max-w-full items-center">
+                      <span
+                        className="min-w-0 truncate text-2xl font-bold leading-tight text-white"
+                        style={XINWEI_FONT}
+                      >
+                        {overview.title || '(未命名)'}
+                      </span>
+                      {isOwner && (
+                        <button
+                          onClick={startEditTitle}
+                          className="ml-1.5 inline-flex shrink-0 items-center rounded p-0.5 text-cyan-300/0 transition group-hover:text-cyan-300/50 hover:!text-cyan-300"
+                          title={t('novel.overview.action.editTitle')}
+                        >
+                          <PenLine className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </span>
+                  )}
+                </div>
 
-          {/* 导出下拉(BASE-10) */}
-          <div ref={exportMenuRef} className="relative">
-            <button
-              onClick={() => setExportOpen((v) => !v)}
-              disabled={exporting}
-              title={t('novel.export.tooltip')}
-              className="flex items-center gap-2 rounded border border-white/20 px-4 py-2 text-sm text-white/70 transition hover:bg-white/5 disabled:opacity-50"
-            >
-              {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-              {t('novel.export.action')}
-              <ChevronDown className="h-3 w-3 opacity-60" />
-            </button>
-            {exportOpen && (
-              <div className="absolute right-0 z-20 mt-1 w-52 overflow-hidden rounded border border-cyan-400/30 bg-black/95 py-1 shadow-2xl backdrop-blur">
-                {[
-                  { fmt: 'md', icon: FileText, label: t('novel.export.menu.md') },
-                  { fmt: 'txt', icon: FileType2, label: t('novel.export.menu.txt') },
-                  { fmt: 'json', icon: Braces, label: t('novel.export.menu.json') }
-                ].map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <button
-                      key={item.fmt}
-                      onClick={() => handleExport(item.fmt)}
-                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-white/70 transition hover:bg-cyan-400/10 hover:text-cyan-300"
-                    >
-                      <Icon className="h-3.5 w-3.5 shrink-0" />
-                      <span className="flex-1">{item.label}</span>
-                    </button>
-                  );
-                })}
+                {/* 更新时间:紧贴小说信息下方左对齐(作者信息已移除) */}
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-2xs tracking-wider text-white/30">
+                  <span className="whitespace-nowrap">
+                    {t('novel.list.card.updatedAt')}: {formatTime(overview.updatedAt)}
+                  </span>
+                </div>
+
+                {/* 简介:可内联编辑;笔形图标悬停时显隐于文本尾部,与文本融为一体;文本框高度随内容自适应 */}
+                <div className="group relative max-w-2xl self-start">
+                  {editingDesc ? (
+                    <textarea
+                      ref={descInputRef}
+                      value={draftDesc}
+                      onChange={(e) => {
+                        setDraftDesc(e.target.value);
+                        autoSizeDesc();
+                      }}
+                      onKeyDown={onDescKeyDown}
+                      onBlur={commitDesc}
+                      rows={3}
+                      maxLength={100}
+                      className="sf-input w-full resize-none text-xs"
+                    />
+                  ) : (
+                    <>
+                      <span
+                        onClick={isOwner ? startEditDesc : undefined}
+                        className={`inline align-middle leading-relaxed ${
+                          overview.description ? 'text-white/60' : 'text-white/30 italic'
+                        } ${isOwner ? 'cursor-pointer' : ''}`}
+                      >
+                        {overview.description || t('novel.overview.descPlaceholder')}
+                      </span>
+                      {isOwner && (
+                        <button
+                          onClick={startEditDesc}
+                          className="ml-1 inline-flex shrink-0 align-middle rounded p-0.5 text-cyan-300/0 transition group-hover:text-cyan-300/50 hover:!text-cyan-300"
+                          title={t('novel.overview.action.editDesc')}
+                        >
+                          <PenLine className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
-            )}
+
+              {/* 右:操作按钮(继续写作 + 导出),下沉贴 header 底线 */}
+              <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 pb-1">
+                <button
+                  onClick={handleContinueWriting}
+                  className="flex items-center gap-2 rounded border border-cyan-400/40 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-300 transition hover:bg-cyan-400/20"
+                >
+                  <PenLine className="h-4 w-4" />
+                  {t('novel.overview.action.continueWriting')}
+                </button>
+                {/* 导出下拉(BASE-10) */}
+                <div ref={exportMenuRef} className="relative">
+                  <button
+                    onClick={() => setExportOpen((v) => !v)}
+                    disabled={exporting}
+                    title={t('novel.export.tooltip')}
+                    className="flex items-center gap-2 rounded border border-white/20 px-4 py-2 text-sm text-white/70 transition hover:bg-white/5 disabled:opacity-50"
+                  >
+                    {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                    {t('novel.export.action')}
+                    <ChevronDown className="h-3 w-3 opacity-60" />
+                  </button>
+                  {exportOpen && (
+                    <div className="absolute right-0 z-20 mt-1 w-52 overflow-hidden rounded border border-cyan-400/30 bg-black/95 py-1 shadow-2xl backdrop-blur">
+                      {[
+                        { fmt: 'md', icon: FileText, label: t('novel.export.menu.md') },
+                        { fmt: 'txt', icon: FileType2, label: t('novel.export.menu.txt') },
+                        { fmt: 'json', icon: Braces, label: t('novel.export.menu.json') }
+                      ].map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <button
+                            key={item.fmt}
+                            onClick={() => handleExport(item.fmt)}
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-white/70 transition hover:bg-cyan-400/10 hover:text-cyan-300"
+                          >
+                            <Icon className="h-3.5 w-3.5 shrink-0" />
+                            <span className="flex-1">{item.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+
       </header>
 
       {/* 主体 */}
@@ -482,7 +687,7 @@ export default function NovelOverview() {
                 key={s.key}
                 className="rounded border border-cyan-400/15 bg-black/40 p-3 transition hover:border-cyan-300/40"
               >
-                <div className="mb-2 flex items-center gap-1 text-[10px] tracking-widest text-cyan-300/40">
+                <div className="mb-2 flex items-center gap-1 text-2xs tracking-widest text-cyan-300/40">
                   <Icon className="h-3 w-3" />
                   {s.label}
                 </div>
@@ -492,39 +697,16 @@ export default function NovelOverview() {
           })}
         </section>
 
-        {/* 快捷动作区 */}
-        <section className="rounded border border-cyan-400/15 bg-black/40 p-4">
-          <div className="mb-3 flex items-center gap-2 text-[11px] tracking-widest text-cyan-300/60">
-            <Zap className="h-3.5 w-3.5" />
-            {t('novel.overview.quickActions')}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {quickActions.map((qa) => {
-              const Icon = qa.icon;
-              return (
-                <button
-                  key={qa.key}
-                  onClick={() => navigate(qa.to)}
-                  className="flex items-center gap-2 rounded border border-cyan-400/30 bg-cyan-400/[0.04] px-3 py-2 text-[12px] tracking-wide text-cyan-300 transition hover:border-cyan-300/60 hover:bg-cyan-400/10"
-                >
-                  <Icon className="h-3.5 w-3.5" />
-                  {t(qa.labelKey)}
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
         {/* 待办看板 */}
         <section className="rounded border border-cyan-400/15 bg-black/40 p-4">
           <div className="mb-3 flex items-center justify-between border-b border-cyan-400/10 pb-2">
-            <div className="flex items-center gap-2 text-[11px] tracking-widest text-cyan-300/60">
+            <div className="flex items-center gap-2 text-xs tracking-widest text-cyan-300/60">
               <AlertTriangle className="h-3.5 w-3.5" />
               {t('novel.overview.todo.title')}
             </div>
           </div>
           {todos.length === 0 ? (
-            <div className="flex items-center gap-2 py-6 text-center text-[12px] text-emerald-300/60">
+            <div className="flex items-center gap-2 py-6 text-center text-xs text-emerald-300/60">
               <CheckCircle2 className="h-4 w-4" />
               {t('novel.overview.todo.empty')}
             </div>
@@ -543,14 +725,14 @@ export default function NovelOverview() {
                     className="flex items-start justify-between gap-3 rounded border border-amber-400/15 bg-amber-400/[0.03] p-3"
                   >
                     <div className="flex-1">
-                      <div className="text-[12px] font-medium text-amber-200/80">{title}</div>
-                      <div className="mt-0.5 text-[11px] leading-relaxed text-white/40">
+                      <div className="text-xs font-medium text-amber-200/80">{title}</div>
+                      <div className="mt-0.5 text-xs leading-relaxed text-white/40">
                         {t(descKey)}
                       </div>
                     </div>
                     <button
                       onClick={() => navigate(todo.to)}
-                      className="shrink-0 rounded border border-amber-400/30 px-2 py-1 text-[10px] tracking-wider text-amber-300 transition hover:bg-amber-400/10"
+                      className="shrink-0 rounded border border-amber-400/30 px-2 py-1 text-2xs tracking-wider text-amber-300 transition hover:bg-amber-400/10"
                     >
                       {t(actionLabelKey)} →
                     </button>
@@ -566,19 +748,19 @@ export default function NovelOverview() {
           {/* 最近章节 */}
           <section className="rounded border border-cyan-400/15 bg-black/40 p-4">
             <div className="mb-3 flex items-center justify-between border-b border-cyan-400/10 pb-2">
-              <div className="flex items-center gap-2 text-[11px] tracking-widest text-cyan-300/60">
+              <div className="flex items-center gap-2 text-xs tracking-widest text-cyan-300/60">
                 <BookOpen className="h-3.5 w-3.5" />
                 {t('novel.overview.recentChapters')}
               </div>
               <button
                 onClick={() => navigate(`/novels/${urlNovelId}/chapter`)}
-                className="text-[10px] tracking-widest text-cyan-300/60 transition hover:text-cyan-300"
+                className="text-2xs tracking-widest text-cyan-300/60 transition hover:text-cyan-300"
               >
                 {t('nav.chapter')} →
               </button>
             </div>
             {recentChapters.length === 0 ? (
-              <div className="py-6 text-center text-[12px] text-white/30">
+              <div className="py-6 text-center text-xs text-white/30">
                 {t('novel.overview.recentChapters.empty')}
               </div>
             ) : (
@@ -586,15 +768,15 @@ export default function NovelOverview() {
                 {recentChapters.map((ch) => (
                   <li
                     key={ch.id}
-                    className="flex items-center justify-between rounded px-2 py-1.5 text-[12px] transition hover:bg-cyan-400/[0.04]"
+                    className="flex items-center justify-between rounded px-2 py-1.5 text-xs transition hover:bg-cyan-400/[0.04]"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[10px] text-cyan-300/50">
+                      <span className="font-mono text-2xs text-cyan-300/50">
                         #{ch.chapterNo ?? '-'}
                       </span>
                       <span className="text-white/80">{ch.title || '(未命名)'}</span>
                     </div>
-                    <span className="text-[10px] text-white/30">
+                    <span className="text-2xs text-white/30">
                       {formatTime(ch.updatedAt || ch.createdAt)}
                     </span>
                   </li>
@@ -606,19 +788,19 @@ export default function NovelOverview() {
           {/* 大纲版本 */}
           <section className="rounded border border-cyan-400/15 bg-black/40 p-4">
             <div className="mb-3 flex items-center justify-between border-b border-cyan-400/10 pb-2">
-              <div className="flex items-center gap-2 text-[11px] tracking-widest text-cyan-300/60">
+              <div className="flex items-center gap-2 text-xs tracking-widest text-cyan-300/60">
                 <ListTree className="h-3.5 w-3.5" />
                 {t('novel.overview.tab.outline')}
               </div>
               <button
                 onClick={() => navigate(`/novels/${urlNovelId}/outline`)}
-                className="text-[10px] tracking-widest text-cyan-300/60 transition hover:text-cyan-300"
+                className="text-2xs tracking-widest text-cyan-300/60 transition hover:text-cyan-300"
               >
                 {t('nav.outline')} →
               </button>
             </div>
             {outlines.length === 0 ? (
-              <div className="py-6 text-center text-[12px] text-white/30">
+              <div className="py-6 text-center text-xs text-white/30">
                 {t('novel.overview.recentChapters.empty')}
               </div>
             ) : (
@@ -626,21 +808,21 @@ export default function NovelOverview() {
                 {outlines.map((o) => (
                   <li
                     key={o.id}
-                    className="flex items-center justify-between rounded px-2 py-1.5 text-[12px] transition hover:bg-cyan-400/[0.04]"
+                    className="flex items-center justify-between rounded px-2 py-1.5 text-xs transition hover:bg-cyan-400/[0.04]"
                   >
                     <div className="flex items-center gap-2">
                       {o.isActive ? (
-                        <span className="rounded bg-cyan-400/15 px-1.5 py-0.5 text-[9px] tracking-widest text-cyan-300">
+                        <span className="rounded bg-cyan-400/15 px-1.5 py-0.5 text-2xs tracking-widest text-cyan-300">
                           {t('novel.overview.stat.activeOutline.yes')}
                         </span>
                       ) : (
-                        <span className="font-mono text-[10px] text-white/30">v{o.version ?? '-'}</span>
+                        <span className="font-mono text-2xs text-white/30">v{o.version ?? '-'}</span>
                       )}
                       <span className="text-white/80">
                         {o.title || `#${o.id}`}
                       </span>
                     </div>
-                    <span className="text-[10px] text-white/30">
+                    <span className="text-2xs text-white/30">
                       {formatTime(o.updatedAt || o.createdAt)}
                     </span>
                   </li>
@@ -656,13 +838,13 @@ export default function NovelOverview() {
         {/* BASE-12 AI 续写建议 */}
         <section className="rounded border border-cyan-400/15 bg-black/40 p-4">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-cyan-400/10 pb-2">
-            <div className="flex items-center gap-2 text-[11px] tracking-widest text-cyan-300/60">
+            <div className="flex items-center gap-2 text-xs tracking-widest text-cyan-300/60">
               <Sparkles className="h-3.5 w-3.5" />
               {t('novel.continuation.title')}
             </div>
             <div className="flex items-center gap-2">
               {suggestion?.generatedAt && (
-                <span className="text-[10px] tracking-wider text-white/30">
+                <span className="text-2xs tracking-wider text-white/30">
                   {t('novel.continuation.generatedAt').replace(
                     '{{time}}',
                     formatGeneratedAt(suggestion.generatedAt)
@@ -672,7 +854,7 @@ export default function NovelOverview() {
               <button
                 onClick={handleSuggest}
                 disabled={suggesting}
-                className="flex items-center gap-1.5 rounded border border-cyan-400/40 bg-cyan-400/10 px-3 py-1 text-[11px] tracking-wider text-cyan-300 transition hover:bg-cyan-400/20 disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded border border-cyan-400/40 bg-cyan-400/10 px-3 py-1 text-xs tracking-wider text-cyan-300 transition hover:bg-cyan-400/20 disabled:opacity-50"
               >
                 {suggesting ? (
                   <Loader2 className="h-3 w-3 animate-spin" />
@@ -684,17 +866,17 @@ export default function NovelOverview() {
             </div>
           </div>
 
-          <p className="mb-3 text-[11px] leading-relaxed text-white/40">
+          <p className="mb-3 text-xs leading-relaxed text-white/40">
             {t('novel.continuation.subtitle')}
           </p>
 
           {!suggestion ? (
             <div className="flex flex-col items-center gap-2 py-6 text-center">
               <Sparkles className="h-6 w-6 text-cyan-300/40" />
-              <div className="text-[12px] text-cyan-300/70">
+              <div className="text-xs text-cyan-300/70">
                 {t('novel.continuation.empty.title')}
               </div>
-              <div className="max-w-md text-[11px] leading-relaxed text-white/40">
+              <div className="max-w-md text-xs leading-relaxed text-white/40">
                 {t('novel.continuation.empty.desc')}
               </div>
             </div>
@@ -702,7 +884,7 @@ export default function NovelOverview() {
             <div className="space-y-3">
               {suggestion.title && (
                 <div className="flex items-center gap-2 rounded border border-cyan-400/20 bg-cyan-400/[0.04] px-3 py-2">
-                  <span className="rounded bg-cyan-400/15 px-2 py-0.5 font-mono text-[10px] tracking-widest text-cyan-300">
+                  <span className="rounded bg-cyan-400/15 px-2 py-0.5 font-mono text-2xs tracking-widest text-cyan-300">
                     {t('novel.continuation.nextChapter').replace(
                       '{{no}}',
                       String(suggestion.nextChapterNo ?? '?')
@@ -744,11 +926,11 @@ export default function NovelOverview() {
 
               {Array.isArray(suggestion.risks) && suggestion.risks.length > 0 && (
                 <div className="rounded border border-amber-400/20 bg-amber-400/[0.04] p-3">
-                  <div className="mb-1.5 flex items-center gap-1.5 text-[11px] tracking-wider text-amber-300/80">
+                  <div className="mb-1.5 flex items-center gap-1.5 text-xs tracking-wider text-amber-300/80">
                     <ShieldAlert className="h-3.5 w-3.5" />
                     {t('novel.continuation.field.risks')}
                   </div>
-                  <ul className="ml-4 list-disc space-y-1 text-[11px] leading-relaxed text-white/60">
+                  <ul className="ml-4 list-disc space-y-1 text-xs leading-relaxed text-white/60">
                     {suggestion.risks.map((r, idx) => (
                       <li key={idx}>{r}</li>
                     ))}
@@ -774,11 +956,11 @@ function SuggestionField({ icon: Icon, label, value }) {
   const { t } = useI18n();
   return (
     <div className="rounded border border-white/10 bg-black/40 p-2.5">
-      <div className="mb-1 flex items-center gap-1.5 text-[10px] tracking-widest text-cyan-300/50">
+      <div className="mb-1 flex items-center gap-1.5 text-2xs tracking-widest text-cyan-300/50">
         <Icon className="h-3 w-3" />
         {label}
       </div>
-      <div className="text-[12px] leading-relaxed text-white/80">
+      <div className="text-xs leading-relaxed text-white/80">
         {value || t('novel.continuation.field.empty')}
       </div>
     </div>

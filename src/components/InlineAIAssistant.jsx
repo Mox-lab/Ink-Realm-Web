@@ -91,7 +91,7 @@ export default function InlineAIAssistant({ sessionId, skillId, onInsert }) {
     <div className="flex h-full flex-col rounded border border-cyan-400/15 bg-black/40">
       {/* 头部 */}
       <div className="flex items-center justify-between border-b border-cyan-400/10 px-3 py-2">
-        <div className="flex items-center gap-2 text-[11px] tracking-widest text-cyan-300/60">
+        <div className="flex items-center gap-2 text-xs tracking-widest text-cyan-300/60">
           <Sparkles className="h-3.5 w-3.5" />
           {t('chapter.inline.title')}
         </div>
@@ -115,7 +115,7 @@ export default function InlineAIAssistant({ sessionId, skillId, onInsert }) {
         {history.length === 0 && !loading && (
           <div className="flex h-full flex-col items-center justify-center gap-2 text-white/30">
             <Bot className="h-8 w-8 opacity-40" />
-            <div className="text-center text-[11px] tracking-wide">
+            <div className="text-center text-xs tracking-wide">
               {t('chapter.inline.empty')}
             </div>
             <div className="mt-2 flex flex-wrap justify-center gap-1.5">
@@ -123,7 +123,7 @@ export default function InlineAIAssistant({ sessionId, skillId, onInsert }) {
                 <button
                   key={qp.key}
                   onClick={() => handleQuick(qp.text)}
-                  className="rounded border border-cyan-400/20 bg-cyan-400/[0.04] px-2 py-1 text-[10px] tracking-wide text-cyan-300/70 transition hover:bg-cyan-400/10"
+                  className="rounded border border-cyan-400/20 bg-cyan-400/[0.04] px-2 py-1 text-2xs tracking-wide text-cyan-300/70 transition hover:bg-cyan-400/10"
                 >
                   {qp.text}
                 </button>
@@ -135,7 +135,7 @@ export default function InlineAIAssistant({ sessionId, skillId, onInsert }) {
           <MessageBubble key={i} role={m.role} text={m.text} skill={m.skill} onInsert={onInsert} t={t} />
         ))}
         {loading && (
-          <div className="flex items-center gap-2 px-2 py-1.5 text-[11px] text-cyan-300/60">
+          <div className="flex items-center gap-2 px-2 py-1.5 text-xs text-cyan-300/60">
             <Loader2 className="h-3 w-3 animate-spin" />
             {t('chapter.inline.thinking')}
           </div>
@@ -154,13 +154,13 @@ export default function InlineAIAssistant({ sessionId, skillId, onInsert }) {
           className="sf-input w-full resize-none text-xs"
         />
         <div className="mt-1.5 flex items-center justify-between">
-          <span className="text-[10px] tracking-widest text-white/30">
+          <span className="text-2xs tracking-widest text-white/30">
             {skillId ? `· ${skillId}` : t('chapter.skillAuto')}
           </span>
           <button
             onClick={send}
             disabled={loading || !input.trim()}
-            className="sf-btn !py-1.5 text-[11px]"
+            className="sf-btn !py-1.5 text-xs"
           >
             {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />}
             {t('common.send')}
@@ -178,7 +178,7 @@ function MessageBubble({ role, text, skill, onInsert, t }) {
         <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded border border-cyan-400/20 bg-cyan-400/10 text-cyan-300">
           <User className="h-3 w-3" />
         </div>
-        <div className="flex-1 rounded border border-cyan-400/10 bg-cyan-400/[0.04] px-2.5 py-1.5 text-[12px] leading-relaxed text-white/80">
+        <div className="flex-1 rounded border border-cyan-400/10 bg-cyan-400/[0.04] px-2.5 py-1.5 text-xs leading-relaxed text-white/80">
           {text}
         </div>
       </div>
@@ -190,15 +190,15 @@ function MessageBubble({ role, text, skill, onInsert, t }) {
         <Bot className="h-3 w-3" />
       </div>
       <div className="flex-1 space-y-1.5">
-        <pre className="whitespace-pre-wrap rounded border border-emerald-400/10 bg-emerald-400/[0.04] px-2.5 py-1.5 font-sans text-[12px] leading-relaxed text-white/85">
+        <pre className="whitespace-pre-wrap rounded border border-emerald-400/10 bg-emerald-400/[0.04] px-2.5 py-1.5 font-sans text-xs leading-relaxed text-white/85">
           {text}
         </pre>
         <div className="flex items-center justify-between">
-          {skill && <span className="font-mono text-[10px] text-emerald-300/60">{skill}</span>}
+          {skill && <span className="font-mono text-2xs text-emerald-300/60">{skill}</span>}
           {onInsert && (
             <button
               onClick={() => onInsert(text)}
-              className="ml-auto flex items-center gap-1 rounded border border-cyan-400/30 bg-cyan-400/[0.06] px-2 py-0.5 text-[10px] tracking-widest text-cyan-300 transition hover:bg-cyan-400/20"
+              className="ml-auto flex items-center gap-1 rounded border border-cyan-400/30 bg-cyan-400/[0.06] px-2 py-0.5 text-2xs tracking-widest text-cyan-300 transition hover:bg-cyan-400/20"
               title={t('chapter.inline.insertHint')}
             >
               <PenLine className="h-3 w-3" />

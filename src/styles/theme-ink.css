@@ -66,9 +66,9 @@
   --sf-grid-opacity: 0;
   --sf-scan-opacity: 0;
 
-  /* 字体:英文 Arial,中文华为新魏(全站统一) */
-  --sf-font-base: "Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif;
-  --sf-font-title: "Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif;
+  /* 字体:引用令牌中心(tokens.css);如需本主题专属字体,直接改这两行即可 */
+  --sf-font-base: var(--app-font-sans);
+  --sf-font-title: var(--app-font-title);
 }
 
 /* ================ 背景效果:多层淡墨晕染(宣纸,无彩色) ================ */

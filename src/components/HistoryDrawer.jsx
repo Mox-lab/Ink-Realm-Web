@@ -60,7 +60,7 @@ export default function HistoryDrawer({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 {it.active ? (
-                  <span className="rounded border border-cyan-300/40 bg-cyan-300/10 px-1.5 py-0.5 text-[9px] tracking-widest text-cyan-300">
+                  <span className="rounded border border-cyan-300/40 bg-cyan-300/10 px-1.5 py-0.5 text-2xs tracking-widest text-cyan-300">
                     ACTIVE
                   </span>
                 ) : null}
@@ -74,7 +74,7 @@ export default function HistoryDrawer({
               {renderMeta ? (
                 renderMeta(it)
               ) : (
-                <div className="mt-1 font-mono text-[10px] tracking-widest text-cyan-300/40">
+                <div className="mt-1 font-mono text-2xs tracking-widest text-cyan-300/40">
                   {it.meta}
                 </div>
               )}
@@ -90,7 +90,7 @@ export default function HistoryDrawer({
                   e.stopPropagation();
                   onDelete(it);
                 }}
-                className="font-mono text-[10px] tracking-widest text-rose-300/60 hover:text-rose-300"
+                className="font-mono text-2xs tracking-widest text-rose-300/60 hover:text-rose-300"
               >
                 {t('common.delete').toUpperCase()}
               </button>

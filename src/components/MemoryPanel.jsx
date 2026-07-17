@@ -44,7 +44,7 @@ export default function MemoryPanel() {
         </button>
       </div>
 
-      <div className="mb-2 text-[11px] tracking-wide text-white/40">
+      <div className="mb-2 text-xs tracking-wide text-white/40">
         {t('memory.hint').replace('{n}', characters.length)}
       </div>
 
@@ -52,7 +52,7 @@ export default function MemoryPanel() {
         <div className="py-8 text-center text-white/30">
           <Users className="mx-auto mb-2 h-8 w-8 opacity-40" />
           <div className="text-xs tracking-wide text-white/40">{t('common.empty')}</div>
-          <div className="mt-1 text-[11px]">{t('memory.empty')}</div>
+          <div className="mt-1 text-xs">{t('memory.empty')}</div>
         </div>
       ) : (
         <div className="max-h-80 overflow-y-auto pr-1">
@@ -64,35 +64,35 @@ export default function MemoryPanel() {
               <div className="mb-1 flex items-center gap-2">
                 <span className="font-bold text-cyan-300">{c.name}</span>
                 {c.gender ? (
-                  <span className="rounded bg-cyan-400/10 px-1.5 py-0.5 text-[10px] text-cyan-300/70">
+                  <span className="rounded bg-cyan-400/10 px-1.5 py-0.5 text-2xs text-cyan-300/70">
                     {c.gender}
                   </span>
                 ) : null}
                 {c.age ? (
-                  <span className="rounded bg-cyan-400/10 px-1.5 py-0.5 text-[10px] text-cyan-300/70">
+                  <span className="rounded bg-cyan-400/10 px-1.5 py-0.5 text-2xs text-cyan-300/70">
                     {c.age}
                   </span>
                 ) : null}
                 {c.identity ? (
-                  <span className="rounded bg-amber-400/10 px-1.5 py-0.5 text-[10px] text-amber-300/70">
+                  <span className="rounded bg-amber-400/10 px-1.5 py-0.5 text-2xs text-amber-300/70">
                     {c.identity}
                   </span>
                 ) : null}
               </div>
               {c.personality ? (
-                <div className="mb-0.5 text-[11px] text-white/70">
+                <div className="mb-0.5 text-xs text-white/70">
                   <span className="text-white/40">{t('memory.personality')}:</span>
                   {c.personality}
                 </div>
               ) : null}
               {c.weapon ? (
-                <div className="mb-0.5 text-[11px] text-white/70">
+                <div className="mb-0.5 text-xs text-white/70">
                   <span className="text-white/40">{t('memory.weapon')}:</span>
                   {c.weapon}
                 </div>
               ) : null}
               {c.background ? (
-                <div className="text-[11px] text-white/60">
+                <div className="text-xs text-white/60">
                   <span className="text-white/40">{t('memory.background')}:</span>
                   {c.background}
                 </div>

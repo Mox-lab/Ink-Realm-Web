@@ -69,7 +69,7 @@ export default function ThemeSwitcher({ variant = 'dropdown', className = '', si
             <button
               key={item.id}
               onClick={() => setTheme(item.id)}
-              className={`flex items-center gap-1.5 rounded px-2.5 py-1.5 font-mono text-[10px] tracking-widest transition ${
+              className={`flex items-center gap-1.5 rounded px-2.5 py-1.5 font-mono text-2xs tracking-widest transition ${
                 active ? 'font-bold' : 'opacity-50 hover:opacity-80'
               }`}
               style={{
@@ -94,7 +94,7 @@ export default function ThemeSwitcher({ variant = 'dropdown', className = '', si
     <div ref={dropdownRef} className={`relative ${className}`}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 rounded border px-2.5 py-1.5 font-mono text-[10px] tracking-widest transition"
+        className="flex items-center gap-1.5 rounded border px-2.5 py-1.5 font-mono text-2xs tracking-widest transition"
         style={{
           borderColor: open ? 'var(--sf-border-strong)' : 'var(--sf-border)',
           color: 'var(--sf-accent)',

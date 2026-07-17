@@ -13,6 +13,7 @@
  */
 
 @import "tailwindcss";
+@import "./tokens.css";
 @import "./base.css";
 @import "./components.css";
 @import "./theme-scifi.css";
@@ -32,4 +33,25 @@
   --color-cyan-700: var(--sf-accent);
   --color-white: var(--sf-text);
   --color-black: var(--sf-bg);
+
+  /* ================================================================
+   * 字号阶梯(集中管理,改此处即全局生效)
+   * 用 rem 定义,会随 base.css 中 html 根字号等比缩放。
+   * 业务统一使用 text-2xs / text-xs / text-sm / ... 语义类,
+   * 不再写 text-[13px] 之类硬编码;特例可用任意值局部覆盖。
+   * 换算基于 16px 根字号,桌面端根字号 17px 会整体再放大 ~6%。
+   * ================================================================ */
+  --text-2xs: 0.6875rem;          /* ≈11px:角标 / 次要标签 / 元信息 */
+  --text-2xs--line-height: 1.5;
+  --text-xs: 0.75rem;             /* ≈12px:说明文字 / 卡片正文 */
+  --text-xs--line-height: 1.5;
+  --text-sm: 0.875rem;            /* ≈14px:正文 / 输入框 */
+  --text-sm--line-height: 1.5;
+  --text-base: 1rem;              /* ≈16px:强调正文 */
+  --text-lg: 1.125rem;            /* ≈18px:小标题 */
+  --text-xl: 1.25rem;             /* ≈20px:标题 */
+  --text-2xl: 1.5rem;             /* ≈24px:大标题 */
+
+  /* 字体族 → 与令牌中心同源,使 Tailwind font-sans 类保持一致 */
+  --font-sans: var(--app-font-sans);
 }

@@ -82,7 +82,7 @@ function FlowNode({ node, active, onClick, onJumpToChapter }) {
             </div>
             <span className="sf-chip">CHAPTER</span>
           </div>
-          <span className="font-mono text-[10px] text-white/30">
+          <span className="font-mono text-2xs text-white/30">
             {String(node.index + 1).padStart(3, '0')}
           </span>
         </div>
@@ -94,7 +94,7 @@ function FlowNode({ node, active, onClick, onJumpToChapter }) {
         </div>
       </div>
 
-      <div className="mt-3 flex items-center justify-between border-t border-cyan-400/10 pt-2 text-[10px] tracking-widest text-cyan-300/40">
+      <div className="mt-3 flex items-center justify-between border-t border-cyan-400/10 pt-2 text-2xs tracking-widest text-cyan-300/40">
         <span
           role="button"
           tabIndex={0}
@@ -423,12 +423,12 @@ export default function Outline() {
       <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="sf-heading">{t('outline.heading')}</div>
-          <p className="mt-2 pl-4 text-[12px] tracking-wide text-cyan-300/50">
+          <p className="mt-2 pl-4 text-xs tracking-wide text-cyan-300/50">
             {t('outline.subheading')}
           </p>
         </div>
         {nodes.length > 0 && (
-          <div className="flex items-center gap-2 text-[10px] tracking-wider text-cyan-300/60 sm:gap-3 sm:text-xs">
+          <div className="flex items-center gap-2 text-2xs tracking-wider text-cyan-300/60 sm:gap-3 sm:text-xs">
             <span className="sf-dot" />
             <span>{t('outline.nodeCount').replace('{n}', String(nodes.length).padStart(2, '0'))}</span>
           </div>
@@ -449,7 +449,7 @@ export default function Outline() {
         <div className="sf-panel-hud mb-6 p-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_140px_auto]">
             <div>
-              <label className="mb-1 block text-[10px] tracking-widest text-cyan-300/60">{t('outline.theme')}</label>
+              <label className="mb-1 block text-2xs tracking-widest text-cyan-300/60">{t('outline.theme')}</label>
               <input
                 value={theme}
                 onChange={(e) => setTheme(e.target.value)}
@@ -458,7 +458,7 @@ export default function Outline() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-[10px] tracking-widest text-cyan-300/60">{t('outline.chapters')}</label>
+              <label className="mb-1 block text-2xs tracking-widest text-cyan-300/60">{t('outline.chapters')}</label>
               <input
                 type="number"
                 min={5}
@@ -498,7 +498,7 @@ export default function Outline() {
               </button>
             )}
             {/* UX-05 自动保存状态指示 */}
-            <span className="ml-auto inline-flex items-center gap-1 text-[10px] tracking-widest text-cyan-300/40">
+            <span className="ml-auto inline-flex items-center gap-1 text-2xs tracking-widest text-cyan-300/40">
               {autoSave.status === 'pending' && (
                 <>
                   <span className="sf-dot" />
@@ -533,7 +533,7 @@ export default function Outline() {
                   {continueMode ? t('outline.continuingFlow') : t('outline.generatingFlow')}
                 </span>
               </div>
-              <span className="font-mono text-[10px] tracking-widest text-cyan-300/60">
+              <span className="font-mono text-2xs tracking-widest text-cyan-300/60">
                 <span className="sf-dot" /> RUNNING
               </span>
             </div>
@@ -542,7 +542,7 @@ export default function Outline() {
               <div className="font-mono text-xs tracking-widest">
                 {continueMode ? 'CONTINUING OUTLINE FLOW...' : 'GENERATING OUTLINE FLOW...'}
               </div>
-              <div className="mt-2 font-mono text-[10px] tracking-widest text-cyan-300/40">
+              <div className="mt-2 font-mono text-2xs tracking-widest text-cyan-300/40">
                 {t('outline.theme').toUpperCase()}: {theme || '(空)'} · {t('outline.chapters').toUpperCase()}: {chapters}
               </div>
             </div>
@@ -602,7 +602,7 @@ export default function Outline() {
                     </div>
                     <button
                       onClick={() => handleJumpToChapter(activeNode)}
-                      className="flex items-center gap-1.5 rounded border border-cyan-400/40 bg-cyan-400/10 px-3 py-1 text-[11px] tracking-widest text-cyan-300 transition hover:bg-cyan-400/20"
+                      className="flex items-center gap-1.5 rounded border border-cyan-400/40 bg-cyan-400/10 px-3 py-1 text-xs tracking-widest text-cyan-300 transition hover:bg-cyan-400/20"
                       title={t('outline.jumpToChapter')}
                     >
                       <PenLine className="h-3 w-3" />
@@ -659,14 +659,14 @@ export default function Outline() {
         onDelete={handleDeleteHistory}
         renderMeta={(it) => (
           <div className="mt-1 flex items-center justify-between gap-2">
-            <div className="font-mono text-[10px] tracking-widest text-cyan-300/40">{it.meta}</div>
+            <div className="font-mono text-2xs tracking-widest text-cyan-300/40">{it.meta}</div>
             {!it.active && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleActivateHistory(it);
                 }}
-                className="font-mono text-[10px] tracking-widest text-amber-300/60 hover:text-amber-300"
+                className="font-mono text-2xs tracking-widest text-amber-300/60 hover:text-amber-300"
               >
                 {t('outline.activate').toUpperCase()}
               </button>

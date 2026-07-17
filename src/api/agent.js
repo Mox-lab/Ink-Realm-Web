@@ -1,7 +1,7 @@
 import api from './client.js';
 
 /**
- * 单轮对话 (/api/chat)
+ * 对话 (/api/chat)
  */
 export async function chat(message) {
   const { data } = await api.post('/chat', { message });

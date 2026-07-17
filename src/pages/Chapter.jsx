@@ -519,9 +519,9 @@ export default function Chapter() {
   // 三栏布局:左栏大纲节点 / 中栏正文 / 右栏 AI 助手
   // 小屏(< lg)自动退化为单栏,通过 toggle 在三栏和经典模式间切换
   const renderOutlinePane = () => (
-    <aside className="flex h-full w-full flex-col rounded border border-cyan-400/15 bg-black/40 lg:w-72">
+    <aside className="flex w-full min-h-0 flex-col rounded border border-cyan-400/15 bg-black/40 lg:w-72">
       <div className="flex items-center justify-between border-b border-cyan-400/10 px-3 py-2">
-        <div className="flex items-center gap-2 text-[11px] tracking-widest text-cyan-300/60">
+        <div className="flex items-center gap-2 text-xs tracking-widest text-cyan-300/60">
           <BookOpen className="h-3.5 w-3.5" />
           {t('chapter.threeCol.outline')}
         </div>
@@ -533,7 +533,7 @@ export default function Chapter() {
           <PanelLeftClose className="h-3.5 w-3.5" />
         </button>
       </div>
-      <div className="border-b border-cyan-400/10 px-3 py-1.5 text-[10px] tracking-widest text-white/30">
+      <div className="border-b border-cyan-400/10 px-3 py-1.5 text-2xs tracking-widest text-white/30">
         {t('chapter.threeCol.outline.hint')}
       </div>
       <div className="flex-1 overflow-y-auto px-2 py-2">
@@ -543,7 +543,7 @@ export default function Chapter() {
             {t('common.loading')}
           </div>
         ) : outlineNodes.length === 0 ? (
-          <div className="py-8 text-center text-[11px] tracking-wide text-white/30">
+          <div className="py-8 text-center text-xs tracking-wide text-white/30">
             {t('chapter.threeCol.outline.empty')}
           </div>
         ) : (
@@ -559,15 +559,15 @@ export default function Chapter() {
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded border border-cyan-300/40 bg-cyan-300/10 font-mono text-[10px] text-cyan-300">
+                  <span className="flex h-5 w-5 items-center justify-center rounded border border-cyan-300/40 bg-cyan-300/10 font-mono text-2xs text-cyan-300">
                     {String(node.no).padStart(2, '0')}
                   </span>
-                  <span className="line-clamp-1 flex-1 text-[12px] text-white/85">
+                  <span className="line-clamp-1 flex-1 text-xs text-white/85">
                     {node.title || '(未命名)'}
                   </span>
                 </div>
                 {node.summary && (
-                  <div className="mt-1 line-clamp-2 text-[10px] leading-relaxed text-white/40">
+                  <div className="mt-1 line-clamp-2 text-2xs leading-relaxed text-white/40">
                     {node.summary}
                   </div>
                 )}
@@ -613,7 +613,7 @@ export default function Chapter() {
   );
 
   const renderAIPane = () => (
-    <aside className="flex h-full w-full flex-col lg:w-80">
+    <aside className="flex w-full min-h-0 flex-col lg:w-80">
       <div className="mb-1 flex items-center justify-end px-1 lg:hidden">
         <button
           onClick={() => setShowAIPane(false)}
@@ -633,7 +633,7 @@ export default function Chapter() {
           <button
             key={tab.key}
             onClick={() => setRightTab(tab.key)}
-            className={`-mb-px border-b-2 px-2 py-1.5 text-[10px] tracking-widest transition ${
+            className={`-mb-px border-b-2 px-2 py-1.5 text-2xs tracking-widest transition ${
               rightTab === tab.key
                 ? 'border-cyan-300 text-cyan-300'
                 : 'border-transparent text-white/40 hover:text-cyan-300/70'
@@ -664,15 +664,15 @@ export default function Chapter() {
       <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="sf-heading">{t('chapter.heading')}</div>
-          <p className="mt-2 pl-4 text-[12px] tracking-wide text-cyan-300/50">
+          <p className="mt-2 pl-4 text-xs tracking-wide text-cyan-300/50">
             {t('chapter.subheading')}
           </p>
         </div>
-        <div className="flex items-center gap-2 text-[10px] tracking-wider text-cyan-300/60 sm:gap-3 sm:text-xs">
+        <div className="flex items-center gap-2 text-2xs tracking-wider text-cyan-300/60 sm:gap-3 sm:text-xs">
           {/* 三栏 / 经典模式切换 */}
           <button
             onClick={() => setThreeCol((v) => !v)}
-            className="flex items-center gap-1.5 rounded border border-cyan-400/30 bg-cyan-400/[0.04] px-2 py-1 text-[10px] tracking-widest text-cyan-300/80 transition hover:bg-cyan-400/10"
+            className="flex items-center gap-1.5 rounded border border-cyan-400/30 bg-cyan-400/[0.04] px-2 py-1 text-2xs tracking-widest text-cyan-300/80 transition hover:bg-cyan-400/10"
             title={threeCol ? t('chapter.threeCol.toggleClassic') : t('chapter.threeCol.toggleThree')}
           >
             {threeCol ? <AlignJustify className="h-3 w-3" /> : <Columns2 className="h-3 w-3" />}
@@ -682,14 +682,14 @@ export default function Chapter() {
             <>
               <button
                 onClick={() => setShowOutlinePane((v) => !v)}
-                className="flex items-center gap-1 rounded border border-cyan-400/20 px-2 py-1 text-[10px] tracking-widest text-cyan-300/60 transition hover:bg-cyan-400/10"
+                className="flex items-center gap-1 rounded border border-cyan-400/20 px-2 py-1 text-2xs tracking-widest text-cyan-300/60 transition hover:bg-cyan-400/10"
                 title={showOutlinePane ? t('chapter.threeCol.collapseOutline') : t('chapter.threeCol.expandOutline')}
               >
                 {showOutlinePane ? <PanelLeftClose className="h-3 w-3" /> : <PanelLeftOpen className="h-3 w-3" />}
               </button>
               <button
                 onClick={() => setShowAIPane((v) => !v)}
-                className="flex items-center gap-1 rounded border border-cyan-400/20 px-2 py-1 text-[10px] tracking-widest text-cyan-300/60 transition hover:bg-cyan-400/10"
+                className="flex items-center gap-1 rounded border border-cyan-400/20 px-2 py-1 text-2xs tracking-widest text-cyan-300/60 transition hover:bg-cyan-400/10"
                 title={showAIPane ? t('chapter.threeCol.collapseAI') : t('chapter.threeCol.expandAI')}
               >
                 {showAIPane ? <PanelRightClose className="h-3 w-3" /> : <PanelRightOpen className="h-3 w-3" />}
@@ -714,7 +714,7 @@ export default function Chapter() {
         <div className="sf-panel-hud mb-4 p-4">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-[120px_200px_1fr]">
             <div>
-              <label className="mb-1 block text-[10px] tracking-widest text-cyan-300/60">{t('chapter.chapterNo')}</label>
+              <label className="mb-1 block text-2xs tracking-widest text-cyan-300/60">{t('chapter.chapterNo')}</label>
               <input
                 type="number"
                 min={1}
@@ -724,7 +724,7 @@ export default function Chapter() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-[10px] tracking-widest text-cyan-300/60">{t('chapter.session')}</label>
+              <label className="mb-1 block text-2xs tracking-widest text-cyan-300/60">{t('chapter.session')}</label>
               <input
                 value={sessionId}
                 onChange={(e) => setSessionId(e.target.value)}
@@ -733,7 +733,7 @@ export default function Chapter() {
               />
             </div>
             <div className="col-span-2 sm:col-span-1">
-              <div className="mb-1 flex items-center justify-between text-[10px] tracking-widest text-cyan-300/60">
+              <div className="mb-1 flex items-center justify-between text-2xs tracking-widest text-cyan-300/60">
                 <span>{t('chapter.targetWords')}</span>
                 <span className="text-cyan-300">{wordCount}</span>
               </div>
@@ -761,7 +761,7 @@ export default function Chapter() {
 
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-[1fr_auto_auto]">
             <div>
-              <label className="mb-1 block text-[10px] tracking-widest text-cyan-300/60">{t('chapter.title')}</label>
+              <label className="mb-1 block text-2xs tracking-widest text-cyan-300/60">{t('chapter.title')}</label>
               <input
                 value={chapterTitle}
                 onChange={(e) => setChapterTitle(e.target.value)}
@@ -770,7 +770,7 @@ export default function Chapter() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-[10px] tracking-widest text-cyan-300/60">{t('chapter.skill')}</label>
+              <label className="mb-1 block text-2xs tracking-widest text-cyan-300/60">{t('chapter.skill')}</label>
               <select
                 value={skillId}
                 onChange={(e) => setSkillId(e.target.value)}
@@ -792,7 +792,7 @@ export default function Chapter() {
           </div>
 
           {previewedSkill && !skillId && (
-            <div className="mt-2 flex items-center gap-2 border-t border-cyan-400/10 pt-2 font-mono text-[10px] tracking-widest text-cyan-300/60">
+            <div className="mt-2 flex items-center gap-2 border-t border-cyan-400/10 pt-2 font-mono text-2xs tracking-widest text-cyan-300/60">
               <span className="sf-dot" />
               {t('chapter.autoMatch')}{' '}
               <span className="text-cyan-300">{previewedSkill.name}</span>
@@ -804,12 +804,12 @@ export default function Chapter() {
         <div className="sf-panel-hud mb-4 p-4">
           <div className="mb-2 flex items-center justify-between">
             <span className="sf-chip">{t('chapter.outline')}</span>
-            <span className="font-mono text-[10px] tracking-widest text-white/30">
+            <span className="font-mono text-2xs tracking-widest text-white/30">
               {t('chapter.outlineChars').replace('{n}', String(outlineText.length))}
             </span>
           </div>
           {showPrefillBanner && (
-            <div className="mb-2 flex items-center gap-2 rounded border border-cyan-400/20 bg-cyan-400/[0.04] px-2 py-1.5 text-[10px] tracking-widest text-cyan-300/70">
+            <div className="mb-2 flex items-center gap-2 rounded border border-cyan-400/20 bg-cyan-400/[0.04] px-2 py-1.5 text-2xs tracking-widest text-cyan-300/70">
               <Info className="h-3 w-3" />
               {t('outline.prefilledFromOutline')}
             </div>
@@ -824,11 +824,11 @@ export default function Chapter() {
         </div>
 
         <div className="mb-6 flex flex-wrap items-center justify-between gap-2 border-t border-cyan-400/10 pt-3">
-          <div className="flex items-center gap-2 text-[11px] tracking-wide text-cyan-300/60">
+          <div className="flex items-center gap-2 text-xs tracking-wide text-cyan-300/60">
             <span className="sf-dot" />
             {t('chapter.outlineChars').replace('{n}', String(outlineText.length))}
             {/* UX-05 自动保存状态指示 */}
-            <span className="ml-2 inline-flex items-center gap-1 text-[10px] tracking-widest text-cyan-300/40">
+            <span className="ml-2 inline-flex items-center gap-1 text-2xs tracking-widest text-cyan-300/40">
               {autoSave.status === 'pending' && (
                 <>
                   <span className="sf-dot" />
@@ -882,7 +882,7 @@ export default function Chapter() {
 
         {threeCol ? (
           // 三栏布局:左大纲节点 + 中正文 + 右 AI 助手
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-stretch">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-stretch lg:min-h-0">
             {showOutlinePane && renderOutlinePane()}
             {hasContent ? (
               renderEditorPane()
@@ -891,7 +891,7 @@ export default function Chapter() {
                 <div>
                   <FileText className="mx-auto mb-3 h-12 w-12 opacity-40" />
                   <div className="text-xs tracking-wide text-white/40">{t('chapter.willRender')}</div>
-                  <div className="mt-1 text-[10px] text-white/30">{t('chapter.willRenderHint')}</div>
+                  <div className="mt-1 text-2xs text-white/30">{t('chapter.willRenderHint')}</div>
                 </div>
               </div>
             )}
@@ -933,7 +933,7 @@ export default function Chapter() {
               <div className="sf-panel rounded border border-dashed border-cyan-400/10 py-20 text-center text-white/30">
                 <FileText className="mx-auto mb-3 h-12 w-12 opacity-40" />
                 <div className="text-xs tracking-wide text-white/40">{t('chapter.willRender')}</div>
-                <div className="mt-1 text-[10px] text-white/30">{t('chapter.willRenderHint')}</div>
+                <div className="mt-1 text-2xs text-white/30">{t('chapter.willRenderHint')}</div>
               </div>
             )
           )

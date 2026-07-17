@@ -43,14 +43,14 @@ export default function TaskPanel() {
     <div className="fixed bottom-4 right-4 z-50 w-80 max-w-[calc(100vw-2rem)] rounded border border-cyan-400/20 bg-black/80 shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-md">
       {/* 头部 */}
       <div className="flex items-center justify-between border-b border-cyan-400/10 px-3 py-2">
-        <div className="flex items-center gap-2 text-[11px] tracking-widest text-cyan-300/80">
+        <div className="flex items-center gap-2 text-xs tracking-widest text-cyan-300/80">
           {runningCount > 0 ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
           ) : (
             <AlertCircle className="h-3.5 w-3.5 text-amber-300" />
           )}
           {t('task.panelTitle')}
-          <span className="font-mono text-[10px] text-white/40">
+          <span className="font-mono text-2xs text-white/40">
             {runningCount > 0 && ` · ${runningCount} ${t('task.running')}`}
             {failedCount > 0 && ` · ${failedCount} ${t('task.failed')}`}
           </span>
@@ -90,7 +90,7 @@ function TaskCard({ task, onCancel, onRetry, onClear, t }) {
       <div className="flex items-start gap-2">
         <div className="mt-0.5">{statusIcon}</div>
         <div className="min-w-0 flex-1">
-          <div className="line-clamp-1 text-[11px] text-white/85">{task.title}</div>
+          <div className="line-clamp-1 text-xs text-white/85">{task.title}</div>
           {task.status === 'running' && (
             <>
               <div className="mt-1 h-1 overflow-hidden rounded bg-white/10">
@@ -99,17 +99,17 @@ function TaskCard({ task, onCancel, onRetry, onClear, t }) {
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <div className="mt-0.5 flex justify-between font-mono text-[9px] text-white/40">
+              <div className="mt-0.5 flex justify-between font-mono text-2xs text-white/40">
                 <span>{t('task.running')}</span>
                 <span>{pct}%</span>
               </div>
             </>
           )}
           {task.status === 'failed' && (
-            <div className="mt-0.5 line-clamp-2 text-[10px] text-rose-300/80">{task.error}</div>
+            <div className="mt-0.5 line-clamp-2 text-2xs text-rose-300/80">{task.error}</div>
           )}
           {task.status === 'done' && (
-            <div className="mt-0.5 font-mono text-[10px] text-emerald-300/70">{t('task.done')}</div>
+            <div className="mt-0.5 font-mono text-2xs text-emerald-300/70">{t('task.done')}</div>
           )}
         </div>
       </div>
@@ -118,7 +118,7 @@ function TaskCard({ task, onCancel, onRetry, onClear, t }) {
         {task.status === 'running' && (
           <button
             onClick={() => onCancel(task.id)}
-            className="rounded px-1.5 py-0.5 text-[10px] tracking-widest text-white/40 transition hover:bg-white/5 hover:text-rose-300"
+            className="rounded px-1.5 py-0.5 text-2xs tracking-widest text-white/40 transition hover:bg-white/5 hover:text-rose-300"
           >
             {t('task.cancel')}
           </button>
@@ -126,7 +126,7 @@ function TaskCard({ task, onCancel, onRetry, onClear, t }) {
         {task.status === 'failed' && (
           <button
             onClick={() => onRetry(task.id)}
-            className="flex items-center gap-1 rounded border border-cyan-400/30 bg-cyan-400/10 px-1.5 py-0.5 text-[10px] tracking-widest text-cyan-300 transition hover:bg-cyan-400/20"
+            className="flex items-center gap-1 rounded border border-cyan-400/30 bg-cyan-400/10 px-1.5 py-0.5 text-2xs tracking-widest text-cyan-300 transition hover:bg-cyan-400/20"
           >
             <RotateCcw className="h-3 w-3" />
             {t('task.retry')}
@@ -135,7 +135,7 @@ function TaskCard({ task, onCancel, onRetry, onClear, t }) {
         {(task.status === 'done' || task.status === 'failed') && (
           <button
             onClick={() => onClear(task.id)}
-            className="rounded px-1.5 py-0.5 text-[10px] tracking-widest text-white/40 transition hover:bg-white/5 hover:text-white/80"
+            className="rounded px-1.5 py-0.5 text-2xs tracking-widest text-white/40 transition hover:bg-white/5 hover:text-white/80"
           >
             {t('task.dismiss')}
           </button>

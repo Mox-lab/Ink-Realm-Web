@@ -44,7 +44,7 @@ export default function SettingPanel() {
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-cyan-400/10 px-3 py-2">
-        <div className="mb-1.5 flex items-center gap-1.5 text-[11px] tracking-widest text-cyan-300/60">
+        <div className="mb-1.5 flex items-center gap-1.5 text-xs tracking-widest text-cyan-300/60">
           <Globe className="h-3.5 w-3.5" />
           {t('chapter.sidePane.tab.setting')}
         </div>
@@ -54,7 +54,7 @@ export default function SettingPanel() {
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             placeholder={t('chapter.sidePane.setting.searchPlaceholder')}
-            className="w-full rounded border border-cyan-400/15 bg-black/40 py-1.5 pl-7 pr-2 text-[12px] text-white/85 placeholder:text-white/30 focus:border-cyan-300/50 focus:outline-none"
+            className="w-full rounded border border-cyan-400/15 bg-black/40 py-1.5 pl-7 pr-2 text-xs text-white/85 placeholder:text-white/30 focus:border-cyan-300/50 focus:outline-none"
           />
         </div>
       </div>
@@ -66,7 +66,7 @@ export default function SettingPanel() {
             {t('common.loading')}
           </div>
         ) : isEmpty ? (
-          <div className="py-8 text-center text-[11px] tracking-wide text-white/30">
+          <div className="py-8 text-center text-xs tracking-wide text-white/30">
             {t('chapter.sidePane.setting.empty')}
           </div>
         ) : (
@@ -79,11 +79,11 @@ export default function SettingPanel() {
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5">
                     {s.category && (
-                      <span className="rounded border border-cyan-300/30 bg-cyan-300/10 px-1.5 py-0.5 text-[9px] tracking-widest text-cyan-300/80">
+                      <span className="rounded border border-cyan-300/30 bg-cyan-300/10 px-1.5 py-0.5 text-2xs tracking-widest text-cyan-300/80">
                         {s.category}
                       </span>
                     )}
-                    <span className="text-[12px] font-medium text-cyan-200">{s.keyword}</span>
+                    <span className="text-xs font-medium text-cyan-200">{s.keyword}</span>
                   </div>
                   <button
                     onClick={() => handleCopy(s.description)}
@@ -94,7 +94,7 @@ export default function SettingPanel() {
                   </button>
                 </div>
                 {s.description && (
-                  <div className="mt-1 line-clamp-4 whitespace-pre-wrap text-[11px] leading-relaxed text-white/55">
+                  <div className="mt-1 line-clamp-4 whitespace-pre-wrap text-xs leading-relaxed text-white/55">
                     {s.description}
                   </div>
                 )}

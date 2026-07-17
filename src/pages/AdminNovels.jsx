@@ -47,7 +47,7 @@ export default function AdminNovels() {
   const totalPages = Math.max(1, Math.ceil(total / size));
 
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="sf-page flex min-h-full flex-col">
       <header className="border-b border-cyan-400/10 px-4 py-6 sm:px-8 sm:py-8">
         <div className="flex items-center gap-3">
           <button
@@ -69,7 +69,7 @@ export default function AdminNovels() {
         ) : (
           <div className="overflow-x-auto rounded border border-cyan-400/10">
             <table className="w-full text-left text-sm">
-              <thead className="bg-black/40 text-[11px] uppercase tracking-wider text-cyan-300/60">
+              <thead className="bg-black/40 text-xs uppercase tracking-wider text-cyan-300/60">
                 <tr>
                   <th className="px-4 py-3">ID</th>
                   <th className="px-4 py-3">{t('novel.editor.field.title')}</th>

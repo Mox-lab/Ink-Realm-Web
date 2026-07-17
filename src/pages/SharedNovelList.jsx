@@ -56,7 +56,7 @@ export default function SharedNovelList() {
   };
 
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="sf-page flex min-h-full flex-col">
       {/* 头部 */}
       <header className="border-b border-cyan-400/10 px-4 py-6 sm:px-8 sm:py-8">
         <div className="flex items-start justify-between gap-4">
@@ -69,12 +69,12 @@ export default function SharedNovelList() {
               <ArrowLeft className="h-4 w-4" />
             </button>
             <div>
-              <div className="flex items-center gap-2 text-[10px] tracking-widest text-cyan-300/40">
+              <div className="flex items-center gap-2 text-2xs tracking-widest text-cyan-300/40">
                 <Compass className="h-3 w-3" />
                 {t('novel.shared.badge')}
               </div>
               <div className="sf-heading">{t('novel.shared.list.title')}</div>
-              <p className="mt-2 pl-4 text-[12px] tracking-wide text-cyan-300/50">
+              <p className="mt-2 pl-4 text-xs tracking-wide text-cyan-300/50">
                 {t('novel.shared.list.subtitle')}
               </p>
             </div>
@@ -90,7 +90,7 @@ export default function SharedNovelList() {
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               placeholder={t('novel.shared.list.searchPlaceholder')}
-              className="w-full rounded border border-cyan-400/20 bg-black/40 py-2 pl-9 pr-9 text-[12px] text-white/80 placeholder-white/30 outline-none focus:border-cyan-300/60"
+              className="w-full rounded border border-cyan-400/20 bg-black/40 py-2 pl-9 pr-9 text-xs text-white/80 placeholder-white/30 outline-none focus:border-cyan-300/60"
             />
             {keyword && (
               <button
@@ -101,7 +101,7 @@ export default function SharedNovelList() {
               </button>
             )}
           </div>
-          <span className="text-[10px] tracking-widest text-white/30">
+          <span className="text-2xs tracking-widest text-white/30">
             {filtered.length}/{novels.length}
           </span>
         </div>
@@ -130,11 +130,11 @@ export default function SharedNovelList() {
                 className="sf-scan group relative cursor-pointer rounded border border-cyan-400/15 bg-black/40 p-5 transition hover:border-cyan-300/50 hover:bg-cyan-400/[0.04]"
               >
                 <div className="mb-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-[10px] tracking-widest text-cyan-300/40">
+                  <div className="flex items-center gap-2 text-2xs tracking-widest text-cyan-300/40">
                     <BookOpen className="h-3 w-3" />
                     SHARED
                   </div>
-                  <span className="flex items-center gap-1 rounded bg-cyan-400/10 px-2 py-0.5 text-[10px] text-cyan-300">
+                  <span className="flex items-center gap-1 rounded bg-cyan-400/10 px-2 py-0.5 text-2xs text-cyan-300">
                     <Globe className="h-3 w-3" />
                     {t('novel.list.card.shared')}
                   </span>
@@ -149,15 +149,15 @@ export default function SharedNovelList() {
                 >
                   {novel.title || '(未命名)'}
                 </div>
-                <div className="mb-3 text-[11px] tracking-wider text-cyan-300/40">
+                <div className="mb-3 text-xs tracking-wider text-cyan-300/40">
                   {novel.author || '—'}
                 </div>
 
-                <div className="mb-4 line-clamp-3 min-h-[3.6em] text-[12px] leading-relaxed text-white/60">
+                <div className="mb-4 line-clamp-3 min-h-[3.6em] text-xs leading-relaxed text-white/60">
                   {novel.description || '—'}
                 </div>
 
-                <div className="mt-3 flex items-center justify-end gap-1 text-[11px] tracking-widest text-cyan-300/60 opacity-0 transition group-hover:opacity-100">
+                <div className="mt-3 flex items-center justify-end gap-1 text-xs tracking-widest text-cyan-300/60 opacity-0 transition group-hover:opacity-100">
                   {t('novel.shared.list.open')}
                 </div>
               </div>

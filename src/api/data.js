@@ -128,6 +128,32 @@ export async function exportNovel(id, format) {
   return { blob: resp.data, filename };
 }
 
+/* ============== 协作者(BASE-11 多用户协作) ============== */
+
+/** 列出某本小说的协作者(含用户名与角色)。 */
+export async function listCollaborators(novelId) {
+  const { data } = await api.get(`/data/novel/${novelId}/collaborators`);
+  return data;
+}
+
+/** 邀请协作者(按用户名 + 角色 editor/viewer)。 */
+export async function inviteCollaborator(novelId, payload) {
+  const { data } = await api.post(`/data/novel/${novelId}/collaborators`, payload);
+  return data;
+}
+
+/** 修改协作者角色(editor ↔ viewer)。 */
+export async function updateCollaboratorRole(novelId, id, role) {
+  const { data } = await api.patch(`/data/novel/${novelId}/collaborators/${id}`, { role });
+  return data;
+}
+
+/** 移除协作者。 */
+export async function removeCollaborator(novelId, id) {
+  const { data } = await api.delete(`/data/novel/${novelId}/collaborators/${id}`);
+  return data;
+}
+
 /* ============== 大纲 ============== */
 
 /** 列出当前小说全部版本(novelId 走 X-Novel-Id 头)。 */

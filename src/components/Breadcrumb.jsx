@@ -20,7 +20,7 @@ export default function Breadcrumb({ items }) {
   return (
     <nav
       aria-label={t('nav.breadcrumb')}
-      className="flex flex-wrap items-center gap-1 text-[11px] tracking-wider text-white/50"
+      className="flex flex-wrap items-center gap-1 text-xs tracking-wider text-white/50"
     >
       {/* 首页锚点 */}
       <Link

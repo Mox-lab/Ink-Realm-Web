@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Cpu, Activity, Gauge, X } from 'lucide-react';
+import { Activity, Gauge, X } from 'lucide-react';
 import { useI18n } from '../context/I18nContext.jsx';
 import { STORAGE_KEYS } from '../constants/storage.js';
 import { loadLocal } from '../utils/storage.js';
@@ -70,25 +70,25 @@ export default function UsagePanel({ variant = 'floating' }) {
             <Activity className="h-3.5 w-3.5 text-cyan-300" />
             <span className="sf-heading text-xs">{t('usage.title')}</span>
           </div>
-          <span className="font-mono text-[10px] text-white/30">{usage.lastAt}</span>
+          <span className="font-mono text-2xs text-white/30">{usage.lastAt}</span>
         </div>
 
         <div className="mb-3 grid grid-cols-3 gap-2 font-mono">
           <div className="rounded border border-cyan-400/15 bg-black/40 px-2 py-2 text-center">
-            <div className="text-[9px] tracking-widest text-white/40">CALLS</div>
+            <div className="text-2xs tracking-widest text-white/40">{t('usage.calls')}</div>
             <div className="text-lg text-cyan-300">{usage.calls}</div>
           </div>
           <div className="rounded border border-cyan-400/15 bg-black/40 px-2 py-2 text-center">
-            <div className="text-[9px] tracking-widest text-white/40">CHARS</div>
+            <div className="text-2xs tracking-widest text-white/40">{t('usage.chars')}</div>
             <div className="text-lg text-cyan-300">{usage.chars}</div>
           </div>
           <div className="rounded border border-cyan-400/15 bg-black/40 px-2 py-2 text-center">
-            <div className="text-[9px] tracking-widest text-white/40">≈TOKENS</div>
+            <div className="text-2xs tracking-widest text-white/40">{t('usage.tokens')}</div>
             <div className="text-lg text-cyan-300">{budget.used}</div>
           </div>
         </div>
 
-        <div className="mb-1 flex items-center justify-between font-mono text-[10px]">
+        <div className="mb-1 flex items-center justify-between font-mono text-2xs">
           <span className="flex items-center gap-1 text-white/50">
             <Gauge className="h-3 w-3" />{' '}
             {t('usage.budget').replace('{used}', budget.used).replace('{total}', budget.total)}
@@ -103,10 +103,6 @@ export default function UsagePanel({ variant = 'floating' }) {
             style={{ width: `${ratio}%` }}
           />
         </div>
-        <div className="mt-2 flex items-center gap-1 font-mono text-[9px] tracking-widest text-white/30">
-          <Cpu className="h-2.5 w-2.5" />
-          {t('usage.dataSource')}
-        </div>
       </div>
     );
   }
@@ -118,32 +114,32 @@ export default function UsagePanel({ variant = 'floating' }) {
         <div className="mb-2 flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <Activity className="h-3.5 w-3.5 text-cyan-300" />
-            <span className="sf-heading text-xs tracking-wider text-cyan-300/80">
+            <span className="text-xs font-semibold tracking-wider text-cyan-300/80">
               {t('usage.title')}
             </span>
-            <span className="rounded bg-cyan-400/10 px-1 py-0.5 text-[10px] tracking-widest text-cyan-300/60">
+            <span className="rounded bg-cyan-400/10 px-1 py-0.5 text-2xs tracking-widest text-cyan-300/60">
               {t('usage.monthLabel')}
             </span>
           </div>
-          <span className="font-mono text-[11px] text-white/30">{usage.lastAt}</span>
+          <span className="font-mono text-xs text-white/30">{usage.lastAt}</span>
         </div>
 
         <div className="mb-2 grid grid-cols-3 gap-1.5 font-mono">
           <div className="rounded border border-cyan-400/10 bg-black/40 px-1.5 py-1.5 text-center">
-            <div className="text-[10px] tracking-widest text-white/40">CALLS</div>
+            <div className="text-2xs tracking-widest text-white/40">{t('usage.calls')}</div>
             <div className="text-base text-cyan-300">{usage.calls}</div>
           </div>
           <div className="rounded border border-cyan-400/10 bg-black/40 px-1.5 py-1.5 text-center">
-            <div className="text-[10px] tracking-widest text-white/40">CHARS</div>
+            <div className="text-2xs tracking-widest text-white/40">{t('usage.chars')}</div>
             <div className="text-base text-cyan-300">{usage.chars}</div>
           </div>
           <div className="rounded border border-cyan-400/10 bg-black/40 px-1.5 py-1.5 text-center">
-            <div className="text-[10px] tracking-widest text-white/40">≈TOKENS</div>
+            <div className="text-2xs tracking-widest text-white/40">{t('usage.tokens')}</div>
             <div className="text-base text-cyan-300">{budget.used}</div>
           </div>
         </div>
 
-        <div className="mb-1 flex items-center justify-between font-mono text-[11px]">
+        <div className="mb-1 flex items-center justify-between font-mono text-xs">
           <span className="flex items-center gap-1 text-white/50">
             <Gauge className="h-3 w-3" />
             {t('usage.budget').replace('{used}', budget.used).replace('{total}', budget.total)}
@@ -158,10 +154,6 @@ export default function UsagePanel({ variant = 'floating' }) {
             style={{ width: `${ratio}%` }}
           />
         </div>
-        <div className="mt-1.5 flex items-center gap-1 font-mono text-[10px] tracking-widest text-white/30">
-          <Cpu className="h-3 w-3" />
-          {t('usage.dataSource')}
-        </div>
       </div>
     );
   }
@@ -172,10 +164,10 @@ export default function UsagePanel({ variant = 'floating' }) {
       <div className="flex items-center justify-between border-b border-cyan-400/10 px-3 py-2">
         <div className="flex items-center gap-2">
           <Activity className="h-3.5 w-3.5 text-cyan-300" />
-          <span className="sf-heading text-[11px] tracking-wider text-cyan-300/80">
+          <span className="sf-heading text-xs tracking-wider text-cyan-300/80">
             {t('usage.title')}
           </span>
-          <span className="rounded bg-cyan-400/10 px-1.5 py-0.5 text-[9px] tracking-widest text-cyan-300/60">
+          <span className="rounded bg-cyan-400/10 px-1.5 py-0.5 text-2xs tracking-widest text-cyan-300/60">
             {t('usage.monthLabel')}
           </span>
         </div>
@@ -191,20 +183,20 @@ export default function UsagePanel({ variant = 'floating' }) {
         <div className="px-3 py-3">
           <div className="mb-2 grid grid-cols-3 gap-1.5 font-mono">
             <div className="rounded border border-cyan-400/10 bg-black/40 px-1.5 py-1.5 text-center">
-              <div className="text-[8px] tracking-widest text-white/40">CALLS</div>
+              <div className="text-[8px] tracking-widest text-white/40">{t('usage.calls')}</div>
               <div className="text-sm text-cyan-300">{usage.calls}</div>
             </div>
             <div className="rounded border border-cyan-400/10 bg-black/40 px-1.5 py-1.5 text-center">
-              <div className="text-[8px] tracking-widest text-white/40">CHARS</div>
+              <div className="text-[8px] tracking-widest text-white/40">{t('usage.chars')}</div>
               <div className="text-sm text-cyan-300">{usage.chars}</div>
             </div>
             <div className="rounded border border-cyan-400/10 bg-black/40 px-1.5 py-1.5 text-center">
-              <div className="text-[8px] tracking-widest text-white/40">≈TOKENS</div>
+              <div className="text-[8px] tracking-widest text-white/40">{t('usage.tokens')}</div>
               <div className="text-sm text-cyan-300">{budget.used}</div>
             </div>
           </div>
 
-          <div className="mb-1 flex items-center justify-between font-mono text-[9px]">
+          <div className="mb-1 flex items-center justify-between font-mono text-2xs">
             <span className="flex items-center gap-1 text-white/50">
               <Gauge className="h-2.5 w-2.5" />
               {t('usage.budget').replace('{used}', budget.used).replace('{total}', budget.total)}

@@ -1,0 +1,33 @@
+/**
+ * 设计令牌中心 —— 全站可统一管理的基础配置。
+ *
+ * 目标:字体、字号、圆角等"可统一管理的样式配置"集中在此,后续
+ * 调整只改这一处即可全局生效;个别页面/组件如需偏离,可在其自身
+ * 样式或元素上局部覆盖(特例)。
+ *
+ * 说明:
+ *   - 字号阶梯(--text-*)在 index.css 的 @theme 中定义,因为需要
+ *     Tailwind 据此生成 text-2xs / text-xs / text-sm ... 工具类;
+ *     业务代码统一使用这些语义类,不再写 text-[13px] 之类硬编码。
+ *   - 本文件集中管理"主题无关"的可调项:字体族、组件圆角。
+ *   - 桌面端根字号在 base.css 的 `html { font-size }` 处统一设定,
+ *     所有 rem 单位(含上述字号阶梯)会随之等比缩放。
+ *
+ * @author songshan.li (ID: 17099618)
+ */
+
+:root {
+  /* ============ 字体族(全站统一) ============
+   * 三套主题默认引用此变量;某个主题若想用不同字体,
+   * 可在对应 theme-*.css 中覆盖 --sf-font-base / --sf-font-title。 */
+  --app-font-sans: "Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif;
+  --app-font-title: "Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif;
+
+  /* ============ 组件圆角(默认值) ============
+   * 各主题可在自身文件覆盖以呈现不同风格(如科幻风更尖锐、泡沫风更圆润)。 */
+  --sf-radius-input: 4px;
+  --sf-radius-btn: 4px;
+  --sf-radius-btn-ghost: 4px;
+  --sf-radius-chip: 2px;
+  --sf-radius-card: 8px;
+}

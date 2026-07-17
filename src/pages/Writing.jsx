@@ -57,14 +57,14 @@ export default function Writing() {
     <div className="flex h-full min-h-0 flex-col">
       <header className="border-b border-cyan-400/10 px-4 py-4 sm:px-8 sm:py-5">
         <div className="sf-heading">{t('writing.heading')}</div>
-        <p className="mt-2 pl-4 text-[12px] tracking-wide text-cyan-300/50">
+        <p className="mt-2 pl-4 text-xs tracking-wide text-cyan-300/50">
           {t('writing.subheading')}
         </p>
       </header>
 
       <div className="border-b border-cyan-400/10 px-4 py-3 sm:px-8">
         <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-2 sm:gap-3">
-          <span className="text-[11px] tracking-wide text-cyan-300/60">
+          <span className="text-xs tracking-wide text-cyan-300/60">
             {t('writing.session')}
           </span>
           <input
@@ -72,7 +72,7 @@ export default function Writing() {
             onChange={(e) => setUserId(e.target.value)}
             className="sf-input min-w-0 flex-1 sm:max-w-[200px]"
           />
-          <span className="text-[11px] tracking-wide text-cyan-300/60">
+          <span className="text-xs tracking-wide text-cyan-300/60">
             {t('writing.skill')}
           </span>
           <select
@@ -87,7 +87,7 @@ export default function Writing() {
               </option>
             ))}
           </select>
-          <span className="hidden text-[10px] tracking-wider text-white/30 sm:inline">
+          <span className="hidden text-2xs tracking-wider text-white/30 sm:inline">
             {t('writing.sessionHint')}
           </span>
         </div>
@@ -99,7 +99,7 @@ export default function Writing() {
             <div className="text-center">
               <PenLine className="mx-auto mb-3 h-12 w-12 opacity-40" />
               <div className="text-sm tracking-wide text-white/40">{t('writing.awaiting')}</div>
-              <div className="mt-1 text-[10px] text-white/30">{t('writing.awaitingHint')}</div>
+              <div className="mt-1 text-2xs text-white/30">{t('writing.awaitingHint')}</div>
             </div>
           </div>
         )}
@@ -114,7 +114,7 @@ export default function Writing() {
                 }`}
               >
                 {m.role !== 'user' && (
-                  <div className="mb-1 flex items-center gap-2 font-mono text-[9px] tracking-widest text-cyan-300/50">
+                  <div className="mb-1 flex items-center gap-2 font-mono text-2xs tracking-widest text-cyan-300/50">
                     <span className="sf-dot" />
                     {t('chat.assistant') + (m.skill || '')}
                   </div>
@@ -135,7 +135,7 @@ export default function Writing() {
 
       <div className="border-t border-cyan-400/10 px-4 py-3 sm:px-8 sm:py-4">
         <div className="mx-auto max-w-3xl">
-          <div className="mb-1 text-[10px] tracking-widest text-cyan-300/60">{t('chat.message')}</div>
+          <div className="mb-1 text-2xs tracking-widest text-cyan-300/60">{t('chat.message')}</div>
           <div className="flex items-stretch gap-2">
             <textarea
               value={message}

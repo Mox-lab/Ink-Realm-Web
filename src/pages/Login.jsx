@@ -96,11 +96,11 @@ export default function Login() {
       <div className="sf-login-brand hidden w-[44%] min-h-screen flex-col justify-between p-10 lg:flex">
         {/* 顶部:LOGO + 系统标识 */}
         <div className="relative z-10 flex items-center justify-between">
-          <div className="flex items-center gap-2 font-mono text-[10px] tracking-[0.3em] text-cyan-300/50">
+          <div className="flex items-center gap-2 font-mono text-2xs tracking-[0.3em] text-cyan-300/50">
             <Terminal className="h-3.5 w-3.5" />
             INK REALM · SYS v2.0
           </div>
-          <div className="flex items-center gap-1.5 font-mono text-[10px] tracking-widest text-cyan-300/40">
+          <div className="flex items-center gap-1.5 font-mono text-2xs tracking-widest text-cyan-300/40">
             <span className="sf-dot" />
             ONLINE
           </div>
@@ -135,7 +135,7 @@ export default function Login() {
           </p>
 
           {/* HUD 数据装饰条 */}
-          <div className="sf-animate-in-delay-2 mt-10 flex flex-col gap-1.5 font-mono text-[10px] tracking-widest text-cyan-300/25">
+          <div className="sf-animate-in-delay-2 mt-10 flex flex-col gap-1.5 font-mono text-2xs tracking-widest text-cyan-300/25">
             <div className="flex items-center gap-3">
               <span className="text-cyan-300/50">[CORE]</span>
               <span>NEURAL WRITING ENGINE ...... READY</span>
@@ -152,7 +152,7 @@ export default function Login() {
         </div>
 
         {/* 底部:版权信息 */}
-        <div className="relative z-10 font-mono text-[10px] tracking-widest text-white/20">
+        <div className="relative z-10 font-mono text-2xs tracking-widest text-white/20">
           © 2026 INK REALM · ALL RIGHTS RESERVED
         </div>
       </div>
@@ -199,7 +199,7 @@ export default function Login() {
                   {mode === 'register' ? 'ACCOUNT REGISTER' : 'IDENTITY VERIFICATION'}
                 </span>
               </div>
-              <span className="flex items-center gap-1.5 font-mono text-[10px] tracking-widest text-cyan-300/50">
+              <span className="flex items-center gap-1.5 font-mono text-2xs tracking-widest text-cyan-300/50">
                 <span className="sf-dot" />
                 {mode === 'register' ? 'REG' : 'AUTH'}
               </span>
@@ -210,7 +210,7 @@ export default function Login() {
               <form onSubmit={handleSubmit} className="sf-panel-hud sf-corners p-8" autoComplete="off">
                 {/* 账号 */}
                 <div className="mb-5">
-                  <label className="mb-2 flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] text-cyan-300/50">
+                  <label className="mb-2 flex items-center gap-2 font-mono text-2xs tracking-[0.2em] text-cyan-300/50">
                     <span className="h-px w-3 bg-cyan-300/40" />
                     {t('common.account').toUpperCase()}
                   </label>
@@ -229,7 +229,7 @@ export default function Login() {
 
                 {/* 密码 */}
                 <div className="mb-7">
-                  <label className="mb-2 flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] text-cyan-300/50">
+                  <label className="mb-2 flex items-center gap-2 font-mono text-2xs tracking-[0.2em] text-cyan-300/50">
                     <span className="h-px w-3 bg-cyan-300/40" />
                     {t('common.password').toUpperCase()}
                   </label>
@@ -266,7 +266,7 @@ export default function Login() {
                 {loading && <div className="sf-loader-bar mt-4" />}
 
                 {/* 切换到注册 */}
-                <div className="mt-5 text-center text-[11px] tracking-wide text-white/40">
+                <div className="mt-5 text-center text-xs tracking-wide text-white/40">
                   <button
                     type="button"
                     onClick={() => { setMode('register'); setLoginError(''); setRegError(''); }}
@@ -281,7 +281,7 @@ export default function Login() {
               <form onSubmit={handleRegister} className="sf-panel-hud sf-corners p-8">
                 {/* 账号 */}
                 <div className="mb-5">
-                  <label className="mb-2 flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] text-cyan-300/50">
+                  <label className="mb-2 flex items-center gap-2 font-mono text-2xs tracking-[0.2em] text-cyan-300/50">
                     <span className="h-px w-3 bg-cyan-300/40" />
                     {t('common.account').toUpperCase()}
                   </label>
@@ -302,7 +302,7 @@ export default function Login() {
 
                 {/* 密码 */}
                 <div className="mb-5">
-                  <label className="mb-2 flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] text-cyan-300/50">
+                  <label className="mb-2 flex items-center gap-2 font-mono text-2xs tracking-[0.2em] text-cyan-300/50">
                     <span className="h-px w-3 bg-cyan-300/40" />
                     {t('common.password').toUpperCase()}
                   </label>
@@ -323,7 +323,7 @@ export default function Login() {
 
                 {/* 确认密码 */}
                 <div className="mb-7">
-                  <label className="mb-2 flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] text-cyan-300/50">
+                  <label className="mb-2 flex items-center gap-2 font-mono text-2xs tracking-[0.2em] text-cyan-300/50">
                     <span className="h-px w-3 bg-cyan-300/40" />
                     {t('login.register.confirmPasswordPlaceholder').toUpperCase()}
                   </label>
@@ -362,7 +362,7 @@ export default function Login() {
                 {loading && <div className="sf-loader-bar mt-4" />}
 
                 {/* 切换回登录 */}
-                <div className="mt-5 text-center text-[11px] tracking-wide text-white/40">
+                <div className="mt-5 text-center text-xs tracking-wide text-white/40">
                   <button
                     type="button"
                     onClick={() => { setMode('login'); setLoginError(''); setRegError(''); }}
@@ -376,7 +376,7 @@ export default function Login() {
             )}
 
             {/* 卡片下方装饰 */}
-            <div className="mt-4 flex items-center justify-center gap-2 font-mono text-[10px] tracking-[0.3em] text-cyan-300/20">
+            <div className="mt-4 flex items-center justify-center gap-2 font-mono text-2xs tracking-[0.3em] text-cyan-300/20">
               <span className="h-px w-8 bg-cyan-300/20" />
               SECURE CONNECTION
               <span className="h-px w-8 bg-cyan-300/20" />

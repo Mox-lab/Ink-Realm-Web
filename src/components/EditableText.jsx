@@ -77,7 +77,7 @@ export default function EditableText({
           className={`sf-input w-full resize-y ${mono ? 'font-mono text-xs' : 'text-sm'} leading-relaxed`}
         />
         <div className="mt-2 flex items-center justify-between">
-          <div className="font-mono text-[10px] tracking-widest text-cyan-300/40">
+          <div className="font-mono text-2xs tracking-widest text-cyan-300/40">
             {dirty ? <span className="text-amber-300">* UNSAVED</span> : <span>CLEAN</span>}
           </div>
           <div className="flex items-center gap-2">

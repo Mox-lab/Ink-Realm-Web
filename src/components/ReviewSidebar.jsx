@@ -98,7 +98,7 @@ export default function ReviewSidebar({ chapterNo, onClose }) {
         </div>
       </header>
 
-      <div className="flex items-center gap-1 border-b border-cyan-400/10 px-3 py-2 font-mono text-[10px] tracking-widest">
+      <div className="flex items-center gap-1 border-b border-cyan-400/10 px-3 py-2 font-mono text-2xs tracking-widest">
         {['all', 'open', 'resolved', 'ignored'].map((k) => (
           <button
             key={k}
@@ -147,41 +147,41 @@ function resolveReviewBody(loading, itemCount, filteredCount, t, filtered, sever
       <div className="mb-1 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           {severityIcon(issue.severity)}
-          <span className="font-mono text-[10px] tracking-widest text-white/70">
+          <span className="font-mono text-2xs tracking-widest text-white/70">
             {issue.category}
           </span>
         </div>
-        <span className={`font-mono text-[10px] ${statusClass(issue.status)}`}>
+        <span className={`font-mono text-2xs ${statusClass(issue.status)}`}>
           {issue.status.toUpperCase()}
         </span>
       </div>
       {issue.location ? (
-        <div className="mb-1 rounded bg-black/40 px-2 py-1 font-mono text-[10px] text-cyan-300/60">
+        <div className="mb-1 rounded bg-black/40 px-2 py-1 font-mono text-2xs text-cyan-300/60">
           「{issue.location}」
         </div>
       ) : null}
       <div className="mb-1 text-xs text-white/80">{issue.description}</div>
       {issue.suggestion ? (
-        <div className="text-[11px] text-cyan-300/70">
+        <div className="text-xs text-cyan-300/70">
           {t('review.suggestion')}:{issue.suggestion}
         </div>
       ) : null}
       <div className="mt-2 flex items-center gap-1 border-t border-cyan-400/10 pt-2">
         <button
           onClick={() => handleStatus(issue.id, 'resolved')}
-          className="rounded px-2 py-0.5 font-mono text-[10px] text-emerald-300 hover:bg-emerald-400/10"
+          className="rounded px-2 py-0.5 font-mono text-2xs text-emerald-300 hover:bg-emerald-400/10"
         >
           <ShieldCheck className="mr-1 inline h-3 w-3" />
           {t('review.resolved')}
         </button>
         <button
           onClick={() => handleStatus(issue.id, 'ignored')}
-          className="rounded px-2 py-0.5 font-mono text-[10px] text-white/50 hover:bg-white/10"
+          className="rounded px-2 py-0.5 font-mono text-2xs text-white/50 hover:bg-white/10"
         >
           <ShieldX className="mr-1 inline h-3 w-3" />
           {t('review.ignored')}
         </button>
-        <span className="ml-auto font-mono text-[9px] text-white/30">
+        <span className="ml-auto font-mono text-2xs text-white/30">
           ch.{issue.chapterNo}
         </span>
       </div>

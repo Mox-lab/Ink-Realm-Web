@@ -9,7 +9,7 @@ export const nav = {
   'nav.chapter': '章节',
   'nav.character': '人物',
   'nav.lore': '设定',
-  'nav.chatDesc': '单轮问答',
+  'nav.chatDesc': '问答',
   'nav.writingDesc': '多轮记忆',
   'nav.outlineDesc': '生成流程',
   'nav.chapterDesc': '按纲续写',
@@ -22,7 +22,8 @@ export const nav = {
   'nav.user': '用户',
   'nav.noRole': '无角色',
   'nav.logoutConfirm': '已退出登录',
-  'nav.novels': '我的小说',
+  'nav.novels': '小说',
+  'nav.novelsShort': '小说',
   'nav.novelsDesc': '小说列表',
   'nav.overview': '总览',
   'nav.overviewDesc': '小说总览',
@@ -33,7 +34,8 @@ export const nav = {
   // 两级菜单分组(#54/#55)
   'nav.group.chat': '对话',
   'nav.group.creation': '创作',
-  'nav.chat.single': '单轮对话',
+  'nav.chat.single': '对话',
+  'nav.chat.singleShort': '对话',
   'nav.sidebar.collapse': '收起侧栏',
   'nav.sidebar.expand': '展开侧栏',
 

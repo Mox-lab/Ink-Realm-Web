@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Loader2, Save, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
-import { createNovel, getNovel, updateNovel } from '../api/index.js';
+import { createNovel, getNovel, listNovels, updateNovel } from '../api/index.js';
 import { saveCharactersBatch, saveSetting, saveOutline } from '../api/data.js';
 import { useI18n } from '../context/I18nContext.jsx';
 import { trackEvent } from '../utils/track.js';
@@ -42,6 +42,35 @@ export default function NovelEditor({ mode = 'create' }) {
   });
   const [loading, setLoading] = useState(isEdit);
   const [submitting, setSubmitting] = useState(false);
+  // 当前用户已拥有的小说标题集合(用户维度唯一校验;协作小说不算)
+  const [ownedTitles, setOwnedTitles] = useState(() => new Set());
+  // 编辑模式下本小说的原标题(用于排除自身)
+  const [originalTitle, setOriginalTitle] = useState('');
+
+  // 加载当前用户拥有的小说标题,供"小说名不可重复"前端即时校验。
+  // 仅取本人拥有的(!collaborator),与后端 findByOwnerAndTitle 口径一致;
+  // 加载失败不阻塞,后端 CONFLICT(1003) 仍是最终校验。
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const list = await listNovels();
+        if (cancelled || !Array.isArray(list)) return;
+        const titles = new Set(
+          list
+            .filter((n) => !n.collaborator)
+            .map((n) => (n.title || '').trim())
+            .filter(Boolean)
+        );
+        if (!cancelled) setOwnedTitles(titles);
+      } catch {
+        /* 忽略:校验降级到后端 */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // edit 模式预填
   useEffect(() => {
@@ -52,6 +81,7 @@ export default function NovelEditor({ mode = 'create' }) {
       try {
         const data = await getNovel(novelId);
         if (cancelled) return;
+        setOriginalTitle((data?.title || '').trim());
         setForm({
           title: data?.title || '',
           description: data?.description || '',
@@ -69,6 +99,12 @@ export default function NovelEditor({ mode = 'create' }) {
     };
   }, [isEdit, novelId, navigate, t]);
 
+  // 标题是否重复:精确匹配本人已有小说名(创建模式排除项为 null;编辑模式排除自身原标题)
+  const isTitleDuplicate =
+    !!form.title.trim() &&
+    ownedTitles.has(form.title.trim()) &&
+    form.title.trim() !== originalTitle;
+
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
@@ -77,6 +113,10 @@ export default function NovelEditor({ mode = 'create' }) {
     e.preventDefault();
     if (!form.title.trim()) {
       toast.error(t('novel.editor.validate.title.required'));
+      return;
+    }
+    if (isTitleDuplicate) {
+      toast.error(t('novel.editor.validate.title.duplicate'));
       return;
     }
     setSubmitting(true);
@@ -158,7 +198,7 @@ export default function NovelEditor({ mode = 'create' }) {
   }
 
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="sf-page flex min-h-full flex-col">
       <header className="border-b border-cyan-400/10 px-4 py-6 sm:px-8 sm:py-8">
         <div className="flex items-start gap-4">
           <button
@@ -172,11 +212,11 @@ export default function NovelEditor({ mode = 'create' }) {
             <div className="sf-heading">
               {isEdit ? t('novel.editor.edit.title') : t('novel.editor.create.title')}
             </div>
-            <p className="mt-2 pl-4 text-[12px] tracking-wide text-cyan-300/50">
+            <p className="mt-2 pl-4 text-xs tracking-wide text-cyan-300/50">
               {isEdit ? t('novel.editor.edit.title') : t('novel.list.subtitle')}
             </p>
             {template && !isEdit && (
-              <div className="mt-2 flex items-center gap-1.5 text-[11px] tracking-wide text-cyan-300/60">
+              <div className="mt-2 flex items-center gap-1.5 text-xs tracking-wide text-cyan-300/60">
                 <Sparkles className="h-3 w-3" />
                 {t('novel.template.apply.success')}
               </div>
@@ -192,7 +232,7 @@ export default function NovelEditor({ mode = 'create' }) {
         >
           {/* 标题 */}
           <div>
-            <label className="mb-1 block text-[11px] tracking-widest text-cyan-300/60">
+            <label className="mb-1 block text-xs tracking-widest text-cyan-300/60">
               {t('novel.editor.field.title')}
             </label>
             <input
@@ -201,14 +241,22 @@ export default function NovelEditor({ mode = 'create' }) {
               onChange={(e) => handleChange('title', e.target.value)}
               placeholder={t('novel.editor.field.title.placeholder')}
               maxLength={200}
-              className="sf-input w-full"
+              className={`sf-input w-full ${
+                isTitleDuplicate ? 'border-red-400/60 focus:border-red-400' : ''
+              }`}
               required
+              aria-invalid={isTitleDuplicate}
             />
+            {isTitleDuplicate && (
+              <div className="mt-1 text-xs text-red-300">
+                {t('novel.editor.validate.title.duplicate')}
+              </div>
+            )}
           </div>
 
           {/* 简介 */}
           <div>
-            <label className="mb-1 block text-[11px] tracking-widest text-cyan-300/60">
+            <label className="mb-1 block text-xs tracking-widest text-cyan-300/60">
               {t('novel.editor.field.description')}
             </label>
             <textarea
@@ -232,7 +280,7 @@ export default function NovelEditor({ mode = 'create' }) {
               <div className="text-sm text-white/80">
                 {t('novel.editor.field.shared')}
               </div>
-              <div className="mt-1 text-[11px] leading-relaxed text-white/40">
+              <div className="mt-1 text-xs leading-relaxed text-white/40">
                 {t('novel.editor.field.shared.hint')}
               </div>
             </div>
@@ -250,7 +298,7 @@ export default function NovelEditor({ mode = 'create' }) {
             </button>
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || isTitleDuplicate}
               className="flex items-center gap-2 rounded border border-cyan-400/40 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-300 transition hover:bg-cyan-400/20 disabled:opacity-50"
             >
               {submitting ? (

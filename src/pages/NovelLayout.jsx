@@ -27,9 +27,13 @@ function NovelLayoutInner() {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
+      {/* 顶栏导航:全宽铺满主内容区(不随内容限宽) */}
       <NovelBreadcrumbBar />
+      {/* 主体内容:沿用统一限宽容器,保持原有布局 */}
       <div className="min-h-0 flex-1 overflow-auto">
-        <Outlet />
+        <div className="sf-page flex min-h-full flex-col">
+          <Outlet />
+        </div>
       </div>
     </div>
   );
