@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Send, Loader2, Sparkles, PenLine, Trash2, Bot, User } from 'lucide-react';
 import { toast } from 'sonner';
+import { notifyError } from '../api/client.js';
 import PropTypes from 'prop-types';
 import { writingWithSkill } from '../api/index.js';
 import { useI18n } from '../context/I18nContext.jsx';
@@ -57,7 +58,7 @@ export default function InlineAIAssistant({ sessionId, skillId, onInsert }) {
         { role: 'assistant', text: data.reply || '', skill: skillTag }
       ]);
     } catch (err) {
-      toast.error(t('writing.callFailed') + ':' + (err.response?.data?.message || err.message));
+      notifyError(t('writing.callFailed') + ':' + (err.response?.data?.message || err.message), err);
       setHistory((h) => h.slice(0, -1)); // 回滚用户消息
     } finally {
       setLoading(false);

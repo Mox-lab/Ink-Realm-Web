@@ -38,6 +38,12 @@
   --sf-accent-2: #1f1c18;      /* 次强调(墨黑,无彩色) */
   --sf-heading-color: #1a1714;
 
+  /* 语义状态色:浅色宣纸底,需加深以保证对比度 */
+  --sf-status-error: #c0392b;
+  --sf-status-success: #1f7a4d;
+  --sf-status-warning: #9a6b00;
+  --sf-status-info: #6e4fb0;
+
   /* RGB 通道(墨黑) */
   --sf-accent-r: 26;
   --sf-accent-g: 23;
@@ -69,6 +75,8 @@
   /* 字体:引用令牌中心(tokens.css);如需本主题专属字体,直接改这两行即可 */
   --sf-font-base: var(--app-font-sans);
   --sf-font-title: var(--app-font-title);
+  /* 品牌展示字体:引用令牌中心,供 LOGO/书名/大标题使用 */
+  --sf-font-display: var(--app-font-display);
 }
 
 /* ================ 背景效果:多层淡墨晕染(宣纸,无彩色) ================ */
@@ -111,22 +119,18 @@
   background: radial-gradient(120% 80% at 0% 0%, rgba(30, 28, 24, 0.04), transparent 60%);
 }
 
-/* ================ 输入框:聚焦墨色 ring ================ */
-[data-theme="ink"] .sf-input {
-  border-radius: 6px;
-}
+/* ================ 输入框:聚焦墨色 ring(形状由 tokens.css 统一) ================ */
 [data-theme="ink"] .sf-input:focus {
   border-color: var(--sf-accent);
   box-shadow: 0 0 0 2px rgba(30, 28, 24, 0.12);
   background: var(--sf-input-bg-focus);
 }
 
-/* ================ 主按钮:墨框,悬停填墨 ================ */
+/* ================ 主按钮:墨框,悬停填墨(形状由 tokens.css 统一) ================ */
 [data-theme="ink"] .sf-btn {
   background: transparent;
   border: 1px solid var(--sf-accent);
   color: var(--sf-accent);
-  border-radius: 6px;
   text-transform: none;
   letter-spacing: 0.1em;
   font-weight: 600;
@@ -140,9 +144,8 @@
   box-shadow: 0 4px 14px rgba(30, 28, 24, 0.22);
 }
 
-/* ================ 次级按钮 ================ */
+/* ================ 次级按钮(形状由 tokens.css 统一) ================ */
 [data-theme="ink"] .sf-btn-ghost {
-  border-radius: 6px;
   border-color: rgba(30, 28, 24, 0.22);
   color: var(--sf-text-dim);
 }
@@ -152,9 +155,8 @@
   background: rgba(30, 28, 24, 0.06);
 }
 
-/* ================ 标签:墨色印章风(无彩色) ================ */
+/* ================ 标签:墨色印章风(无彩色,形状由 tokens.css 统一胶囊) ================ */
 [data-theme="ink"] .sf-chip {
-  border-radius: 3px;
   text-transform: none;
   letter-spacing: 0.1em;
   background: rgba(30, 28, 24, 0.05);

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { Send, Loader2, MessageSquare } from 'lucide-react';
-import { toast } from 'sonner';
-import { chat } from '../api/index.js';
+import { Loader2, MessageSquare } from 'lucide-react';
+import { chat, notifyError } from '../api/index.js';
 import { useI18n } from '../context/I18nContext.jsx';
+import MessageComposer from '../components/MessageComposer.jsx';
 
 export default function Chat() {
   const { t } = useI18n();
@@ -25,23 +25,16 @@ export default function Chat() {
       const reply = await chat(userMsg);
       setHistory((h) => [...h, { role: 'assistant', text: reply }]);
     } catch (err) {
-      toast.error(t('chat.callFailed') + ':' + (err.response?.data?.message || err.message));
+      notifyError(t('chat.callFailed') + ':' + (err.response?.data?.message || err.message), err);
     } finally {
       setLoading(false);
     }
   };
 
-  const onKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      send();
-    }
-  };
-
   return (
-    <div className="sf-page flex h-full min-h-0 flex-col">
+    <div className="sf-page flex h-full min-h-0 flex-1 flex-col">
       <header className="border-b border-cyan-400/10 px-4 py-6 sm:px-8 sm:py-8">
-        <div className="sf-heading">{t('chat.heading')}</div>
+        <div className="sf-heading">{t('nav.chat')}</div>
         <p className="mt-2 pl-4 text-xs tracking-wide text-cyan-300/50">
           {t('chat.subheading')}
         </p>
@@ -66,7 +59,7 @@ export default function Chat() {
               <div
                 className={`max-w-[85%] sm:max-w-[80%] rounded border px-3 py-2 sm:px-4 sm:py-3 ${
                   m.role === 'user'
-                    ? 'border-cyan-300/40 bg-cyan-300/[0.08] text-white shadow-[0_0_16px_rgba(56,230,255,0.15)]'
+                    ? 'border-cyan-300/40 bg-cyan-300/[0.08] text-white shadow-[0_0_16px_rgba(var(--sf-accent-r),var(--sf-accent-g),var(--sf-accent-b),0.15)]'
                     : 'border-cyan-400/15 bg-black/40 text-white/90'
                 }`}
               >
@@ -89,27 +82,13 @@ export default function Chat() {
       </div>
 
       <div className="border-t border-cyan-400/10 px-4 py-3 sm:px-8 sm:py-4">
-        <div className="mx-auto max-w-3xl">
-          <div className="mb-1 text-2xs tracking-widest text-cyan-300/60">{t('chat.message')}</div>
-          <div className="flex items-stretch gap-2">
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={onKeyDown}
-              rows={2}
-              placeholder={t('chat.placeholder')}
-              className="sf-input w-full resize-none flex-1"
-            />
-            <button
-              onClick={send}
-              disabled={loading || !message.trim()}
-              className="sf-btn flex-shrink-0 px-4"
-              title={t('common.send')}
-            >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            </button>
-          </div>
-        </div>
+        <MessageComposer
+          value={message}
+          onChange={setMessage}
+          onSend={send}
+          loading={loading}
+          placeholder={t('chat.placeholder')}
+        />
         {loading && <div className="sf-loader-bar mx-auto mt-3 max-w-3xl" />}
       </div>
     </div>

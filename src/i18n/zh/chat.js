@@ -3,7 +3,7 @@
  * @author songshan.li (ID: 17099618)
  */
 export const chat = {
-  'chat.heading': '对话',
+
   'chat.subheading': '直接调用 LLM,无上下文记忆',
   'chat.placeholder': '输入消息,Enter 发送,Shift+Enter 换行',
   'chat.awaiting': '等待输入',
@@ -12,4 +12,5 @@ export const chat = {
   'chat.assistant': '助手',
   'chat.callFailed': '调用失败',
   'chat.message': '消息',
+  'chat.sendHint': 'Enter 发送 · Shift+Enter 换行',
 };

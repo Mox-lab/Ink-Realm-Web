@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Loader2, Save, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
+import { notifyError } from '../api/client.js';
 import { createNovel, getNovel, listNovels, updateNovel } from '../api/index.js';
-import { saveCharactersBatch, saveSetting, saveOutline } from '../api/data.js';
+import { batchSaveSettings, saveSetting, saveOutline } from '../api/data.js';
 import { useI18n } from '../context/I18nContext.jsx';
 import { trackEvent } from '../utils/track.js';
 import { FUNNEL_EVENTS } from '../constants/funnelEvents.js';
@@ -88,7 +89,7 @@ export default function NovelEditor({ mode = 'create' }) {
           sharedForReference: !!data?.sharedForReference
         });
       } catch (err) {
-        toast.error(t('novel.overview.fetch.failed') + ':' + (err.message || ''));
+        notifyError(t('novel.overview.fetch.failed') + ':' + (err.message || ''), err);
         navigate(`/novels/${novelId}/overview`, { replace: true });
       } finally {
         if (!cancelled) setLoading(false);
@@ -141,9 +142,27 @@ export default function NovelEditor({ mode = 'create' }) {
         if (newId && template?.prefilled) {
           const { characters = [], worldSettings = [], outline } = template.prefilled;
           try {
-            // 人物:一次批量写入(后端仅提供批量端点)
+            // 人物:统一写入设定集「人物」分类(后端仅提供设定集批量端点)
             if (characters.length) {
-              await saveCharactersBatch(characters, newId);
+              const characterSettings = characters.map((c) => ({
+                keyword: c.name,
+                category: '人物',
+                description: JSON.stringify({
+                  _struct: 'character',
+                  text: c.background || '',
+                  gender: c.gender || '',
+                  age: c.age || 0,
+                  identity: c.identity || '',
+                  personality: c.personality || '',
+                  appearance: c.appearance || '',
+                  weapon: c.weapon || '',
+                  background: c.background || '',
+                  faction: '',
+                  relations: [],
+                  tags: []
+                })
+              }));
+              await batchSaveSettings(characterSettings);
             }
             // 世界观设定:逐条写入
             for (const ws of worldSettings) {
@@ -174,7 +193,7 @@ export default function NovelEditor({ mode = 'create' }) {
         }
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || err.message || '');
+      notifyError(err.response?.data?.message || err.message || '', err);
     } finally {
       setSubmitting(false);
     }

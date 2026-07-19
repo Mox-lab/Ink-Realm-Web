@@ -29,7 +29,6 @@ const SEG_LABEL_KEY = {
   writing: 'novel.breadcrumb.writing',
   outline: 'novel.breadcrumb.outline',
   chapter: 'novel.breadcrumb.chapter',
-  character: 'novel.breadcrumb.character',
   lore: 'novel.breadcrumb.lore'
 };
 

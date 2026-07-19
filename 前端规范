@@ -1,0 +1,205 @@
+═══════════════════════════════════════════════════════════════
+《墨域 / Ink Realm 前端统一管理规范》v2.0
+（基于通用《Vue & React 前端统一管理规范》v1.0，结合本项目实际技术栈裁剪落地）
+作者：songshan.li (ID: 17099618)
+═══════════════════════════════════════════════════════════════
+
+【本项目技术栈基线】
+- 框架：React 19 + Vite 5，纯 JSX（不使用 TypeScript）。
+- 路由：react-router-dom v6（集中式 <Routes>，见 src/App.jsx）。
+- 状态：React Context（src/context/*），不引入 Pinia / Zustand / Redux。
+- 请求：axios 单例封装 src/api/client.js；业务 API 按域拆分 src/api/{auth,data,agent,review}.js，桶文件 src/api/index.js 统一导出。
+- 样式：Tailwind v4 + 设计令牌（CSS Variables，--sf-* / --app-font-*），语义类 .sf-*；无第三方 UI 框架。
+- 提示：sonner（toast），错误统一走 notifyError()。
+- 国际化：自研轻量 i18n（src/i18n/*，useI18n().t）。
+- 类型：以 prop-types + JSDoc 代替 TypeScript。
+
+⚠️ 说明：通用规范 v1.0 中涉及 TypeScript(.ts/.tsx)、Pinia/Zustand/Redux、
+useRequest、code===0/401、BaseButton 强制封装、antd/ElementPlus ConfigProvider
+等条款，均按下方“本项目落地”重新映射，以通用规范条款冲突时以本文件为准。
+
+───────────────────────────────────────────────────────────────
+一、设计令牌层
+───────────────────────────────────────────────────────────────
+核心原则：禁止硬编码颜色、字体、圆角、字号数值，必须引用设计令牌。
+
+颜色系统
+- 落地形态：CSS Variables（--sf-*），令牌中心分层：
+  · src/styles/tokens.css        主题无关基础令牌（字体族、组件圆角）
+  · src/styles/theme-{scifi,ink,bubble}.css  三主题各自暴露 --sf-*（bg/text/accent/border...）
+  · src/styles/index.css         @theme 映射，供 Tailwind 生成语义工具类
+- 强制规则：
+  · 主色/文本/背景/边框一律用 --sf-accent / --sf-text / --sf-bg / --sf-border 等变量。
+  · 禁止硬编码固定色工具类：text-white/* 、bg-black/* 、border-cyan-400/* 、#RRGGBB
+    （水墨浅色主题下会不可见）。
+- 例外：第三方 bits 组件（src/components/bits/**，vendored）内部色板可保留原样。
+
+字体系统
+- 落地形态：--app-font-*（tokens.css 定义）→ 各主题暴露 --sf-font-base/-title/-display。
+  · 正文引用 var(--sf-font-base)；标题 var(--sf-font-title)；
+    品牌/大标题（LOGO、书名、角色名等）引用 var(--sf-font-display)。
+- 字号：统一使用 index.css @theme 生成的语义类（text-2xs/xs/sm/base/lg/xl/2xl），
+  禁止 text-[13px] 之类硬编码字号。
+- 强制规则：新增字体只改 tokens.css + 三主题 expose，页面引用变量，禁止硬编码字体栈字面量。
+- 正文行高固定 1.5 / 1.6。
+- 例外：富文本编辑器内容区可保留用户自定义字号。
+
+间距系统
+- 落地形态：优先使用 Tailwind 间距工具类（p-2/m-4，基于 4px 步进），保持步进一致。
+- 强制规则：禁止 padding:13px 之类任意像素；组件内部间距用工具类，组件外部间距由父容器控制。
+- 例外：像素级视觉微调（如图标居中偏移 2px）需加注释说明原因。
+
+圆角与阴影
+- 落地形态：组件圆角走 --sf-radius-{input,btn,btn-ghost,chip,card}（tokens.css，主题可覆盖）。
+- 强制规则：按钮、卡片、输入框必须使用预设圆角变量；弹窗遮罩/浮层统一层级。
+- 例外：无。
+
+───────────────────────────────────────────────────────────────
+二、基础 UI 组件层
+───────────────────────────────────────────────────────────────
+核心原则：本项目不做 BaseButton/BaseInput 组件级强封装，改以 **语义 CSS 类 .sf-***
+（src/styles/components.css）+ 复用既有业务组件 统一视觉与交互。
+
+按钮
+- 统一类：.sf-btn / .sf-btn-ghost（圆角走 --sf-radius-btn / --sf-radius-btn-ghost）。
+- 强制规则：可视按钮统一套 .sf-* 类；loading 与 disabled 状态互斥。
+- 例外：纯链接跳转用 <a>（加 role="button"）。
+
+输入框
+- 统一类：.sf-input（圆角 --sf-radius-input，聚焦边框走 --sf-accent）。
+- 强制规则：受控组件（value + onChange）；同一场景高度统一。
+- 例外：只读展示用 <div> 模拟。
+
+复用组件（优先复用，勿重复造轮子）
+- 保存：SaveButton（含防抖、统一保存失败提示）。
+- 内联可编辑文本：EditableText。
+- 弹窗：CharacterAddModal / NicknameModal 等（遮罩、按钮位一致）。
+- 空状态：统一文案走 t('common.empty')（“暂无数据”）。
+- 强制规则：新增通用 UI 优先抽成组件放 src/components/，勿在页面内重复实现。
+
+消息提示（sonner）
+- 位置：main.jsx 的 <Toaster>（当前 top-right）；全站唯一实例，勿在页面另建。
+- 强制规则：错误提示统一走 notifyError()（见第三节），禁止散落 toast.error 重复弹网络错误。
+
+───────────────────────────────────────────────────────────────
+三、状态管理与业务逻辑层
+───────────────────────────────────────────────────────────────
+核心原则：所有异步请求、全局状态、常量映射必须走统一封装，禁止在组件内直接 import axios / fetch。
+
+API 请求实例（src/api/client.js）
+- axios 单例：baseURL = '/api'（同源，经 nginx 反代/vite proxy，无需 env 注入）；
+  超时 120s（含 LLM 长响应，故大于通用 10s）；请求拦截自动注入 Authorization 与 X-Novel-Id。
+- 业务 API 按域拆分（auth/data/agent/review），组件只从 src/api/index.js 引用，禁止直连 axios。
+- 例外：文件上传/下载如需 multipart 或 blob，可在调用处覆盖 headers / responseType。
+
+响应拦截器（统一约定，勿在组件重复实现）
+- 后端统一返回 Result<T> = { code, message, data }，HTTP 均为 200。
+- 成功判定：body.code === 200（本项目为 200，非通用规范的 0），拦截器解包 resp.data = body.data。
+- 鉴权失败：body.code === 2001 或 HTTP 401 → 清 token 并跳 /login（401 先尝试 refresh，失败才跳）。
+- 服务/系统错误：code >= 5000 前缀“服务异常:”。注意 5000=SYSTEM_ERROR（含后端/LLM 内部错误），
+  不等于鉴权失败，不得据此跳登录。
+- 关闭全局弹窗：调用处传 config.skipErrorToast = true（登录/注册等需内联展示错误的场景）。
+
+错误提示统一管理（重点，Code Review 红线）
+- 全局唯一出口：client.js 拦截器已对业务失败(code!==200)与 HTTP≥400 统一弹 toast。
+- 禁止组件内再 toast.error(err.response?.data?.message || err.message) 重复弹同一网络错误
+  （会造成“服务异常: + XxxFailed”双重提示）。组件 catch 必须改用
+  notifyError(msg, err)（从 @/api 或 ../api/client.js 导入）：全局已弹则自动跳过(error._toastShown)。
+- 去重：同一文案 3s 内只弹一次（并发/重试不刷屏）。
+
+全局异步/加载状态
+- 通用异步：hooks/useAsync.js（loading/error/data + run，自动丢弃卸载后响应），
+  作为本项目的“useRequest”。局部按钮 loading 与页面级 loading 分离。
+- 例外：轮询/任务进度（TaskContext）不触发页面级 loading。
+
+常量 / 枚举映射
+- 落地：src/constants/*（app.js 应用常量、storage.js 存储键、novelTemplates.js、funnelEvents.js）。
+- 强制规则：状态/枚举映射带 label + value；新增正则（手机号/邮箱等）统一放 constants/regexp.js。
+- 例外：后端动态下发字典存入 Context，不覆盖前端常量。
+
+格式化
+- 日期统一 YYYY-MM-DD HH:mm:ss；金额两位小数 + 千分位；相对时间（“3分钟前”）用统一工具函数。
+- 落地：需要时新增 utils/format.js 或 hooks；禁止各页面各写一份格式化逻辑。
+
+───────────────────────────────────────────────────────────────
+四、路由与权限控制层
+───────────────────────────────────────────────────────────────
+核心原则：src/App.jsx 的路由表是唯一“页面数据源”，权限控制基于路由包裹组件。
+
+路由表
+- 集中在 src/App.jsx（react-router v6 <Routes>），小说工作台子路由经 NovelLayout 注入 NovelContext。
+- 强制规则：
+  · 页面标题统一经 useDocumentTitle / 路由标题映射设置 document.title（配合 i18n）。
+  · 大体量/低频页面可按需 React.lazy 懒加载（当前为静态 import，允许逐步迁移）。
+- 例外：登录页、403/404 不设权限，防死循环。
+
+导航守卫 / 权限
+- 落地：ProtectedRoute 组件包裹受保护路由（校验 token，缺失跳 /login；requireAdmin 控制管理后台）。
+- 角色判断走 hooks/useRole.js；无权限统一跳 /403（Forbidden 页），勿在业务里散写角色字符串。
+- 例外：OAuth 回调等免校验页（本项目暂无）。
+
+───────────────────────────────────────────────────────────────
+五、工具函数与异常处理层
+───────────────────────────────────────────────────────────────
+核心原则：工具函数为纯函数、单一职责，集中在 src/utils/*。
+
+防抖 / 节流
+- 未引入 lodash-es；如需防抖/节流统一封装到 utils（如 utils/debounce.js）或复用现有 hook，
+  禁止组件内各写一份。搜索输入默认 300ms，滚动加载默认 100ms。
+- 例外：提交按钮用 disabled + loading 组合而非防抖。
+
+全局错误捕获
+- React 层：全局 ErrorBoundary（src/components/ErrorBoundary.jsx）包裹 App，
+  捕获渲染期未处理异常，展示友好提示 t('common.systemBusy')“系统繁忙，请稍后重试”+ 刷新入口。
+- 网络层 401/业务错误：由 client.js 拦截器处理，不进入 ErrorBoundary。
+
+本地存储 Key
+- 统一 src/constants/storage.js 的 STORAGE_KEYS，全部带 ink_realm_ 前缀防多项目冲突；
+  读写统一走 utils/storage.js（loadLocal/saveLocal/saveDraft...），禁止组件直连 localStorage 或硬编码 key 字符串。
+- Token 存 localStorage；草稿按 novelId 隔离（draftKey）。
+
+环境变量
+- Vite 项目：如需自定义变量以 VITE_ 前缀，走 .env.* 文件。
+- 生产构建：关闭 sourcemap，并移除 console.* / debugger（在 vite.config.js 统一配置）。
+
+───────────────────────────────────────────────────────────────
+六、工程化目录结构（本项目实际，强制遵循）
+───────────────────────────────────────────────────────────────
+src/
+├── api/            # 请求单例 client.js + 按域拆分(auth/data/agent/review) + 桶文件 index.js
+├── assets/         # 静态资源（当前少量放 public/ 与 src 内）
+├── components/     # 业务/通用组件；bits/ 为 vendored 特效组件库（不纳入本规范硬约束）
+│   └── editor/     # 编辑器相关组件
+├── constants/      # 常量：app / storage / regexp(新增) / novelTemplates / funnelEvents
+├── context/        # 全局状态（Auth/I18n/Theme/Novel/Task/Notification）——替代 store/
+├── hooks/          # 自定义逻辑（useAsync/useAutoSave/useDraft/useNovelId/useRole/useTokenUsage）
+├── i18n/           # 国际化 zh/ en/（按模块拆分）+ index.js
+├── pages/          # 业务页面（React 命名 pages，非 views）
+├── styles/         # 设计令牌 + 主题 + 基础/组件样式（唯一令牌定义处）
+├── utils/          # 纯工具（storage/parse/layout/track）
+├── App.jsx         # 路由表
+└── main.jsx        # 应用入口（Provider 组合 + Toaster + ErrorBoundary）
+
+- 约定：令牌定义只允许出现在 styles/；pages/ 与 components/ 禁止定义样式令牌。
+
+───────────────────────────────────────────────────────────────
+七、国际化（本项目补充，强制）
+───────────────────────────────────────────────────────────────
+- 所有用户可见字符串必须走 t()（useI18n），禁止硬编码中文/英文字面量。
+- 词条按模块拆分放 i18n/{zh,en}/<module>.js，并在对应 index.js 展开；键名用点分命名空间
+  （如 chapter.saveFailed）。zh 与 en 必须成对补齐。
+
+───────────────────────────────────────────────────────────────
+八、团队协作 Code Review 红线
+───────────────────────────────────────────────────────────────
+❌ 组件内出现 #RRGGBB / text-[13px] / bg-black/40 等硬编码颜色、字号（bits/ 除外）。
+❌ 业务页面直接 import axios（必须走 src/api/*）。
+❌ localStorage 直接用字符串键名（必须走 STORAGE_KEYS + utils/storage）。
+❌ 组件 catch 内重复 toast.error 网络错误（必须用 notifyError）。
+❌ 用户可见文案硬编码（必须走 i18n t()）。
+❌ 硬编码字体栈字面量（必须引用 --sf-font-*）。
+✅ 统一使用 useAsync / api 封装发请求；复用 .sf-* 类与既有组件。
+
+═══════════════════════════════════════════════════════════════
+文档结束（本文件为本项目落地版；与通用 v1.0 冲突时以本文件为准）
+═══════════════════════════════════════════════════════════════

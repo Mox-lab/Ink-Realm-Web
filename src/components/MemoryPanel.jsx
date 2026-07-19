@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Brain, Users, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
-import { listCharacters } from '../api/index.js';
+import { notifyError } from '../api/client.js';
+import { listSettingCharacters } from '../api/index.js';
+import { parseStruct } from './setting/struct.js';
 import { useI18n } from '../context/I18nContext.jsx';
 
 /**
  * 记忆可视化面板(P2 前端面板补齐)。
- * <p>展示 LongTermMemoryExtractor 异步抽取的人物档案,
- * 让作者直观看到"AI 自动从章节中识别并入库了哪些人物"。</p>
+ * <p>展示设定集「人物」分类中的人物档案,
+ * 让作者直观看到"AI 自动从章节中识别并入库了哪些人物"(数据由 LongTermMemoryExtractor 写入)。</p>
  *
- * 数据来源:/api/data/character/{novelId}(由 ChapterController.saveChapter 后异步抽取写入)
+ * 数据来源:/api/data/setting/search?category=人物
  */
 export default function MemoryPanel() {
   const { t } = useI18n();
@@ -19,10 +21,10 @@ export default function MemoryPanel() {
   const load = async () => {
     setLoading(true);
     try {
-      const list = await listCharacters();
+      const list = await listSettingCharacters();
       setCharacters(list || []);
     } catch (err) {
-      toast.error(t('memory.loadFailed') + ':' + (err.response?.data?.message || err.message));
+      notifyError(t('memory.loadFailed') + ':' + (err.response?.data?.message || err.message), err);
     } finally {
       setLoading(false);
     }
@@ -56,49 +58,53 @@ export default function MemoryPanel() {
         </div>
       ) : (
         <div className="max-h-80 overflow-y-auto pr-1">
-          {characters.map((c) => (
-            <div
-              key={c.id}
-              className="mb-2 rounded border border-cyan-400/15 bg-black/40 px-3 py-2"
-            >
-              <div className="mb-1 flex items-center gap-2">
-                <span className="font-bold text-cyan-300">{c.name}</span>
-                {c.gender ? (
-                  <span className="rounded bg-cyan-400/10 px-1.5 py-0.5 text-2xs text-cyan-300/70">
-                    {c.gender}
-                  </span>
+          {characters.map((c) => {
+            const parsed = parseStruct(c.description);
+            const d = parsed.data || {};
+            return (
+              <div
+                key={c.id}
+                className="mb-2 rounded border border-cyan-400/15 bg-black/40 px-3 py-2"
+              >
+                <div className="mb-1 flex items-center gap-2">
+                  <span className="font-bold text-cyan-300">{c.keyword}</span>
+                  {d.gender ? (
+                    <span className="rounded bg-cyan-400/10 px-1.5 py-0.5 text-2xs text-cyan-300/70">
+                      {d.gender}
+                    </span>
+                  ) : null}
+                  {d.age ? (
+                    <span className="rounded bg-cyan-400/10 px-1.5 py-0.5 text-2xs text-cyan-300/70">
+                      {d.age}
+                    </span>
+                  ) : null}
+                  {d.identity ? (
+                    <span className="rounded bg-amber-400/10 px-1.5 py-0.5 text-2xs text-amber-300/70">
+                      {d.identity}
+                    </span>
+                  ) : null}
+                </div>
+                {d.personality ? (
+                  <div className="mb-0.5 text-xs text-white/70">
+                    <span className="text-white/40">{t('memory.personality')}:</span>
+                    {d.personality}
+                  </div>
                 ) : null}
-                {c.age ? (
-                  <span className="rounded bg-cyan-400/10 px-1.5 py-0.5 text-2xs text-cyan-300/70">
-                    {c.age}
-                  </span>
+                {d.weapon ? (
+                  <div className="mb-0.5 text-xs text-white/70">
+                    <span className="text-white/40">{t('memory.weapon')}:</span>
+                    {d.weapon}
+                  </div>
                 ) : null}
-                {c.identity ? (
-                  <span className="rounded bg-amber-400/10 px-1.5 py-0.5 text-2xs text-amber-300/70">
-                    {c.identity}
-                  </span>
+                {d.background ? (
+                  <div className="text-xs text-white/60">
+                    <span className="text-white/40">{t('memory.background')}:</span>
+                    {d.background}
+                  </div>
                 ) : null}
               </div>
-              {c.personality ? (
-                <div className="mb-0.5 text-xs text-white/70">
-                  <span className="text-white/40">{t('memory.personality')}:</span>
-                  {c.personality}
-                </div>
-              ) : null}
-              {c.weapon ? (
-                <div className="mb-0.5 text-xs text-white/70">
-                  <span className="text-white/40">{t('memory.weapon')}:</span>
-                  {c.weapon}
-                </div>
-              ) : null}
-              {c.background ? (
-                <div className="text-xs text-white/60">
-                  <span className="text-white/40">{t('memory.background')}:</span>
-                  {c.background}
-                </div>
-              ) : null}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

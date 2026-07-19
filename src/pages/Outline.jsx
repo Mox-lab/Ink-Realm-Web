@@ -1,73 +1,40 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, FileText, Copy, ChevronRight, ArrowRight, History, Zap, Trash2, PenLine, Check } from 'lucide-react';
+import { Loader2, FileText, Copy, ChevronRight, ArrowRight, History, Trash2, PenLine, Check, Plus, Compass, BookMarked } from 'lucide-react';
 import { toast } from 'sonner';
+import { notifyError } from '../api/client.js';
 import {
-  outline as outlineApi,
+  planOutline as planOutlineApi,
+  expandOutlineVolume as expandOutlineVolumeApi,
+  generateConcept,
+  generateSetting,
   saveOutline as saveOutlineApi,
   listOutlines,
   getOutline,
-  getActiveOutline,
   activateOutline,
   deleteOutline
 } from '../api/index.js';
-import EditableText from '../components/EditableText.jsx';
+import { listSettings } from '../api/data.js';
+import { buildSettingConstraint } from '../utils/settingConstraint.js';
 import HistoryDrawer from '../components/HistoryDrawer.jsx';
 import SaveButton from '../components/SaveButton.jsx';
 import DraftRestoreBanner from '../components/DraftRestoreBanner.jsx';
 import { useI18n } from '../context/I18nContext.jsx';
-import { useTask } from '../context/TaskContext.jsx';
 import { STORAGE_KEYS, draftKey } from '../constants/storage.js';
-import { loadDraft, saveDraft, clearDraft } from '../utils/storage.js';
+import { loadDraft, clearDraft } from '../utils/storage.js';
 import { useAutoSave } from '../hooks/useAutoSave.js';
-import { parseOutline } from '../utils/parse.js';
+import { parseOutlineVolumes, serializeVolumes, insertVolumeChapters } from '../utils/parse.js';
 import { useNovelId } from '../hooks/useNovelId.js';
-import { trackEvent } from '../utils/track.js';
-import { FUNNEL_EVENTS } from '../constants/funnelEvents.js';
 
 /**
- * 模块级 Promise 缓存:让生成任务跨组件卸载/重新挂载存活。
- * 切走再切回时,如果上一次请求还没完成,继续复用同一个 Promise。
- *
- * 结构: { theme, chapters, lastOutline, promise }
- * - 完成或失败后会被清空
- * - 通过 attach 拿到当前 Promise,在组件挂载时调用以恢复加载态
+ * 章节节点卡片(横向流程中的单章)。
  */
-let pendingOutline = null;
-
-function attachOutline(theme, chapters, opts = {}) {
-  const lastOutline = opts.lastOutline || '';
-  // 同参数的进行中请求复用
-  if (
-    pendingOutline &&
-    pendingOutline.theme === theme &&
-    pendingOutline.chapters === chapters &&
-    (pendingOutline.lastOutline || '') === lastOutline
-  ) {
-    return pendingOutline.promise;
-  }
-  const entry = { theme, chapters, lastOutline, promise: outlineApi(theme, chapters, opts) };
-  pendingOutline = entry;
-  entry.promise.finally(() => {
-    if (pendingOutline === entry) pendingOutline = null;
-  });
-  return entry.promise;
-}
-
-function clearPendingOutline() {
-  pendingOutline = null;
-}
-
-/**
- * 解析大纲文本为章节节点数组。
- */
-
 function FlowNode({ node, active, onClick, onJumpToChapter }) {
   return (
     <div
       className={`sf-scan relative flex w-[80vw] shrink-0 cursor-pointer flex-col rounded border p-4 transition sm:w-64 md:w-72 ${
         active
-          ? 'border-cyan-300 bg-cyan-400/[0.08] shadow-[0_0_24px_rgba(56,230,255,0.25)]'
+          ? 'border-cyan-300 bg-cyan-400/[0.08] shadow-[0_0_24px_rgba(var(--sf-accent-r),var(--sf-accent-g),var(--sf-accent-b),0.25)]'
           : 'border-cyan-400/15 bg-black/40 hover:border-cyan-300/50 hover:bg-cyan-400/[0.04]'
       }`}
     >
@@ -120,19 +87,220 @@ function FlowNode({ node, active, onClick, onJumpToChapter }) {
   );
 }
 
+/**
+ * 单卷内的横向章节流程(可横向滚动)。
+ * 平铺场景会挂 scrollRef 以支持左右按钮;分组场景每卷独立滚动,不挂 scrollRef。
+ */
+function VolumeChapterFlow({ chapters, activeNode, onSelectNode, onJump, scrollRef }) {
+  const { t } = useI18n();
+  if (!chapters || chapters.length === 0) {
+    return (
+      <div className="py-6 text-center text-2xs tracking-wide text-white/30">
+        {t('outline.volumeEmpty')}
+      </div>
+    );
+  }
+  return (
+    <div
+      ref={scrollRef}
+      className="sf-scroll-x flex items-stretch gap-2 overflow-x-auto pb-2"
+      style={scrollRef ? { scrollBehavior: 'smooth' } : undefined}
+    >
+      {chapters.map((node, i) => (
+        <div key={node.index} className="flex items-stretch gap-2">
+          <FlowNode
+            node={node}
+            active={activeNode?.index === node.index}
+            onClick={() => onSelectNode(node)}
+            onJumpToChapter={onJump}
+          />
+          {i < chapters.length - 1 && (
+            <div className="flex items-center px-1 text-cyan-300/40">
+              <ArrowRight className="h-4 w-4" />
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * 逐卷内联编辑弹窗:编辑单卷的卷名、卷主线,以及逐章的章号/标题/细纲,
+ * 支持增删章节。保存时把编辑结果回写为大纲全文(经 serializeVolumes)。
+ *
+ * @param {{open:boolean, vol:object, onClose:Function, onSave:Function}} props
+ */
+function VolumeEditModal({ open, vol, onClose, onSave }) {
+  const { t } = useI18n();
+  const [name, setName] = useState('');
+  const [arc, setArc] = useState('');
+  const [chapters, setChapters] = useState([]);
+
+  useEffect(() => {
+    if (open && vol) {
+      setName(vol.volume.name || '');
+      setArc(vol.volume.arc || '');
+      setChapters((vol.chapters || []).map((c) => ({ ...c })));
+    }
+  }, [open, vol]);
+
+  if (!open || !vol) return null;
+
+  const updateChapter = (i, patch) =>
+    setChapters((cs) => cs.map((c, idx) => (idx === i ? { ...c, ...patch } : c)));
+  const removeChapter = (i) => setChapters((cs) => cs.filter((_, idx) => idx !== i));
+  const addChapter = () => {
+    const maxNo = chapters.reduce((m, c) => Math.max(m, Number(c.no) || 0), 0);
+    setChapters((cs) => [...cs, { index: -1, no: maxNo + 1, title: '', summary: '' }]);
+  };
+
+  const handleSave = () => {
+    onSave({
+      volume: { index: vol.volume.index, name: name.trim(), arc: arc.trim() },
+      chapters: chapters.map((c, i) => ({
+        ...c,
+        no: c.no || i + 1,
+        title: (c.title || '').trim() || `第 ${i + 1} 章`,
+        summary: (c.summary || '').trim()
+      }))
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
+      <div
+        className="sf-panel-hud flex max-h-[88vh] w-full max-w-2xl flex-col p-5"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-4 flex items-center justify-between border-b border-cyan-400/10 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="sf-chip">EDIT VOLUME</span>
+            <span className="text-sm font-bold text-white">
+              {t('outline.volumeEditTitle')}
+              {vol.volume.name ? ` · ${vol.volume.name}` : ` · ${t('outline.volumeDefault', { n: vol.volume.index })}`}
+            </span>
+          </div>
+          <button onClick={onClose} className="sf-btn-ghost">
+            {t('common.cancel')}
+          </button>
+        </div>
+
+        <div className="flex-1 space-y-4 overflow-y-auto pr-1">
+          {/* 卷名 / 卷主线 */}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-2xs tracking-widest text-cyan-300/60">
+                {t('outline.volumeNameLabel')}
+              </label>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={t('outline.volumeNamePlaceholder')}
+                className="sf-input w-full"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-2xs tracking-widest text-cyan-300/60">
+                {t('outline.volumeArcLabel')}
+              </label>
+              <input
+                value={arc}
+                onChange={(e) => setArc(e.target.value)}
+                placeholder={t('outline.volumeArcPlaceholder')}
+                className="sf-input w-full"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span className="text-2xs tracking-widest text-cyan-300/50">
+              {chapters.length} {t('outline.chapterUnit')}
+            </span>
+            <button onClick={addChapter} className="sf-btn-ghost">
+              <Plus className="h-3 w-3" /> {t('outline.addChapter')}
+            </button>
+          </div>
+
+          {/* 章节逐条编辑 */}
+          <div className="space-y-3">
+            {chapters.map((c, i) => (
+              <div key={i} className="rounded border border-cyan-400/15 bg-black/30 p-3">
+                <div className="mb-2 flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={c.no}
+                    onChange={(e) => updateChapter(i, { no: e.target.value })}
+                    className="sf-input w-16"
+                    title={t('outline.chapterNo')}
+                  />
+                  <input
+                    value={c.title}
+                    onChange={(e) => updateChapter(i, { title: e.target.value })}
+                    placeholder={t('outline.chapterTitleLabel')}
+                    className="sf-input flex-1"
+                  />
+                  <button
+                    onClick={() => removeChapter(i)}
+                    className="sf-btn-ghost shrink-0"
+                    title={t('outline.removeChapter')}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                </div>
+                <textarea
+                  value={c.summary}
+                  onChange={(e) => updateChapter(i, { summary: e.target.value })}
+                  rows={3}
+                  placeholder={t('outline.chapterSummaryLabel')}
+                  className="sf-input w-full resize-y text-xs leading-relaxed"
+                />
+              </div>
+            ))}
+            {chapters.length === 0 && (
+              <div className="py-6 text-center text-2xs tracking-wide text-white/30">
+                {t('outline.volumeEmpty')}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-4 flex items-center justify-end gap-2 border-t border-cyan-400/10 pt-3">
+          <button onClick={onClose} className="sf-btn-ghost">
+            {t('common.cancel')}
+          </button>
+          <button onClick={handleSave} className="sf-btn">
+            <Check className="h-4 w-4" /> {t('common.save')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Outline() {
   const { t } = useI18n();
   const navigate = useNavigate();
   const novelId = useNovelId();
-  const { runTask } = useTask();
   const STORAGE_KEY = draftKey(STORAGE_KEYS.DRAFT_OUTLINE, novelId);
   const persisted = useMemo(() => loadDraft(STORAGE_KEY), [STORAGE_KEY]);
   const [theme, setTheme] = useState(persisted?.theme || '');
-  const [chapters, setChapters] = useState(persisted?.chapters ?? 20);
+  const [setting, setSetting] = useState(persisted?.setting || '');
   const [rawResult, setRawResult] = useState(persisted?.rawResult || '');
-  const [loading, setLoading] = useState(!!persisted?.loading);
   const [activeNode, setActiveNode] = useState(null);
-  const [continueMode, setContinueMode] = useState(false);
+
+  // 卷规划:可编辑的卷计划文本(空 = 尚未规划)
+  const [volumePlan, setVolumePlan] = useState(persisted?.volumePlan || '');
+  const [planLoading, setPlanLoading] = useState(false);
+  // 阶段1/2 生成态:题材蓝图 / 设定集
+  const [conceptLoading, setConceptLoading] = useState(false);
+  const [settingGenLoading, setSettingGenLoading] = useState(false);
+  // 从设定集库载入约束
+  const [libLoading, setLibLoading] = useState(false);
+
+  // 逐卷展开加载态:expandingIdx 为当前正在展开的卷号;expandingAll 为"展开全部"
+  const [expandingIdx, setExpandingIdx] = useState(null);
+  const [expandingAll, setExpandingAll] = useState(false);
 
   // 历史
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -141,18 +309,32 @@ export default function Outline() {
 
   const scrollRef = useRef(null);
 
-  const nodes = useMemo(() => parseOutline(rawResult), [rawResult]);
+  // 解析为"卷 → 章"两级结构;逐卷折叠预览
+  const volumes = useMemo(() => parseOutlineVolumes(rawResult), [rawResult]);
+  const totalChapters = useMemo(
+    () => volumes.reduce((s, v) => s + v.chapters.length, 0),
+    [volumes]
+  );
+  // 逐卷折叠状态:true = 收起(仅多卷时生效)
+  const [collapsed, setCollapsed] = useState({});
+  // 仅单卷且无卷名(纯平铺大纲)时退化为原横向流程图
+  const isSingleFlat = volumes.length === 1 && !volumes[0].volume.name;
+  // 是否全部卷已收起(用于"展开/收起全部"按钮文案)
+  const allCollapsed = volumes.length > 0 && volumes.every((v) => collapsed[v.volume.index]);
+  // 任意生成进行中(规划 / 展开 / 概念 / 设定)
+  const loading = planLoading || expandingAll || expandingIdx !== null || conceptLoading || settingGenLoading || libLoading;
 
   // UX-05:大纲草稿对象(供 useAutoSave 使用)
   const draftState = useMemo(
     () => ({
       theme,
-      chapters: Number(chapters) || 20,
+      setting,
       rawResult,
+      volumePlan,
       loading,
       savedAt: Date.now()
     }),
-    [theme, chapters, rawResult, loading]
+    [theme, setting, rawResult, volumePlan, loading]
   );
 
   const autoSave = useAutoSave(draftState, STORAGE_KEY, { interval: 5000, enabled: !loading });
@@ -163,7 +345,6 @@ export default function Outline() {
 
   useEffect(() => {
     if (!persisted) return;
-    // loading=true 表示上次生成还在飞行中,不弹恢复(交给挂载时 attach 逻辑处理)
     if (persisted.loading) return;
     if (persisted.rawResult || persisted.theme) {
       setPendingDraft(persisted);
@@ -175,8 +356,9 @@ export default function Outline() {
   const handleRestoreDraft = (draft) => {
     if (!draft) return;
     if (typeof draft.theme === 'string') setTheme(draft.theme);
-    if (Number.isFinite(Number(draft.chapters))) setChapters(Number(draft.chapters));
+    if (typeof draft.setting === 'string') setSetting(draft.setting);
     if (typeof draft.rawResult === 'string') setRawResult(draft.rawResult);
+    if (typeof draft.volumePlan === 'string') setVolumePlan(draft.volumePlan);
     setShowRestoreBanner(false);
     setPendingDraft(null);
     toast.success(t('draft.restore'));
@@ -185,7 +367,9 @@ export default function Outline() {
   const handleDiscardDraft = () => {
     clearDraft(STORAGE_KEY);
     setTheme('');
+    setSetting('');
     setRawResult('');
+    setVolumePlan('');
     setShowRestoreBanner(false);
     setPendingDraft(null);
     toast.success(t('draft.discard'));
@@ -197,126 +381,190 @@ export default function Outline() {
     return t('draft.hintMinutes').replace('{n}', String(mins));
   }, [pendingDraft, t]);
 
-  // 持久化:必须带 loading,否则 generate() 写入 loading:true 后会被覆盖
-  // 注:autoSave 已替代手写 useEffect,此处保留逻辑兼容(避免 lint 警告,实际不再需要)
-  useEffect(() => {
-    // 保留对首次写入的场景兜底:autoSave 在 enabled 时已写入
-    // 仅在 disabled(loading 飞行)时显式保存一次,避免遗漏
-    if (loading) {
-      saveDraft(STORAGE_KEY, { theme, chapters: Number(chapters) || 20, rawResult, loading });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
-
-  // 挂载时若上次请求仍在飞行中,attach 到同一个 Promise 继续等待
-  useEffect(() => {
-    if (!persisted?.loading) return;
-    let cancelled = false;
-    setLoading(true);
-    attachOutline(persisted.theme, Number(persisted.chapters) || 20)
-      .then((data) => {
-        if (cancelled) return;
-        if (data.error) {
-          toast.error(data.error);
-          return;
-        }
-        setRawResult(data.outline || '');
-        toast.success(t('outline.generated', { n: persisted.chapters }).replace('{n}', persisted.chapters));
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        toast.error(t('outline.generateFailed') + ':' + (err.response?.data?.message || err.message));
-      })
-      .finally(() => {
-        if (cancelled) return;
-        setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const generate = async () => {
+  /** 卷规划:调用 /api/outline/plan 生成可编辑的卷结构,并作为骨架写入正文 */
+  const handlePlan = async () => {
     if (!theme.trim()) {
       toast.error(t('outline.themeRequired'));
       return;
     }
-
-    // 续生模式:先取当前激活版本作为接续基础
-    let lastOutline = '';
-    let startChapter = 1;
-    if (continueMode) {
-      try {
-        const active = await getActiveOutline();
-        if (active && active.content) {
-          lastOutline = active.content;
-          startChapter = (active.chapters || 0) + 1;
-        } else {
-          toast.info(t('outline.noActive'));
-        }
-      } catch (err) {
-        toast.warn(t('outline.readActiveFailed'));
+    setPlanLoading(true);
+    try {
+      const data = await planOutlineApi(theme.trim(), setting.trim() || undefined);
+      if (data.error) {
+        toast.error(data.error);
+        return;
       }
+      const plan = data.volumePlan || data.outline || '';
+      setVolumePlan(plan);
+      setRawResult(plan);
+      toast.success(t('outline.planReady'));
+    } catch (err) {
+      notifyError(t('outline.planFailed') + ':' + (err.response?.data?.message || err.message), err);
+    } finally {
+      setPlanLoading(false);
     }
+  };
 
-    setLoading(true);
-    if (!continueMode) {
-      setRawResult('');
+  /** 采用当前(可能已编辑的)卷规划,重建大纲骨架 */
+  const applyPlan = () => {
+    if (!volumePlan.trim()) {
+      toast.error(t('outline.planRequired'));
+      return;
     }
-    setActiveNode(null);
+    setRawResult(volumePlan.trim());
+    toast.success(t('outline.planApplied'));
+  };
 
-    // UX-07:注册到任务面板
-    const opts = continueMode && lastOutline ? { lastOutline, startChapter } : {};
-    const taskTitle = `${t('task.type.outline')} · ${theme.slice(0, 20)}${continueMode ? ` (${t('outline.continueOn')})` : ''}`;
-    runTask({
-      type: 'outline_generate',
-      title: taskTitle,
-      params: { theme: theme.trim(), chapters: Number(chapters) || 20, continueMode, opts },
-      run: () => attachOutline(theme.trim(), Number(chapters) || 20, opts),
-      onSuccess: (data) => {
+  /** 阶段1 构思:把当前主题(一句话灵感)扩展为题材蓝图,回填到主题框 */
+  const handleGenConcept = async () => {
+    if (!theme.trim()) {
+      toast.error(t('outline.conceptRequired'));
+      return;
+    }
+    setConceptLoading(true);
+    try {
+      const blueprint = await generateConcept(theme.trim());
+      if (blueprint) {
+        setTheme(blueprint);
+        toast.success(t('outline.planReady'));
+      }
+    } catch (err) {
+      notifyError(t('outline.conceptFailed') + ':' + (err.response?.data?.message || err.message), err);
+    } finally {
+      setConceptLoading(false);
+    }
+  };
+
+  /** 阶段2 设定:基于主题(题材蓝图)生成设定集,回填到设定集框 */
+  const handleGenSetting = async () => {
+    if (!theme.trim()) {
+      toast.error(t('outline.settingGenRequired'));
+      return;
+    }
+    setSettingGenLoading(true);
+    try {
+      const settingText = await generateSetting(theme.trim());
+      if (settingText) {
+        setSetting(settingText);
+        toast.success(t('outline.planReady'));
+      }
+    } catch (err) {
+      notifyError(t('outline.settingGenFailed') + ':' + (err.response?.data?.message || err.message), err);
+    } finally {
+      setSettingGenLoading(false);
+    }
+  };
+
+  /** 从设定集库载入约束:聚合已建设定,填充到设定框(覆盖前确认) */
+  const handleLoadFromLib = async () => {
+    if (setting.trim() && !window.confirm(t('outline.loadFromLibConfirm'))) return;
+    setLibLoading(true);
+    try {
+      const list = await listSettings();
+      const arr = Array.isArray(list) ? list : [];
+      if (arr.length === 0) {
+        toast.info(t('outline.loadFromLibEmpty'));
+        return;
+      }
+      setSetting(buildSettingConstraint(arr));
+      toast.success(t('outline.loadFromLibDone').replace('{n}', String(arr.length)));
+    } catch (err) {
+      notifyError(t('outline.loadFromLibFailed') + ':' + (err.response?.data?.message || err.message), err);
+    } finally {
+      setLibLoading(false);
+    }
+  };
+
+  /** 清除卷规划,回到未规划状态 */
+  const clearVolumePlan = () => {
+    setVolumePlan('');
+    setRawResult('');
+    toast.success(t('outline.planCleared'));
+  };
+
+  /** 展开单卷细纲:基于卷规划调用 /api/outline/volume,回写该卷章节 */
+  const expandVolume = async (volIndex) => {
+    if (!volumePlan.trim()) {
+      toast.error(t('outline.planRequired'));
+      return;
+    }
+    setExpandingIdx(volIndex);
+    try {
+      const data = await expandOutlineVolumeApi(
+        theme.trim() || volumePlan,
+        { volumePlan: volumePlan.trim(), volumeIndex: volIndex, setting: setting.trim() || undefined }
+      );
+      if (data.error) {
+        toast.error(data.error);
+        return;
+      }
+      setRawResult((prev) => insertVolumeChapters(prev, volIndex, data.outline));
+      toast.success(t('outline.volumeExpanded').replace('{n}', String(volIndex)));
+    } catch (err) {
+      notifyError(t('outline.expandFailed') + ':' + (err.response?.data?.message || err.message), err);
+    } finally {
+      setExpandingIdx(null);
+    }
+  };
+
+  /** 展开全部卷细纲:逐卷顺序展开尚未展开的卷 */
+  const expandAll = async () => {
+    if (!volumePlan.trim()) {
+      toast.error(t('outline.planRequired'));
+      return;
+    }
+    const targets = volumes.filter((v) => v.chapters.length === 0).map((v) => v.volume.index);
+    if (targets.length === 0) {
+      toast.info(t('outline.allExpanded'));
+      return;
+    }
+    setExpandingAll(true);
+    try {
+      for (const idx of targets) {
+        const data = await expandOutlineVolumeApi(
+          theme.trim() || volumePlan,
+          { volumePlan: volumePlan.trim(), volumeIndex: idx, setting: setting.trim() || undefined }
+        );
         if (data.error) {
           toast.error(data.error);
-          return;
+          continue;
         }
-        const newContent = data.outline || '';
-        if (continueMode && lastOutline && newContent) {
-          setRawResult((prev) => (prev ? prev + '\n\n' + newContent : newContent));
-          toast.success(t('outline.continued').replace('{n}', chapters));
-        } else {
-          setRawResult(newContent);
-          toast.success(t('outline.generated').replace('{n}', chapters));
-        }
-        // UX-11 漏斗:大纲生成成功
-        trackEvent(
-          FUNNEL_EVENTS.GENERATE_OUTLINE,
-          { theme: theme.trim(), chapters: Number(chapters) || 20, continueMode },
-          novelId
-        );
-      },
-      successMsg: null
+        setRawResult((prev) => insertVolumeChapters(prev, idx, data.outline));
+      }
+      toast.success(t('outline.allExpanded'));
+    } catch (err) {
+      notifyError(t('outline.expandFailed') + ':' + (err.response?.data?.message || err.message), err);
+    } finally {
+      setExpandingAll(false);
+    }
+  };
+
+  /** 展开/收起全部卷 */
+  const toggleAllVolumes = () => {
+    setCollapsed((prev) => {
+      const allC = volumes.every((v) => prev[v.volume.index]);
+      const next = volumes.reduce((acc, v) => {
+        acc[v.volume.index] = !allC;
+        return acc;
+      }, {});
+      return next;
     });
-    setLoading(false);
   };
 
   const reset = () => {
     setTheme('');
+    setSetting('');
     setRawResult('');
     setActiveNode(null);
-    setLoading(false);
+    setVolumePlan('');
     clearDraft(STORAGE_KEY);
     autoSave.clear();
-    clearPendingOutline();
     toast.success(t('outline.resetDone'));
   };
 
   const copy = async () => {
     await navigator.clipboard.writeText(rawResult);
     toast.success(t('common.copied'));
-  };
-
-  const scrollBy = (dir) => {
-    scrollRef.current?.scrollBy({ left: dir * 320, behavior: 'smooth' });
   };
 
   /** 跳转到章节页,并把当前节点的大纲作为预填数据透传 */
@@ -338,14 +586,12 @@ export default function Outline() {
     const payload = {
       title: theme ? theme.slice(0, 50) : `v-${new Date().toISOString().slice(0, 10)}`,
       theme,
-      chapters: Number(chapters) || 20,
+      chapters: totalChapters,
       content: rawResult
     };
     const data = await saveOutlineApi(payload);
-    // 后端保存成功 → 清掉本大纲草稿
     autoSave.clear();
     if (data && data.id) {
-      // 保存后刷新历史(若抽屉是开的)
       if (historyOpen) openHistory();
     }
     return data;
@@ -371,7 +617,7 @@ export default function Outline() {
         }))
       );
     } catch (err) {
-      toast.error(t('outline.loadHistoryFailed') + ':' + (err.response?.data?.message || err.message));
+      notifyError(t('outline.loadHistoryFailed') + ':' + (err.response?.data?.message || err.message), err);
     } finally {
       setHistoryLoading(false);
     }
@@ -383,11 +629,10 @@ export default function Outline() {
       const detail = await getOutline(item.id);
       setRawResult(detail.content || '');
       if (detail.theme) setTheme(detail.theme);
-      if (detail.chapters) setChapters(detail.chapters);
       setHistoryOpen(false);
       toast.success(t('outline.loadedVersion').replace('{n}', detail.version));
     } catch (err) {
-      toast.error(t('outline.loadFailed') + ':' + (err.response?.data?.message || err.message));
+      notifyError(t('outline.loadFailed') + ':' + (err.response?.data?.message || err.message), err);
     }
   };
 
@@ -400,7 +645,7 @@ export default function Outline() {
       );
       toast.success(t('outline.activated').replace('{n}', item.version));
     } catch (err) {
-      toast.error(t('outline.activateFailed') + ':' + (err.response?.data?.message || err.message));
+      notifyError(t('outline.activateFailed') + ':' + (err.response?.data?.message || err.message), err);
     }
   };
 
@@ -411,31 +656,45 @@ export default function Outline() {
       setHistoryItems((prev) => prev.filter((x) => x.id !== item.id));
       toast.success(t('common.delete') + ' ✓');
     } catch (err) {
-      toast.error(t('outline.deleteFailed') + ':' + (err.response?.data?.message || err.message));
+      notifyError(t('outline.deleteFailed') + ':' + (err.response?.data?.message || err.message), err);
     }
+  };
+
+  // 逐卷内联编辑弹窗:当前正在编辑的卷(为 null 时关闭)
+  const [editVol, setEditVol] = useState(null);
+
+  /** 逐卷内联编辑保存:将单卷改动合回大纲全文 */
+  const handleVolumeSave = (edited) => {
+    const newVolumes = volumes.map((v) =>
+      v.volume.index === edited.volume.index ? edited : v
+    );
+    setRawResult(serializeVolumes(newVolumes));
+    setActiveNode(null);
+    setEditVol(null);
+    toast.success(t('outline.volumeSaved'));
   };
 
   const hasContent = !!rawResult && !loading;
 
   return (
-    <div className="min-h-full p-4 sm:p-8">
+    <div className="flex min-h-full flex-col">
       {/* 顶部标题区 */}
-      <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
+      <header className="border-b border-cyan-400/10 px-4 py-6 sm:px-8 sm:py-8 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <div className="sf-heading">{t('outline.heading')}</div>
+          <div className="sf-heading">{t('nav.outline')}</div>
           <p className="mt-2 pl-4 text-xs tracking-wide text-cyan-300/50">
             {t('outline.subheading')}
           </p>
         </div>
-        {nodes.length > 0 && (
+        {totalChapters > 0 && (
           <div className="flex items-center gap-2 text-2xs tracking-wider text-cyan-300/60 sm:gap-3 sm:text-xs">
             <span className="sf-dot" />
-            <span>{t('outline.nodeCount').replace('{n}', String(nodes.length).padStart(2, '0'))}</span>
+            <span>{t('outline.chapterCount').replace('{n}', String(totalChapters).padStart(2, '0'))}</span>
           </div>
         )}
       </header>
 
-      <div className="mx-auto max-w-7xl">
+      <div className="flex-1 px-4 py-6 sm:px-8 sm:py-8">
         {/* UX-05 草稿恢复提示 */}
         {showRestoreBanner && (
           <DraftRestoreBanner
@@ -447,7 +706,7 @@ export default function Outline() {
         )}
         {/* 输入区 */}
         <div className="sf-panel-hud mb-6 p-4">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_140px_auto]">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_auto]">
             <div>
               <label className="mb-1 block text-2xs tracking-widest text-cyan-300/60">{t('outline.theme')}</label>
               <input
@@ -457,35 +716,58 @@ export default function Outline() {
                 className="sf-input w-full"
               />
             </div>
-            <div>
-              <label className="mb-1 block text-2xs tracking-widest text-cyan-300/60">{t('outline.chapters')}</label>
-              <input
-                type="number"
-                min={5}
-                max={100}
-                value={chapters}
-                onChange={(e) => setChapters(e.target.value)}
-                className="sf-input w-full"
-              />
-            </div>
-            <div className="flex items-end">
-              <button onClick={generate} disabled={loading} className="sf-btn h-[42px] w-full sm:w-auto">
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
-                {loading ? t('outline.generating') : continueMode ? t('outline.continueOn') : t('outline.generate')}
+            <div className="flex items-end gap-2">
+              <button onClick={handleGenConcept} disabled={conceptLoading || planLoading} className="sf-btn-ghost h-[42px] w-full sm:w-auto">
+                {conceptLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Compass className="h-4 w-4" />}
+                {conceptLoading ? t('outline.genConceptRunning') : t('outline.genConcept')}
+              </button>
+              <button onClick={handlePlan} disabled={planLoading} className="sf-btn h-[42px] w-full sm:w-auto">
+                {planLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+                {planLoading ? t('outline.generating') : t('outline.planGenerate')}
               </button>
             </div>
           </div>
 
-          {/* 二级操作行:续生 / 历史 / 保存 / 清空 */}
+          {/* 设定集:可选,作为约束随大纲请求带入,保证世界观/人物自洽 */}
+          <div className="mt-3">
+            <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+              <label className="block text-2xs tracking-widest text-cyan-300/60">{t('outline.setting')}</label>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleLoadFromLib}
+                  disabled={libLoading}
+                  className="sf-btn-ghost shrink-0"
+                  title={t('outline.loadFromLib')}
+                >
+                  {libLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <BookMarked className="h-3 w-3" />}
+                  {t('outline.loadFromLib')}
+                </button>
+                <button
+                  onClick={handleGenSetting}
+                  disabled={settingGenLoading || !theme.trim()}
+                  className="sf-btn-ghost shrink-0"
+                  title={t('outline.genSetting')}
+                >
+                  {settingGenLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Compass className="h-3 w-3" />}
+                  {t('outline.genSetting')}
+                </button>
+              </div>
+            </div>
+            <textarea
+              value={setting}
+              onChange={(e) => setSetting(e.target.value)}
+              rows={3}
+              spellCheck={false}
+              placeholder={t('outline.settingPlaceholder')}
+              className="sf-input w-full resize-y text-xs leading-relaxed"
+            />
+            <p className="mt-1 text-2xs tracking-wider text-cyan-300/40">
+              {t('outline.settingHint')}
+            </p>
+          </div>
+
+          {/* 二级操作行:历史 / 保存 / 清空 */}
           <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-cyan-400/10 pt-3">
-            <button
-              onClick={() => setContinueMode((v) => !v)}
-              className={continueMode ? 'sf-btn' : 'sf-btn-ghost'}
-              title={t('outline.continueHint')}
-            >
-              <Zap className="h-3 w-3" />
-              {continueMode ? t('outline.continueOn') : t('outline.continueOff')}
-            </button>
             <button onClick={openHistory} className="sf-btn-ghost">
               <History className="h-3 w-3" /> {t('outline.history')}
             </button>
@@ -497,7 +779,7 @@ export default function Outline() {
                 <Trash2 className="h-3 w-3" /> {t('common.reset')}
               </button>
             )}
-            {/* UX-05 自动保存状态指示 */}
+            {/* 自动保存状态指示 */}
             <span className="ml-auto inline-flex items-center gap-1 text-2xs tracking-widest text-cyan-300/40">
               {autoSave.status === 'pending' && (
                 <>
@@ -520,133 +802,220 @@ export default function Outline() {
             </span>
           </div>
 
-          {loading && <div className="sf-loader-bar mt-3" />}
+          {planLoading && <div className="sf-loader-bar mt-3" />}
         </div>
 
-        {/* 横向流程图视图 */}
-        {loading ? (
+        {/* 卷结构规划 + 大纲流程图(融合为单一工作区) */}
+        {volumes.length > 0 || volumePlan.trim() ? (
           <div className="sf-panel-hud p-4">
-            <div className="mb-3 flex items-center justify-between">
+            {/* 头部:标题 + 全局操作(重新规划 / 清除 / 展开全部 / 全部展开收起 / 复制) */}
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <span className="sf-chip">FLOW</span>
-                <span className="text-sm text-white/70">
-                  {continueMode ? t('outline.continuingFlow') : t('outline.generatingFlow')}
-                </span>
+                <span className="sf-chip">OUTLINE</span>
+                <span className="text-sm text-white/70">{t('outline.flowTitle')}</span>
               </div>
-              <span className="font-mono text-2xs tracking-widest text-cyan-300/60">
-                <span className="sf-dot" /> RUNNING
-              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <button onClick={handlePlan} disabled={planLoading} className="sf-btn-ghost">
+                  {planLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <PenLine className="h-3 w-3" />}
+                  {planLoading ? t('outline.generating') : t('outline.planRegenerate')}
+                </button>
+                {volumePlan.trim() && (
+                  <button onClick={clearVolumePlan} className="sf-btn-ghost">
+                    <Trash2 className="h-3 w-3" /> {t('outline.planClear')}
+                  </button>
+                )}
+                {volumes.length > 1 && (
+                  <>
+                    <button onClick={expandAll} disabled={expandingAll} className="sf-btn-ghost">
+                      {expandingAll ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
+                      {t('outline.expandAllVolumes')}
+                    </button>
+                    <button
+                      onClick={toggleAllVolumes}
+                      className="sf-btn-ghost"
+                      title={t('outline.toggleAll')}
+                    >
+                      {allCollapsed ? t('outline.expandAll') : t('outline.collapseAll')}
+                    </button>
+                  </>
+                )}
+                <button onClick={copy} className="sf-btn-ghost">
+                  <Copy className="h-3 w-3" /> {t('common.copy').toUpperCase()}
+                </button>
+              </div>
             </div>
-            <div className="sf-panel rounded border border-dashed border-cyan-400/10 py-20 text-center text-white/30">
-              <Loader2 className="mx-auto mb-3 h-8 w-8 animate-spin text-cyan-300/60" />
-              <div className="font-mono text-xs tracking-widest">
-                {continueMode ? 'CONTINUING OUTLINE FLOW...' : 'GENERATING OUTLINE FLOW...'}
-              </div>
-              <div className="mt-2 font-mono text-2xs tracking-widest text-cyan-300/40">
-                {t('outline.theme').toUpperCase()}: {theme || '(空)'} · {t('outline.chapters').toUpperCase()}: {chapters}
-              </div>
-            </div>
-          </div>
-        ) : nodes.length > 0 ? (
-          <>
-            {/* 流程图 */}
-            <div className="sf-panel-hud p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="sf-chip">FLOW</span>
-                  <span className="text-sm text-white/70">{t('outline.flowTitle')}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => scrollBy(-1)} className="sf-btn-ghost">
-                    ← {t('outline.left').toUpperCase()}
-                  </button>
-                  <button onClick={() => scrollBy(1)} className="sf-btn-ghost">
-                    {t('outline.right').toUpperCase()} →
-                  </button>
-                  <button onClick={copy} className="sf-btn-ghost">
-                    <Copy className="h-3 w-3" /> {t('common.copy').toUpperCase()}
-                  </button>
-                </div>
-              </div>
 
-              <div
-                ref={scrollRef}
-                className="sf-scroll-x flex items-stretch gap-2 overflow-x-auto pb-4"
-                style={{ scrollBehavior: 'smooth' }}
-              >
-                {nodes.map((node, i) => (
-                  <div key={i} className="flex items-stretch gap-2">
-                    <FlowNode
-                      node={node}
-                      active={activeNode?.index === node.index}
-                      onClick={() => setActiveNode(node)}
-                      onJumpToChapter={handleJumpToChapter}
-                    />
-                    {i < nodes.length - 1 && (
-                      <div className="flex items-center px-1 text-cyan-300/40">
-                        <ArrowRight className="h-4 w-4" />
+            {/* 卷规划编辑(可修改卷名/章数后应用为骨架);与流程图同处一面板 */}
+            {volumePlan.trim() && (
+              <div className="mb-4 rounded border border-cyan-400/15 bg-black/30 p-3">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <span className="flex items-center gap-2 text-2xs tracking-widest text-cyan-300/60">
+                    <span className="sf-chip">VOLUME PLAN</span>
+                    {t('outline.planTitle')}
+                  </span>
+                  <button onClick={applyPlan} className="sf-btn-ghost">
+                    <Check className="h-3 w-3" /> {t('outline.applyPlan')}
+                  </button>
+                </div>
+                <p className="mb-2 text-2xs leading-relaxed tracking-wide text-cyan-300/50">
+                  {t('outline.planDesc')}
+                </p>
+                <textarea
+                  value={volumePlan}
+                  onChange={(e) => setVolumePlan(e.target.value)}
+                  rows={6}
+                  spellCheck={false}
+                  className="sf-input w-full resize-y font-mono text-xs leading-relaxed"
+                  placeholder={t('outline.planPlaceholder')}
+                />
+              </div>
+            )}
+
+            {/* 单卷(无卷标记)退化为原横向流程图;多卷按卷分组 */}
+            {isSingleFlat ? (
+              <div>
+                <div className="mb-3 flex items-center justify-end">
+                  <button onClick={() => setEditVol(volumes[0])} className="sf-btn-ghost">
+                    <PenLine className="h-3 w-3" /> {t('outline.editVolume')}
+                  </button>
+                </div>
+                <VolumeChapterFlow
+                  chapters={volumes[0].chapters}
+                  activeNode={activeNode}
+                  onSelectNode={setActiveNode}
+                  onJump={handleJumpToChapter}
+                  scrollRef={scrollRef}
+                />
+              </div>
+            ) : (
+              volumes.map((vol) => {
+                const vIdx = vol.volume.index;
+                const isCollapsed = !!collapsed[vIdx];
+                const expanded = vol.chapters.length > 0;
+                const isExpanding = expandingIdx === vIdx || expandingAll;
+                return (
+                  <div
+                    key={vIdx}
+                    className="mb-3 overflow-hidden rounded border border-cyan-400/15 bg-black/30"
+                  >
+                    <div className="flex w-full items-center gap-3 px-3 py-2.5 transition hover:bg-cyan-400/[0.04]">
+                      <button
+                        onClick={() => setCollapsed((c) => ({ ...c, [vIdx]: !c[vIdx] }))}
+                        className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                      >
+                        <ChevronRight
+                          className={`h-4 w-4 shrink-0 text-cyan-300/60 transition-transform ${isCollapsed ? '' : 'rotate-90'}`}
+                        />
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-cyan-300/40 bg-cyan-300/10 font-mono text-xs text-cyan-300">
+                          {String(vIdx).padStart(2, '0')}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-bold text-white">
+                            {vol.volume.name || `第 ${vIdx} 卷`}
+                          </div>
+                          {vol.volume.arc && (
+                            <div className="truncate text-2xs text-cyan-300/50">
+                              {vol.volume.arc}
+                            </div>
+                          )}
+                        </div>
+                        <span className="shrink-0 font-mono text-2xs tracking-widest text-cyan-300/40">
+                          {vol.chapters.length} {t('outline.chapterUnit')}
+                        </span>
+                      </button>
+                      {/* 逐卷操作:修改本卷 / 应用本卷(展开) / 重新规划本卷(重新展开) */}
+                      <button
+                        onClick={() => setEditVol(vol)}
+                        className="sf-btn-ghost shrink-0"
+                        title={t('outline.editVolume')}
+                      >
+                        <PenLine className="h-3 w-3" /> {t('outline.editVolume')}
+                      </button>
+                      {!expanded ? (
+                        <button
+                          onClick={() => expandVolume(vIdx)}
+                          disabled={isExpanding}
+                          className="sf-btn-ghost shrink-0"
+                          title={t('outline.applyVolume')}
+                        >
+                          {isExpanding ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
+                          {t('outline.applyVolume')}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => expandVolume(vIdx)}
+                          disabled={isExpanding}
+                          className="sf-btn-ghost shrink-0"
+                          title={t('outline.replanVolume')}
+                        >
+                          {isExpanding ? <Loader2 className="h-3 w-3 animate-spin" /> : <PenLine className="h-3 w-3" />}
+                          {t('outline.replanVolume')}
+                        </button>
+                      )}
+                    </div>
+                    {!isCollapsed && (
+                      <div className="px-3 pb-3">
+                        {expanded ? (
+                          <VolumeChapterFlow
+                            chapters={vol.chapters}
+                            activeNode={activeNode}
+                            onSelectNode={setActiveNode}
+                            onJump={handleJumpToChapter}
+                          />
+                        ) : (
+                          <div className="py-4 text-center text-2xs tracking-wide text-cyan-300/40">
+                            {t('outline.volumeNotExpanded')}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-                ))}
-              </div>
+                );
+              })
+            )}
 
-              {activeNode && (
-                <div className="mt-4 rounded border border-cyan-400/20 bg-black/40 p-4">
-                  <div className="mb-2 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="sf-chip">{t('outline.detail').toUpperCase()}</span>
-                      <span className="text-sm font-bold text-white">
-                        [{String(activeNode.no).padStart(2, '0')}] {activeNode.title}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => handleJumpToChapter(activeNode)}
-                      className="flex items-center gap-1.5 rounded border border-cyan-400/40 bg-cyan-400/10 px-3 py-1 text-xs tracking-widest text-cyan-300 transition hover:bg-cyan-400/20"
-                      title={t('outline.jumpToChapter')}
-                    >
-                      <PenLine className="h-3 w-3" />
-                      {t('outline.jumpToChapter')}
-                    </button>
+            {activeNode && (
+              <div className="mt-4 rounded border border-cyan-400/20 bg-black/40 p-4">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="sf-chip">{t('outline.detail').toUpperCase()}</span>
+                    <span className="text-sm font-bold text-white">
+                      [{String(activeNode.no).padStart(2, '0')}] {activeNode.title}
+                    </span>
                   </div>
-                  <pre className="max-h-[40vh] overflow-auto whitespace-pre-wrap font-mono text-xs leading-relaxed text-white/80">
-                    {activeNode.summary}
-                  </pre>
+                  <button
+                    onClick={() => handleJumpToChapter(activeNode)}
+                    className="flex items-center gap-1.5 rounded border border-cyan-400/40 bg-cyan-400/10 px-3 py-1 text-xs tracking-widest text-cyan-300 transition hover:bg-cyan-400/20"
+                    title={t('outline.jumpToChapter')}
+                  >
+                    <PenLine className="h-3 w-3" />
+                    {t('outline.jumpToChapter')}
+                  </button>
                 </div>
-              )}
-            </div>
-
-            {/* 全文编辑/保存区 */}
-            <div className="sf-panel-hud mt-6 p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="sf-chip">FULL TEXT</span>
-                  <span className="text-sm text-white/70">{t('outline.fullText')}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <SaveButton onClick={handleSave} label={t('outline.saveAsNew')} variant="ghost" />
-                </div>
+                <pre className="max-h-[40vh] overflow-auto whitespace-pre-wrap font-mono text-xs leading-relaxed text-white/80">
+                  {activeNode.summary}
+                </pre>
               </div>
-              <EditableText
-                value={rawResult}
-                onSave={async (newVal) => {
-                  setRawResult(newVal);
-                  // 直接落库:把当前编辑后的内容新建一个版本
-                  await handleSave();
-                }}
-                rows={20}
-                mono
-                placeholder={t('outline.flowEmpty')}
-              />
-            </div>
-          </>
-        ) : (
-          <div className="sf-panel rounded border border-dashed border-cyan-400/10 py-20 text-center text-white/30">
-            <FileText className="mx-auto mb-3 h-10 w-10 opacity-40" />
-            <div className="text-xs tracking-wide">{t('outline.flowEmpty')}</div>
+            )}
           </div>
+        ) : (
+          !loading && (
+            <div className="sf-panel rounded border border-dashed border-cyan-400/10 py-20 text-center text-white/30">
+              <FileText className="mx-auto mb-3 h-10 w-10 opacity-40" />
+              <div className="text-xs tracking-wide">{t('outline.planFirstHint')}</div>
+            </div>
+          )
         )}
+
       </div>
+
+      {/* 逐卷内联编辑弹窗 */}
+      <VolumeEditModal
+        open={!!editVol}
+        vol={editVol}
+        onClose={() => setEditVol(null)}
+        onSave={handleVolumeSave}
+      />
 
       {/* 历史抽屉 */}
       <HistoryDrawer

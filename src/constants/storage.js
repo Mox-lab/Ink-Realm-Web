@@ -29,6 +29,9 @@ export const STORAGE_KEYS = {
 
   // 通知中心(localStorage,简化方案:不引入后端推送)
   NOTIFICATIONS: 'ink_realm_notifications',
+
+  // 设定集启用的分类标签(按 novelId 隔离,拼接 draftKey 风格后缀)
+  SETTING_CATS: 'ink_realm_setting_cats',
 };
 
 /**

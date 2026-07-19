@@ -15,6 +15,34 @@ export const tokenStore = {
   }
 };
 
+// ── 错误提示统一管控 ──────────────────────────────────────────────
+// 全局拦截器已对业务失败(code≠200)与 HTTP≥400 统一弹 toast;若组件 catch 内
+// 再用 err.response?.data?.message 弹同样的网络错误,会造成「双重/重复提示」。
+// 约定:
+//   1) 同一文案 3s 内只弹一次(去重),避免并发/重试刷屏;
+//   2) 拦截器弹过后在 error 上标记 _toastShown,组件改用 notifyError(),
+//      已在全局弹过则自动跳过,杜绝双重提示。
+const toastDedup = new Map();
+function showErrorToast(message) {
+  const key = String(message);
+  const now = Date.now();
+  if (toastDedup.has(key) && now - toastDedup.get(key) < 3000) return;
+  toastDedup.set(key, now);
+  toast.error(message);
+}
+
+/**
+ * 组件内统一错误提示:若全局拦截器已为该错误弹过 toast,则跳过,
+ * 否则按去重规则弹一次。组件 catch 应改用此函数替代直接的 toast.error,
+ * 以配合全局拦截器实现「单次提示、不重复」。
+ * @param {string} message 提示文案
+ * @param {Error} [err] 关联的 error(含 _toastShown 标记时跳过)
+ */
+export function notifyError(message, err) {
+  if (err && err._toastShown) return;
+  showErrorToast(message);
+}
+
 /**
  * 当前活跃 novelId(供请求拦截器注入 X-Novel-Id 头)。
  * <p>第 6 阶段:默认 null,表示尚未选择小说;业务 API 调用前必须由
@@ -98,13 +126,14 @@ api.interceptors.response.use(
       }
       // 业务失败
       const msg = body.message || '业务异常';
+      const bizError = new Error(msg);
+      bizError.businessCode = body.code;
+      bizError.response = resp;
       // 请求可通过 config.skipErrorToast=true 关闭全局弹窗,改由调用方自行内联展示错误
       if (!resp.config?.skipErrorToast) {
-        if (body.code >= 5000) {
-          toast.error(`服务异常:${msg}`);
-        } else {
-          toast.error(msg);
-        }
+        const text = body.code >= 5000 ? `服务异常:${msg}` : msg;
+        showErrorToast(text);
+        bizError._toastShown = true;
       }
       // 业务码 2001(未鉴权):token 失效或被后端拒绝,清除并跳登录
       if (body.code === 2001) {
@@ -114,9 +143,6 @@ api.interceptors.response.use(
           window.location.href = '/login';
         }
       }
-      const bizError = new Error(msg);
-      bizError.businessCode = body.code;
-      bizError.response = resp;
       throw bizError;
     }
     return resp;
@@ -131,8 +157,9 @@ api.interceptors.response.use(
       const msg = error.response?.data?.message || error.response?.data?.error || error.message;
       // 同样尊重 skipErrorToast:登录/注册等页面可关闭全局弹窗,自行内联展示
       if (!original?.skipErrorToast) {
-        if (status >= 500) toast.error(`服务异常:${msg}`);
-        else if (status >= 400 && status !== 401) toast.error(`请求失败 (${status}):${msg}`);
+        const text = status >= 500 ? `服务异常:${msg}` : `请求失败 (${status}):${msg}`;
+        showErrorToast(text);
+        error._toastShown = true;
       }
       throw error;
     }

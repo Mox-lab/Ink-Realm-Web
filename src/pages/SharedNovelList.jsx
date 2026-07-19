@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Globe, Loader2, BookOpen, ArrowLeft, Search, X, Compass } from 'lucide-react';
-import { toast } from 'sonner';
-import { listSharedNovels } from '../api/index.js';
+import { listSharedNovels, notifyError } from '../api/index.js';
 import { useI18n } from '../context/I18nContext.jsx';
 
 /**
@@ -27,7 +26,7 @@ export default function SharedNovelList() {
       const list = await listSharedNovels();
       setNovels(Array.isArray(list) ? list : []);
     } catch (err) {
-      toast.error(t('novel.shared.fetch.failed') + ':' + (err.message || ''));
+      notifyError(t('novel.shared.fetch.failed') + ':' + (err.message || ''), err);
       setNovels([]);
     } finally {
       setLoading(false);
@@ -90,7 +89,7 @@ export default function SharedNovelList() {
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               placeholder={t('novel.shared.list.searchPlaceholder')}
-              className="w-full rounded border border-cyan-400/20 bg-black/40 py-2 pl-9 pr-9 text-xs text-white/80 placeholder-white/30 outline-none focus:border-cyan-300/60"
+              className="sf-input w-full py-2 pl-9 pr-9 text-xs"
             />
             {keyword && (
               <button
@@ -144,7 +143,7 @@ export default function SharedNovelList() {
                   className="mb-1 text-lg font-bold leading-tight text-white"
                   style={{
                     fontFamily:
-                      '"Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif'
+                      'var(--sf-font-display)'
                   }}
                 >
                   {novel.title || '(未命名)'}

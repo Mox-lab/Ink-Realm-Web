@@ -3,7 +3,7 @@
  * @author songshan.li (ID: 17099618)
  */
 export const character = {
-  'character.heading': 'Character Extraction',
+
   'character.subheading': 'Auto-build character profiles and relationship graph',
   'character.graph': 'Graph',
   'character.cards': 'Cards',
@@ -22,7 +22,7 @@ export const character = {
   'character.graphTitle': 'Relationship graph',
   'character.cardsTitle': '{n} characters (editable)',
   'character.awaiting': 'Awaiting extraction',
-  'character.awaitingHint': 'Paste source text above and click "Extract"',
+  'character.awaitingHint': 'Click "Add character" to create manually, or paste text above and click "Extract"',
   'character.charCount': '{n} chars',
   'character.ready': 'Ready',
   'character.raw': 'Raw response',
@@ -32,4 +32,23 @@ export const character = {
   'character.deleteFailed': 'Delete failed',
   'character.historyTitle': 'Character history',
   'character.graphEmpty': 'Graph empty',
+  'character.addTitle': 'Add character',
+  'character.addNameRequired': 'Name is required',
+  'character.addConfirm': 'Add',
+  'character.addCancel': 'Cancel',
+  'character.field.name': 'Name',
+  'character.field.role': 'Role',
+  'character.field.age': 'Age',
+  'character.field.gender': 'Gender',
+  'character.field.identity': 'Identity',
+  'character.field.personality': 'Personality',
+  'character.field.appearance': 'Appearance',
+  'character.field.weapon': 'Weapon',
+  'character.field.background': 'Background',
+  'character.field.goal': 'Goal',
+  'character.field.skills': 'Skills',
+  'character.field.relationships': 'Relationships',
+  'character.addRelation': 'Related characters',
+  'character.addRelationEmpty': 'No other characters yet. Add relations later in the card or the graph.',
+  'character.addRelationHint': 'Select existing characters to auto-link them on the relationship graph',
 };

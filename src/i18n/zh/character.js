@@ -3,7 +3,7 @@
  * @author songshan.li (ID: 17099618)
  */
 export const character = {
-  'character.heading': '人物抽取',
+
   'character.subheading': '自动构建角色档案与关系图谱',
   'character.graph': '图谱',
   'character.cards': '卡片',
@@ -22,7 +22,7 @@ export const character = {
   'character.graphTitle': '人物关系图谱',
   'character.cardsTitle': '共 {n} 个角色(可编辑)',
   'character.awaiting': '等待抽取',
-  'character.awaitingHint': '在上方粘贴原文后点击「执行抽取」',
+  'character.awaitingHint': '可直接点击「新增角色」手动创建,或粘贴原文后点击「执行抽取」',
   'character.charCount': '共 {n} 字',
   'character.ready': '就绪',
   'character.raw': '原始返回',
@@ -32,4 +32,23 @@ export const character = {
   'character.deleteFailed': '删除失败',
   'character.historyTitle': '人物历史',
   'character.graphEmpty': '图谱为空',
+  'character.addTitle': '新增角色',
+  'character.addNameRequired': '请填写角色姓名',
+  'character.addConfirm': '确认新增',
+  'character.addCancel': '取消',
+  'character.field.name': '姓名',
+  'character.field.role': '角色',
+  'character.field.age': '年龄',
+  'character.field.gender': '性别',
+  'character.field.identity': '身份',
+  'character.field.personality': '性格',
+  'character.field.appearance': '外貌',
+  'character.field.weapon': '武器',
+  'character.field.background': '背景',
+  'character.field.goal': '目标',
+  'character.field.skills': '技能',
+  'character.field.relationships': '关系',
+  'character.addRelation': '关联角色',
+  'character.addRelationEmpty': '暂无其他角色,可保存后在卡片详情或关系图谱中补充关系',
+  'character.addRelationHint': '勾选已有角色即可自动在关系图谱中连线',
 };

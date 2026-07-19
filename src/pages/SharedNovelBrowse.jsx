@@ -15,8 +15,7 @@ import {
   Users,
   Sparkles
 } from 'lucide-react';
-import { toast } from 'sonner';
-import { getSharedNovelBrowse } from '../api/index.js';
+import { getSharedNovelBrowse, notifyError } from '../api/index.js';
 import { useI18n } from '../context/I18nContext.jsx';
 
 /**
@@ -58,7 +57,7 @@ export default function SharedNovelBrowse() {
         setSelectedOutlineId(data.outlines[0].id);
       }
     } catch (err) {
-      toast.error(t('novel.shared.fetch.failed') + ':' + (err?.message || ''));
+      notifyError(t('novel.shared.fetch.failed') + ':' + (err?.message || ''), err);
       setDetail(null);
     } finally {
       setLoading(false);
@@ -181,7 +180,7 @@ export default function SharedNovelBrowse() {
               className="mt-2 text-2xl font-bold leading-tight text-white"
               style={{
                 fontFamily:
-                  '"Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif'
+                  'var(--sf-font-display)'
               }}
             >
               {detail.title || '(未命名)'}
@@ -262,7 +261,7 @@ export default function SharedNovelBrowse() {
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 placeholder={t(`novel.shared.search.${activeTab}`)}
-                className="w-full rounded border border-cyan-400/20 bg-black/40 py-2 pl-9 pr-9 text-xs text-white/80 placeholder-white/30 outline-none focus:border-cyan-300/60"
+                className="sf-input w-full py-2 pl-9 pr-9 text-xs"
               />
               {keyword && (
                 <button
@@ -324,7 +323,7 @@ export default function SharedNovelBrowse() {
                       className="mt-1 text-xl font-bold text-white"
                       style={{
                         fontFamily:
-                          '"Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif'
+                          'var(--sf-font-display)'
                       }}
                     >
                       第 {selectedChapter.chapterNo} 章 · {selectedChapter.title}
@@ -401,7 +400,7 @@ export default function SharedNovelBrowse() {
                       className="mt-1 text-xl font-bold text-white"
                       style={{
                         fontFamily:
-                          '"Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif'
+                          'var(--sf-font-display)'
                       }}
                     >
                       {selectedOutline.title}
@@ -448,7 +447,7 @@ export default function SharedNovelBrowse() {
                         className="text-base font-bold text-white"
                         style={{
                           fontFamily:
-                            '"Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif'
+                            'var(--sf-font-display)'
                         }}
                       >
                         {c.name || '(未命名)'}
@@ -512,7 +511,7 @@ export default function SharedNovelBrowse() {
                         className="text-base font-bold text-white"
                         style={{
                           fontFamily:
-                            '"Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif'
+                            'var(--sf-font-display)'
                         }}
                       >
                         {s.keyword || '(未命名)'}

@@ -19,6 +19,7 @@ import {
   Check
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { notifyError } from '../api/client.js';
 import {
   chapterWithSkill,
   saveChapter,
@@ -281,7 +282,7 @@ export default function Chapter() {
         toast.success(t('outline.loadedSegment').replace('{n}', idx + 1));
       }
     } catch (err) {
-      toast.error(t('outline.loadFailed') + ':' + (err.response?.data?.message || err.message));
+      notifyError(t('outline.loadFailed') + ':' + (err.response?.data?.message || err.message), err);
     }
   };
 
@@ -441,7 +442,7 @@ export default function Chapter() {
     toast.success(t('chapter.conflict.forced'));
     // 立即触发一次保存(不带 clientUpdatedAt,绕过冲突检测)
     handleSave().catch((err) => {
-      toast.error(t('chapter.saveFailed') + ':' + (err.response?.data?.message || err.message));
+      notifyError(t('chapter.saveFailed') + ':' + (err.response?.data?.message || err.message), err);
     });
   };
 
@@ -482,7 +483,7 @@ export default function Chapter() {
         }))
       );
     } catch (err) {
-      toast.error(t('outline.loadHistoryFailed') + ':' + (err.response?.data?.message || err.message));
+      notifyError(t('outline.loadHistoryFailed') + ':' + (err.response?.data?.message || err.message), err);
     } finally {
       setHistoryLoading(false);
     }
@@ -503,7 +504,7 @@ export default function Chapter() {
       setHistoryOpen(false);
       toast.success(t('chapter.chapterLoaded').replace('{n}', detail.chapterNo));
     } catch (err) {
-      toast.error(t('chapter.loadChapterFailed') + ':' + (err.response?.data?.message || err.message));
+      notifyError(t('chapter.loadChapterFailed') + ':' + (err.response?.data?.message || err.message), err);
     }
   };
 
@@ -513,7 +514,7 @@ export default function Chapter() {
       setHistoryItems((prev) => prev.filter((x) => x.id !== item.id));
       toast.success(t('common.delete') + ' ✓');
     } catch (err) {
-      toast.error(t('chapter.deleteFailed') + ':' + (err.response?.data?.message || err.message));
+      notifyError(t('chapter.deleteFailed') + ':' + (err.response?.data?.message || err.message), err);
     }
   };
 
@@ -663,10 +664,10 @@ export default function Chapter() {
   );
 
   return (
-    <div className="min-h-full p-4 sm:p-8">
-      <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
+    <div className="flex min-h-full flex-col">
+      <header className="border-b border-cyan-400/10 px-4 py-6 sm:px-8 sm:py-8 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <div className="sf-heading">{t('chapter.heading')}</div>
+          <div className="sf-heading">{t('nav.chapter')}</div>
           <p className="mt-2 pl-4 text-xs tracking-wide text-cyan-300/50">
             {t('chapter.subheading')}
           </p>
@@ -704,7 +705,7 @@ export default function Chapter() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl">
+      <div className="flex-1 px-4 py-6 sm:px-8 sm:py-8">
         {/* UX-05 草稿恢复提示:仅在有未保存草稿且非预填场景显示 */}
         {showRestoreBanner && (
           <DraftRestoreBanner

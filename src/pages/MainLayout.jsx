@@ -6,7 +6,6 @@ import {
   PenLine,
   ListTree,
   BookOpen,
-  UserCircle2,
   Compass,
   LogOut,
   Menu,
@@ -27,7 +26,7 @@ import NicknameModal from '../components/NicknameModal.jsx';
 
 /** 华为新魏字体栈(LOGO 与标记,全站统一)。 */
 const XINWEI_FONT = {
-  fontFamily: '"Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif'
+  fontFamily: 'var(--sf-font-display)'
 };
 
 /**
@@ -127,7 +126,6 @@ export default function MainLayout() {
         // 以下子模块仅在进入某本小说工作台后展示
         ...(creationBase
           ? [
-              { to: `${creationBase}/character`, label: t('nav.character'), icon: UserCircle2 },
               { to: `${creationBase}/lore`, label: t('nav.lore'), icon: Compass },
               { to: `${creationBase}/outline`, label: t('nav.outline'), icon: ListTree },
               { to: `${creationBase}/chapter`, label: t('nav.chapter'), icon: BookOpen },
@@ -431,7 +429,7 @@ export default function MainLayout() {
           </div>
         </header>
 
-        <main ref={mainRef} className="relative min-h-0 flex-1 overflow-auto">
+        <main ref={mainRef} className="relative flex min-h-0 flex-1 flex-col overflow-auto">
           <Outlet />
         </main>
 

@@ -57,7 +57,7 @@ export default function ChapterHistoryPanel({ open, chapterId, onRestore, onClos
 
   return (
     <div className="fixed inset-0 z-40 flex justify-end bg-black/50">
-      <div className="flex h-full w-full max-w-3xl flex-col border-l border-cyan-400/20 bg-[#0a0e1a]">
+      <div className="flex h-full w-full max-w-3xl flex-col border-l border-cyan-400/20 bg-[var(--sf-panel-solid)]">
         <div className="flex items-center justify-between border-b border-cyan-400/10 px-4 py-3">
           <div className="flex items-center gap-2 text-xs tracking-widest text-cyan-300">
             <History className="h-4 w-4" />

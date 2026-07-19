@@ -1,0 +1,392 @@
+/**
+ * 浅色主题可读覆盖(统一管理)
+ * 组件大量使用 text-white/X、border-cyan-*/X 等稀释工具类,在浅色底被稀释成
+ * 近乎不可见。本文件集中将这些类重映射为各浅色主题下的可读色:
+ *   - 水墨(ink):严格单色墨调,文本/边框统一加深为墨黑;
+ *   - 泡沫(bubble):边框加亮为明显紫蓝,字体加深/加饱和提升对比度。
+ * 由 scripts/gen-readable.mjs 生成;如需调整映射改脚本后重新生成。
+ *
+ * @author songshan.li (ID: 17099618)
+ */
+
+/* ================ 水墨(ink):稀释类统一加黑 ================ */
+  [data-theme="ink"] .text-amber-200\/60 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-amber-200\/70 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-amber-200\/80 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-amber-300\/60 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-amber-300\/80 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-cyan-300\/0 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-cyan-300\/20 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-cyan-300\/25 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-cyan-300\/40 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-cyan-300\/50 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-cyan-300\/60 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-cyan-300\/70 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-cyan-300\/80 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-cyan-300\/90 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-emerald-300\/60 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-emerald-300\/70 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-rose-300\/50 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-rose-300\/60 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-rose-300\/80 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-white\/20 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-white\/25 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-white\/30 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-white\/40 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-white\/45 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-white\/50 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-white\/55 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-white\/60 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-white\/65 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-white\/70 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-white\/75 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-white\/80 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-white\/85 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .text-white\/90 {
+    color: color-mix(in oklab, var(--sf-text) 84%, transparent);
+  }
+  [data-theme="ink"] .border-amber-300\/30 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-amber-300\/40 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-amber-400\/15 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-amber-400\/20 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-amber-400\/30 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-amber-400\/40 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-cyan-300\/30 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-cyan-300\/40 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-cyan-300\/50 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-cyan-300\/60 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-cyan-400\/10 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-cyan-400\/15 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-cyan-400\/20 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-cyan-400\/30 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-cyan-400\/40 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-emerald-300\/40 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-emerald-400\/10 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-emerald-400\/20 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-emerald-400\/30 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-purple-300\/40 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-rose-300\/40 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-rose-400\/30 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-white\/10 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-white\/15 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-white\/20 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .border-white\/5 {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .divide-white\/5 > :not(:last-child) {
+    border-color: var(--sf-border-strong);
+  }
+  [data-theme="ink"] .placeholder-white\/30::placeholder {
+    color: color-mix(in oklab, var(--sf-text) 68%, transparent);
+  }
+  [data-theme="ink"] .placeholder-white\/40::placeholder {
+    color: color-mix(in oklab, var(--sf-text) 68%, transparent);
+  }
+  [data-theme="ink"] .placeholder-white\/50::placeholder {
+    color: color-mix(in oklab, var(--sf-text) 68%, transparent);
+  }
+
+/* ================ 泡沫(bubble):边框加亮 + 字体加深 ================ */
+  [data-theme="bubble"] .text-amber-200\/60 {
+    color: color-mix(in oklab, var(--sf-status-warning) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-amber-200\/70 {
+    color: color-mix(in oklab, var(--sf-status-warning) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-amber-200\/80 {
+    color: color-mix(in oklab, var(--sf-status-warning) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-amber-300\/60 {
+    color: color-mix(in oklab, var(--sf-status-warning) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-amber-300\/80 {
+    color: color-mix(in oklab, var(--sf-status-warning) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-cyan-300\/0 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-cyan-300\/20 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-cyan-300\/25 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-cyan-300\/40 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-cyan-300\/50 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-cyan-300\/60 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-cyan-300\/70 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-cyan-300\/80 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-cyan-300\/90 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-emerald-300\/60 {
+    color: color-mix(in oklab, var(--sf-status-success) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-emerald-300\/70 {
+    color: color-mix(in oklab, var(--sf-status-success) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-rose-300\/50 {
+    color: color-mix(in oklab, var(--sf-status-error) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-rose-300\/60 {
+    color: color-mix(in oklab, var(--sf-status-error) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-rose-300\/80 {
+    color: color-mix(in oklab, var(--sf-status-error) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-white\/20 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-white\/25 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-white\/30 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-white\/40 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-white\/45 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-white\/50 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-white\/55 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-white\/60 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-white\/65 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-white\/70 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-white\/75 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-white\/80 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-white\/85 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .text-white\/90 {
+    color: color-mix(in oklab, var(--sf-accent) 90%, transparent);
+  }
+  [data-theme="bubble"] .border-amber-300\/30 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-amber-300\/40 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-amber-400\/15 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-amber-400\/20 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-amber-400\/30 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-amber-400\/40 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-cyan-300\/30 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-cyan-300\/40 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-cyan-300\/50 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-cyan-300\/60 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-cyan-400\/10 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-cyan-400\/15 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-cyan-400\/20 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-cyan-400\/30 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-cyan-400\/40 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-emerald-300\/40 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-emerald-400\/10 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-emerald-400\/20 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-emerald-400\/30 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-purple-300\/40 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-rose-300\/40 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-rose-400\/30 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-white\/10 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-white\/15 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-white\/20 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .border-white\/5 {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .divide-white\/5 > :not(:last-child) {
+    border-color: var(--sf-border-bright);
+  }
+  [data-theme="bubble"] .placeholder-white\/30::placeholder {
+    color: color-mix(in oklab, var(--sf-text) 74%, transparent);
+  }
+  [data-theme="bubble"] .placeholder-white\/40::placeholder {
+    color: color-mix(in oklab, var(--sf-text) 74%, transparent);
+  }
+  [data-theme="bubble"] .placeholder-white\/50::placeholder {
+    color: color-mix(in oklab, var(--sf-text) 74%, transparent);
+  }

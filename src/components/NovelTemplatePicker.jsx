@@ -80,7 +80,7 @@ export default function NovelTemplatePicker({ onPick }) {
                 className="mb-2 text-base font-bold leading-tight text-white"
                 style={{
                   fontFamily:
-                    '"Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif'
+                    'var(--sf-font-display)'
                 }}
               >
                 {t(`novel.template.${tpl.id}.title`)}
@@ -126,7 +126,7 @@ export default function NovelTemplatePicker({ onPick }) {
             onClick={() => setPreviewing(null)}
           >
             <div
-              className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-lg border border-cyan-400/30 bg-[#0a0e14] p-5 shadow-2xl"
+              className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-lg border border-cyan-400/30 bg-[var(--sf-panel-solid)] p-5 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -152,7 +152,7 @@ export default function NovelTemplatePicker({ onPick }) {
                 className="mb-4 text-lg font-bold text-white"
                 style={{
                   fontFamily:
-                    '"Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif'
+                    'var(--sf-font-display)'
                 }}
               >
                 {t(`novel.template.${previewing.id}.title`)}

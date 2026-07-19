@@ -3,7 +3,7 @@
  * @author songshan.li (ID: 17099618)
  */
 export const chapter = {
-  'chapter.heading': '章节生成',
+
   'chapter.subheading': '基于大纲与目标字数,AI 生成完整章节正文',
   'chapter.targetWords': '目标字数',
   'chapter.chapterNo': '章节号',

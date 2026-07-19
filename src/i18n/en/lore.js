@@ -3,8 +3,10 @@
  * @author songshan.li (ID: 17099618)
  */
 export const lore = {
-  'lore.heading': 'Lore RAG',
-  'lore.subheading': 'Vector retrieval · Lore Q&A · Knowledge import',
+
+  'lore.subheading': 'Setting collection · Knowledge base (RAG) · Memory',
+  'lore.tabSetting': 'Setting',
+  'lore.tabKnowledge': 'Knowledge',
   'lore.tabAsk': 'Ask',
   'lore.tabImport': 'Import',
   'lore.tabSearch': 'Search',
@@ -56,7 +58,85 @@ export const lore = {
    ↓ exceeds token-budget (6000)
 Compress  →  ContextCompactor (reuse PolishAgent for summary)  →  ~3000
    ↓ on chapter save
-Extract  →  LongTermMemoryExtractor (@Async)  →  novel_character table
+Extract  →  LongTermMemoryExtractor (@Async)  →  Setting "Character" category
    ↓ before chapter generation
 Recall  →  RelevantMemoryRetriever (characters + timeline + RAG)  →  inject prompt`,
+
+  // ====== Setting collection (SettingCollection) ======
+  'setting.draftHint': 'Same keyword overwrites',
+  'setting.keywordPlaceholder': 'Keyword *',
+  'setting.descPlaceholder': 'Description...',
+  'setting.keywordRequired': 'Please enter a keyword',
+  'setting.aiHint': 'Generate settings from a blueprint; preview then save to DB',
+  'setting.blueprintPlaceholder': 'Paste a theme blueprint or one-line inspiration...',
+  'setting.gen': 'AI Generate',
+  'setting.genRunning': 'Generating',
+  'setting.genFailed': 'Generation failed',
+  'setting.previewTitle': 'Preview ({n})',
+  'setting.previewEmpty': 'No entries parsed',
+  'setting.saveToDb': 'Save to DB',
+  'setting.saveFailed': 'Save failed',
+  'setting.loadFailed': 'Failed to load settings',
+  'setting.listTitle': '{cat} entries',
+  'setting.empty': 'No entries in this category · refresh or generate with AI',
+  'setting.catCharacter': 'Character',
+  'setting.catFaction': 'Faction',
+  'setting.catMap': 'Map',
+  'setting.catAbility': 'Ability',
+  'setting.catWeapon': 'Weapon',
+  'setting.catTier': 'Tier',
+  'setting.catRace': 'Race',
+  'setting.catProfession': 'Profession',
+  'setting.catItem': 'Item',
+  'setting.catTechnique': 'Technique',
+  'setting.catPill': 'Pill',
+  'setting.catBeast': 'Beast',
+  'setting.catEvent': 'Event',
+  'setting.catOrg': 'Organization',
+  'setting.catCurrency': 'Currency',
+  'setting.catHistory': 'History',
+  'setting.catCulture': 'Culture',
+  'setting.catOther': 'Other',
+
+  // Visualization & structured-editor strings
+  'setting.blueprintRequired': 'Enter a blueprint or inspiration first',
+  'setting.imported': 'Imported',
+  'setting.viewTimeline': 'Timeline',
+  'setting.pickNode': 'Node detail',
+  'setting.graphHint': 'Click a node to view attributes & relations',
+  'setting.mapDragHint': 'Drag a region on the map to reposition it (auto-saved)',
+
+
+  'setting.noDesc': 'No description',
+  'setting.noGraphData': 'No character/faction graph data',
+  'setting.noMapData': 'No map regions; edit coordinates under "Map"',
+  'setting.timelineEmpty': 'No timeline data (add events or use tiers)',
+  'setting.attributes': 'Attributes',
+  'setting.faction': 'Faction',
+  'setting.relations': 'Relations',
+  'setting.members': 'Members',
+  'setting.leader': 'Leader',
+  'setting.links': 'Links',
+  'setting.level': 'Lv',
+  'setting.order': 'Order',
+  'setting.progress': 'Progress',
+  'setting.tags': 'Tags',
+  'setting.tagPlaceholder': 'Tags (Enter to add, commas allowed)',
+  'setting.addMember': 'Type a member name, Enter to add',
+  'setting.addAttr': 'Add attr',
+  'setting.attrName': 'Attr name',
+  'setting.addRelation': 'Add relation',
+  'setting.relTarget': 'Target',
+  'setting.relType': 'Type',
+  'setting.relDesc': 'Note',
+  'setting.allTags': 'All',
+  'setting.manageTags': 'Manage Tags',
+  'setting.manageTagsHint': 'Pick categories to show for this novel. Disable concepts you don\'t need (e.g. Tier / Map).',
+  'setting.tagPinned': 'Pinned',
+
+  // Differentiated-table column labels
+  'setting.colName': 'Name',
+  'setting.colDesc': 'Desc',
+  'setting.colRank': 'Rank',
+  'setting.colActions': 'Actions',
 };

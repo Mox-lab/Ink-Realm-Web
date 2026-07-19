@@ -55,7 +55,7 @@ export default function ConflictResolver({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-      <div className="w-full max-w-4xl rounded border border-amber-400/30 bg-[#0a0e1a] shadow-2xl">
+      <div className="w-full max-w-4xl rounded border border-amber-400/30 bg-[var(--sf-panel-solid)] shadow-2xl">
         <div className="flex items-center justify-between border-b border-amber-400/20 px-4 py-3">
           <div className="flex items-center gap-2 text-xs tracking-widest text-amber-300">
             <GitMerge className="h-4 w-4" />

@@ -3,8 +3,10 @@
  * @author songshan.li (ID: 17099618)
  */
 export const lore = {
-  'lore.heading': '设定 RAG',
-  'lore.subheading': '向量检索 · 设定库问答 · 知识库导入',
+
+  'lore.subheading': '设定集(权威设定) · 知识库(RAG 检索) · 记忆',
+  'lore.tabSetting': '设定集',
+  'lore.tabKnowledge': '知识库',
   'lore.tabAsk': '设定问答',
   'lore.tabImport': '导入设定',
   'lore.tabSearch': '检索调试',
@@ -56,7 +58,85 @@ export const lore = {
    ↓ 超过 token-budget (6000)
 上下文压缩  →  ContextCompactor (复用 PolishAgent 做摘要)  →  压到 3000
    ↓ 章节保存时
-长期抽取  →  LongTermMemoryExtractor (@Async)  →  novel_character 表
+长期抽取  →  LongTermMemoryExtractor (@Async)  →  设定集「人物」分类
    ↓ 章节生成前
 相关召回  →  RelevantMemoryRetriever (人物 + 时间线 + RAG)  →  拼 prompt`,
+
+  // ====== 设定集(SettingCollection) ======
+  'setting.draftHint': '同一关键词覆盖更新',
+  'setting.keywordPlaceholder': '关键词 *',
+  'setting.descPlaceholder': '设定描述...',
+  'setting.keywordRequired': '请输入关键词',
+  'setting.aiHint': '基于题材/灵感生成设定,预览确认后可保存入库',
+  'setting.blueprintPlaceholder': '粘贴题材蓝图或一句话灵感,AI 将生成分类设定...',
+  'setting.gen': 'AI 生成设定',
+  'setting.genRunning': '生成中',
+  'setting.genFailed': '设定生成失败',
+  'setting.previewTitle': '预览条目({n})',
+  'setting.previewEmpty': '未解析出可入库条目',
+  'setting.saveToDb': '保存入库',
+  'setting.saveFailed': '保存失败',
+  'setting.loadFailed': '加载设定失败',
+  'setting.listTitle': '{cat} 条目',
+  'setting.empty': '该分类暂无条目 · 点击「刷新」从后端加载,或用 AI 生成',
+  'setting.catCharacter': '人物',
+  'setting.catFaction': '势力',
+  'setting.catMap': '地图',
+  'setting.catAbility': '能力',
+  'setting.catWeapon': '武器',
+  'setting.catTier': '等级',
+  'setting.catRace': '种族',
+  'setting.catProfession': '职业',
+  'setting.catItem': '物品',
+  'setting.catTechnique': '功法',
+  'setting.catPill': '丹药',
+  'setting.catBeast': '灵兽',
+  'setting.catEvent': '事件',
+  'setting.catOrg': '组织',
+  'setting.catCurrency': '货币',
+  'setting.catHistory': '历史',
+  'setting.catCulture': '文化',
+  'setting.catOther': '其他',
+
+  // 可视化与结构化编辑补充词条
+  'setting.blueprintRequired': '请先填写题材蓝图或灵感',
+  'setting.imported': '已入库',
+  'setting.viewTimeline': '时间线',
+  'setting.pickNode': '节点详情',
+  'setting.graphHint': '点击图中节点查看属性与关系',
+  'setting.mapDragHint': '在地图上直接拖动区域即可调整位置(自动保存)',
+
+
+  'setting.noDesc': '暂无描述',
+  'setting.noGraphData': '暂无人物/势力关系数据',
+  'setting.noMapData': '暂无地图区域,可在「地图」编辑坐标',
+  'setting.timelineEmpty': '暂无时间线数据(给条目加 events,或用等级体系)',
+  'setting.attributes': '属性',
+  'setting.faction': '所属势力',
+  'setting.relations': '关系',
+  'setting.members': '成员',
+  'setting.leader': '首领',
+  'setting.links': '连通',
+  'setting.level': '阶',
+  'setting.order': '排序',
+  'setting.progress': '进度',
+  'setting.tags': '标签',
+  'setting.tagPlaceholder': '标签(回车添加,可含逗号)',
+  'setting.addMember': '输入成员名,回车添加',
+  'setting.addAttr': '添加属性',
+  'setting.attrName': '属性名',
+  'setting.addRelation': '添加关系',
+  'setting.relTarget': '关联对象',
+  'setting.relType': '关系',
+  'setting.relDesc': '说明',
+  'setting.allTags': '全部',
+  'setting.manageTags': '管理标签',
+  'setting.manageTagsHint': '为当前小说勾选需展示的分类 · 不需要的概念(如「等级」「地图」)可在此关闭',
+  'setting.tagPinned': '固定',
+
+  // 分化表格列标签
+  'setting.colName': '名称',
+  'setting.colDesc': '描述',
+  'setting.colRank': '品阶',
+  'setting.colActions': '操作',
 };

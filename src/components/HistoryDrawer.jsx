@@ -116,7 +116,7 @@ export default function HistoryDrawer({
           if (e.key === 'Escape') onClose?.();
         }}
       />
-      <aside className="fixed right-0 top-0 z-50 flex h-screen w-full max-w-[420px] flex-col border-l border-cyan-400/20 bg-[#050a14]/95 shadow-[0_0_40px_rgba(56,230,255,0.1)]">
+      <aside className="fixed right-0 top-0 z-50 flex h-screen w-full max-w-[420px] flex-col border-l border-cyan-400/20 bg-[var(--sf-panel-solid)] shadow-[0_0_40px_rgba(var(--sf-accent-r),var(--sf-accent-g),var(--sf-accent-b),0.1)]">
         {/* 顶部 */}
         <div className="flex items-center justify-between border-b border-cyan-400/15 px-5 py-4">
           <div className="flex items-center gap-2">

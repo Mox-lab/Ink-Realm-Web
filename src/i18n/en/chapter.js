@@ -3,7 +3,7 @@
  * @author songshan.li (ID: 17099618)
  */
 export const chapter = {
-  'chapter.heading': 'Chapter Generator',
+
   'chapter.subheading': 'AI generates full chapter text based on outline and target word count',
   'chapter.targetWords': 'TARGET WORDS',
   'chapter.chapterNo': 'Chapter No',

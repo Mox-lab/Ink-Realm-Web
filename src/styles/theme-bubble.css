@@ -23,6 +23,7 @@
   --sf-panel-solid: rgba(255, 255, 255, 0.9);
   --sf-border: rgba(255, 255, 255, 0.7);
   --sf-border-strong: rgba(150, 140, 210, 0.45);
+  --sf-border-bright: rgba(138, 120, 205, 0.7); /* 加亮边框(浅底上更明显) */
   --sf-cyan: #8ab0e6;          /* 柔蓝(主强调) */
   --sf-cyan-soft: #b8cdf2;
   --sf-blue: #c9a8ee;          /* 柔紫 */
@@ -37,6 +38,12 @@
   --sf-accent-soft: #b8cdf2;
   --sf-accent-2: #c9a8ee;      /* 次 = 柔紫 */
   --sf-heading-color: #3c3060;
+
+  /* 语义状态色:彩色泡沫浅底,需保证在粉彩上的可读性 */
+  --sf-status-error: #e0587a;
+  --sf-status-success: #2fa56f;
+  --sf-status-warning: #c98a2b;
+  --sf-status-info: #8a5fc0;
 
   /* RGB 通道 */
   --sf-accent-r: 138;
@@ -69,6 +76,8 @@
   /* 字体:引用令牌中心(tokens.css);如需本主题专属字体,直接改这两行即可 */
   --sf-font-base: var(--app-font-sans);
   --sf-font-title: var(--app-font-title);
+  /* 品牌展示字体:引用令牌中心,供 LOGO/书名/大标题使用 */
+  --sf-font-display: var(--app-font-display);
 }
 
 /* ================ 关键帧:气泡漂浮 ================ */
@@ -145,24 +154,20 @@
   background: radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, 0.4), transparent 60%);
 }
 
-/* ================ 输入框:聚焦柔和 glow ================ */
-[data-theme="bubble"] .sf-input {
-  border-radius: 14px;
-}
+/* ================ 输入框:聚焦柔和 glow(形状由 tokens.css 统一) ================ */
 [data-theme="bubble"] .sf-input:focus {
   border-color: var(--sf-accent);
   box-shadow: 0 0 0 3px rgba(138, 176, 230, 0.18), 0 4px 14px rgba(201, 168, 238, 0.14);
   background: rgba(255, 255, 255, 0.85);
 }
 
-/* ================ 主按钮:柔和彩虹渐变 + 流光 + 悬停弹起 ================ */
+/* ================ 主按钮:柔和彩虹渐变 + 流光 + 悬停弹起(形状由 tokens.css 统一) ================ */
 [data-theme="bubble"] .sf-btn {
   background: linear-gradient(135deg, #f0aacb, #c9a8ee, #8ab0e6, #a8e2c4, #f6dca8);
   background-size: 300% 300%;
   animation: sf-bubble-btn-shift 8s ease infinite;
   border: none;
   color: #ffffff;
-  border-radius: 14px;
   text-transform: none;
   letter-spacing: 0.04em;
   font-weight: 700;
@@ -177,9 +182,8 @@
   box-shadow: 0 10px 28px rgba(150, 140, 210, 0.36);
 }
 
-/* ================ 次级按钮 ================ */
+/* ================ 次级按钮(形状由 tokens.css 统一) ================ */
 [data-theme="bubble"] .sf-btn-ghost {
-  border-radius: 14px;
   border-color: rgba(255, 255, 255, 0.7);
   color: var(--sf-text-dim);
   background: rgba(255, 255, 255, 0.35);
@@ -190,9 +194,8 @@
   background: rgba(138, 176, 230, 0.12);
 }
 
-/* ================ 标签:柔彩胶囊 ================ */
+/* ================ 标签:柔彩胶囊(形状由 tokens.css 统一胶囊) ================ */
 [data-theme="bubble"] .sf-chip {
-  border-radius: 999px;
   text-transform: none;
   letter-spacing: 0.04em;
   background: linear-gradient(135deg, rgba(240, 170, 203, 0.16), rgba(165, 200, 246, 0.16));

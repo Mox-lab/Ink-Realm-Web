@@ -165,7 +165,7 @@ export default function NotificationBell({ size = 'h-3.5 w-3.5', btnClass = 'sf-
                         <X className="h-3 w-3" />
                       </button>
                       {!n.read && (
-                        <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300 shadow-[0_0_6px_#38e6ff]" />
+                        <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300 shadow-[0_0_6px_rgba(var(--sf-accent-r),var(--sf-accent-g),var(--sf-accent-b),0.5)]" />
                       )}
                     </li>
                   );

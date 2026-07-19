@@ -22,6 +22,7 @@ import {
   ShieldAlert
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { notifyError } from '../api/client.js';
 import {
   exportNovel,
   getContinuationSuggestion,
@@ -36,7 +37,7 @@ import NovelTimeline from '../components/NovelTimeline.jsx';
 
 /** 华为新魏字体栈(标题显示,全站统一)。 */
 const XINWEI_FONT = {
-  fontFamily: '"Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif'
+  fontFamily: 'var(--sf-font-display)'
 };
 
 /**
@@ -123,7 +124,7 @@ export default function NovelOverview() {
         // 最近点击排序由 NovelList 在进入时记录,此处无需重复推送
       }
     } catch (err) {
-      toast.error(t('novel.overview.fetch.failed') + ':' + (err.message || ''));
+      notifyError(t('novel.overview.fetch.failed') + ':' + (err.message || ''), err);
       setOverview(null);
     } finally {
       setLoading(false);
@@ -227,7 +228,7 @@ export default function NovelOverview() {
         }
       } catch (err) {
         if (mountedRef.current) {
-          toast.error(t('novel.export.failed') + ':' + (err?.message || ''));
+          notifyError(t('novel.export.failed') + ':' + (err?.message || ''), err);
         }
       } finally {
         // 仅在本页时复位转圈状态,避免卸载后 setState 告警
@@ -251,7 +252,7 @@ export default function NovelOverview() {
       setSuggestion(data || null);
       toast.success(t('novel.continuation.title'));
     } catch (err) {
-      toast.error(t('novel.continuation.failed') + ':' + (err?.message || ''));
+      notifyError(t('novel.continuation.failed') + ':' + (err?.message || ''), err);
     } finally {
       setSuggesting(false);
     }
@@ -272,7 +273,7 @@ export default function NovelOverview() {
       if (patch.title != null) writeCachedNovelTitle(urlNovelId, patch.title);
       toast.success(t('novel.editor.edit.success'));
     } catch (err) {
-      toast.error(err.response?.data?.message || err.message || t('novel.overview.fetch.failed'));
+      notifyError(err.response?.data?.message || err.message || t('novel.overview.fetch.failed'), err);
     } finally {
       setSavingField(false);
     }
@@ -375,7 +376,7 @@ export default function NovelOverview() {
       items.push({
         key: 'noCharacter',
         actionKey: 'gotoCharacter',
-        to: `/novels/${urlNovelId}/character`
+        to: `/novels/${urlNovelId}/lore`
       });
     }
     if ((overview.unresolvedIssueCount ?? 0) > 0) {

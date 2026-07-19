@@ -19,6 +19,8 @@
 @import "./theme-scifi.css";
 @import "./theme-ink.css";
 @import "./theme-bubble.css";
+/* 浅色主题可读覆盖(稀释类统一重映射,集中管理) */
+@import "./theme-readable.css";
 
 /* ================================================================
  * Tailwind 颜色令牌 → CSS 变量映射
@@ -33,6 +35,34 @@
   --color-cyan-700: var(--sf-accent);
   --color-white: var(--sf-text);
   --color-black: var(--sf-bg);
+
+  /* ================================================================
+   * 语义状态色 → 主题感知令牌
+   * 将 red/rose/amber/emerald/violet/purple 重映射到 --sf-status-*,
+   * 使错误/成功/警告/信息状态色跟随主题(水墨浅色主题下仍清晰可读),
+   * 对应《前端规范》"主题配色一律走 --sf-* 变量,禁止固定色"。
+   * ================================================================ */
+  --color-red-300: var(--sf-status-error);
+  --color-red-400: var(--sf-status-error);
+  --color-red-500: var(--sf-status-error);
+  --color-red-600: var(--sf-status-error);
+  --color-red-700: var(--sf-status-error);
+  --color-rose-300: var(--sf-status-error);
+  --color-rose-400: var(--sf-status-error);
+  --color-rose-500: var(--sf-status-error);
+  --color-amber-200: var(--sf-status-warning);
+  --color-amber-300: var(--sf-status-warning);
+  --color-amber-400: var(--sf-status-warning);
+  --color-amber-500: var(--sf-status-warning);
+  --color-emerald-300: var(--sf-status-success);
+  --color-emerald-400: var(--sf-status-success);
+  --color-emerald-500: var(--sf-status-success);
+  --color-violet-300: var(--sf-status-info);
+  --color-violet-400: var(--sf-status-info);
+  --color-violet-500: var(--sf-status-info);
+  --color-purple-300: var(--sf-status-info);
+  --color-purple-400: var(--sf-status-info);
+  --color-purple-500: var(--sf-status-info);
 
   /* ================================================================
    * 字号阶梯(集中管理,改此处即全局生效)

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Shield, ShieldAlert, ShieldCheck, ShieldX, RefreshCw, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { notifyError } from '../api/client.js';
 import PropTypes from 'prop-types';
 import {
   listReviewIssues,
@@ -33,7 +34,7 @@ export default function ReviewSidebar({ chapterNo, onClose }) {
         : await listOpenReviewIssues();
       setItems(list || []);
     } catch (err) {
-      toast.error(t('review.loadFailed') + ':' + (err.response?.data?.message || err.message));
+      notifyError(t('review.loadFailed') + ':' + (err.response?.data?.message || err.message), err);
     } finally {
       setLoading(false);
     }
@@ -49,7 +50,7 @@ export default function ReviewSidebar({ chapterNo, onClose }) {
       setItems((prev) => prev.map((x) => (x.id === id ? { ...x, status } : x)));
       toast.success(t('review.statusUpdated'));
     } catch (err) {
-      toast.error(t('review.updateFailed') + ':' + (err.response?.data?.message || err.message));
+      notifyError(t('review.updateFailed') + ':' + (err.response?.data?.message || err.message), err);
     }
   };
 

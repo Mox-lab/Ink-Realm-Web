@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { Send, Loader2, PenLine } from 'lucide-react';
-import { toast } from 'sonner';
-import { writingWithSkill, listSkills } from '../api/index.js';
+import { Loader2, PenLine } from 'lucide-react';
+import { writingWithSkill, listSkills, notifyError } from '../api/index.js';
 import { useI18n } from '../context/I18nContext.jsx';
+import MessageComposer from '../components/MessageComposer.jsx';
 
 export default function Writing() {
   const { t } = useI18n();
@@ -40,23 +40,16 @@ export default function Writing() {
         { role: 'assistant', text: data.reply, userId: data.userId, skill: skillTag }
       ]);
     } catch (err) {
-      toast.error(t('writing.callFailed') + ':' + (err.response?.data?.message || err.message));
+      notifyError(t('writing.callFailed') + ':' + (err.response?.data?.message || err.message), err);
     } finally {
       setLoading(false);
     }
   };
 
-  const onKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      send();
-    }
-  };
-
   return (
-    <div className="flex h-full min-h-0 flex-col">
-      <header className="shrink-0 border-b border-cyan-400/10 px-4 py-4 sm:px-8 sm:py-5">
-        <div className="sf-heading">{t('writing.heading')}</div>
+    <div className="flex h-full min-h-0 flex-1 flex-col">
+      <header className="shrink-0 border-b border-cyan-400/10 px-4 py-6 sm:px-8 sm:py-8">
+        <div className="sf-heading">{t('nav.writing')}</div>
         <p className="mt-2 pl-4 text-xs tracking-wide text-cyan-300/50">
           {t('writing.subheading')}
         </p>
@@ -109,7 +102,7 @@ export default function Writing() {
               <div
                 className={`max-w-[85%] sm:max-w-[80%] rounded border px-3 py-2 sm:px-4 sm:py-3 ${
                   m.role === 'user'
-                    ? 'border-cyan-300/40 bg-cyan-300/[0.08] text-white shadow-[0_0_16px_rgba(56,230,255,0.15)]'
+                    ? 'border-cyan-300/40 bg-cyan-300/[0.08] text-white shadow-[0_0_16px_rgba(var(--sf-accent-r),var(--sf-accent-g),var(--sf-accent-b),0.15)]'
                     : 'border-cyan-400/15 bg-black/40 text-white/90'
                 }`}
               >
@@ -134,27 +127,13 @@ export default function Writing() {
       </div>
 
       <div className="shrink-0 border-t border-cyan-400/10 px-4 py-3 sm:px-8 sm:py-4">
-        <div className="mx-auto max-w-3xl">
-          <div className="mb-1 text-2xs tracking-widest text-cyan-300/60">{t('chat.message')}</div>
-          <div className="flex items-stretch gap-2">
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={onKeyDown}
-              rows={2}
-              placeholder={t('writing.placeholder')}
-              className="sf-input w-full resize-none flex-1"
-            />
-            <button
-              onClick={send}
-              disabled={loading || !message.trim()}
-              className="sf-btn flex-shrink-0 px-4"
-              title={t('common.send')}
-            >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            </button>
-          </div>
-        </div>
+        <MessageComposer
+          value={message}
+          onChange={setMessage}
+          onSend={send}
+          loading={loading}
+          placeholder={t('writing.placeholder')}
+        />
         {loading && <div className="sf-loader-bar mx-auto mt-3 max-w-3xl" />}
       </div>
     </div>

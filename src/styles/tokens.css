@@ -22,12 +22,18 @@
    * 可在对应 theme-*.css 中覆盖 --sf-font-base / --sf-font-title。 */
   --app-font-sans: "Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif;
   --app-font-title: "Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif;
+  /* 品牌/大标题展示字体(华为新魏栈):专供 LOGO、书名、角色名等大字号展示,
+     与正文字体(--app-font-sans)分离,便于单独调整;各页面须引用此变量,勿再硬编码字体栈 */
+  --app-font-display: "Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif;
 
-  /* ============ 组件圆角(默认值) ============
-   * 各主题可在自身文件覆盖以呈现不同风格(如科幻风更尖锐、泡沫风更圆润)。 */
-  --sf-radius-input: 4px;
-  --sf-radius-btn: 4px;
-  --sf-radius-btn-ghost: 4px;
-  --sf-radius-chip: 2px;
+  /* ============ 组件圆角(三主题统一) ============
+   * 按钮 / 输入框 / 次级按钮共用同一圆角,跨三主题保持一致的形状,
+   * 仅颜色、辉光、动画等效果随主题变化(见各 theme-*.css)。
+   * 如需整体调整控件圆角,只改 --sf-radius-control 一处即可全局生效。 */
+  --sf-radius-control: 8px;
+  --sf-radius-input: var(--sf-radius-control);
+  --sf-radius-btn: var(--sf-radius-control);
+  --sf-radius-btn-ghost: var(--sf-radius-control);
+  --sf-radius-chip: 999px; /* 标签统一为胶囊形,三主题一致 */
   --sf-radius-card: 8px;
 }

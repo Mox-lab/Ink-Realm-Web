@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Loader2, Check, Pencil, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { notifyError } from '../api/client.js';
 import PropTypes from 'prop-types';
 import { useI18n } from '../context/I18nContext.jsx';
 
@@ -60,7 +61,7 @@ export default function EditableText({
       setEditing(false);
       toast.success(t('common.saved'));
     } catch (err) {
-      toast.error(t('common.saveFailed') + ':' + (err.response?.data?.message || err.message));
+      notifyError(t('common.saveFailed') + ':' + (err.response?.data?.message || err.message), err);
     } finally {
       setSaving(false);
     }

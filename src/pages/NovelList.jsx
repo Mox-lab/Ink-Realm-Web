@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, BookOpen, Trash2, Loader2, Globe, Lock, Sparkles, FileText, Compass, X, LayoutTemplate, Users } from 'lucide-react';
 import { toast } from 'sonner';
+import { notifyError } from '../api/client.js';
 import { listNovels, deleteNovel } from '../api/index.js';
 import { useI18n } from '../context/I18nContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -47,7 +48,7 @@ export default function NovelList() {
       // 防御性检查:确保 novels 始终为数组,避免后端返回非数组时 .map 崩溃
       setNovels(Array.isArray(list) ? list : []);
     } catch (err) {
-      toast.error(t('novel.list.fetch.failed') + ':' + (err.message || ''));
+      notifyError(t('novel.list.fetch.failed') + ':' + (err.message || ''), err);
       setNovels([]);
     } finally {
       setLoading(false);
@@ -106,7 +107,7 @@ export default function NovelList() {
       );
       setNovels((prev) => prev.filter((n) => n.id !== novel.id));
     } catch (err) {
-      toast.error(err.message || t('common.deleteFailed'));
+      notifyError(err.message || t('common.deleteFailed'), err);
     } finally {
       setDeletingId(null);
       setPendingDelete(null);
@@ -201,7 +202,7 @@ export default function NovelList() {
         className="mb-1 text-lg font-bold leading-tight text-white"
         style={{
           fontFamily:
-            '"Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif'
+            'var(--sf-font-display)'
         }}
       >
         {novel.title || '(未命名)'}

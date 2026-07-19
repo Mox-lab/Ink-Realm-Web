@@ -6,7 +6,6 @@ import Chat from './pages/Chat.jsx';
 import Writing from './pages/Writing.jsx';
 import Outline from './pages/Outline.jsx';
 import Chapter from './pages/Chapter.jsx';
-import Character from './pages/Character.jsx';
 import Lore from './pages/Lore.jsx';
 import NovelList from './pages/NovelList.jsx';
 import NovelEditor from './pages/NovelEditor.jsx';
@@ -32,8 +31,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
  *   /novels/:novelId/writing              多轮写作(带小说上下文)
  *   /novels/:novelId/outline              大纲
  *   /novels/:novelId/chapter              章节
- *   /novels/:novelId/character            人物
- *   /novels/:novelId/lore                 世界观
+ *   /novels/:novelId/lore                 世界观(含人物/势力等设定集)
  * </pre>
  *
  * <p>小说工作台子路由通过 {@link NovelLayout} 注入 NovelContextProvider,
@@ -75,7 +73,6 @@ export default function App() {
           <Route path="writing" element={<Writing />} />
           <Route path="outline" element={<Outline />} />
           <Route path="chapter" element={<Chapter />} />
-          <Route path="character" element={<Character />} />
           <Route path="lore" element={<Lore />} />
         </Route>
       </Route>

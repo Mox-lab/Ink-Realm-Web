@@ -41,6 +41,12 @@
   --sf-accent-2: var(--sf-blue);
   --sf-heading-color: #ffffff;
 
+  /* 语义状态色:跨主题统一语义(错误/成功/警告/信息),由 index.css @theme 映射到 red/rose/amber/emerald/violet/purple */
+  --sf-status-error: #ff6b81;
+  --sf-status-success: #4dffb8;
+  --sf-status-warning: #ffc857;
+  --sf-status-info: #a06cff;
+
   /* RGB 通道 */
   --sf-accent-r: 56;
   --sf-accent-g: 230;
@@ -73,6 +79,8 @@
   /* 字体:引用令牌中心(tokens.css);如需本主题专属字体,直接改这两行即可 */
   --sf-font-base: var(--app-font-sans);
   --sf-font-title: var(--app-font-title);
+  /* 品牌展示字体:引用令牌中心,供 LOGO/书名/大标题使用 */
+  --sf-font-display: var(--app-font-display);
 }
 
 /* ================ 背景效果:HUD 网格 ================ */
@@ -114,19 +122,15 @@
   background: linear-gradient(135deg, rgba(var(--sf-accent-r), var(--sf-accent-g), var(--sf-accent-b), 0.05) 0%, transparent 50%);
 }
 
-/* ================ 输入框:霓虹聚焦辉光 ================ */
-[data-theme="scifi"] .sf-input {
-  border-radius: 4px;
-}
+/* ================ 输入框:霓虹聚焦辉光(形状由 tokens.css 统一,此处仅效果) ================ */
 [data-theme="scifi"] .sf-input:focus {
   box-shadow:
     0 0 0 1px rgba(var(--sf-accent-r), var(--sf-accent-g), var(--sf-accent-b), 0.3),
     0 0 16px rgba(var(--sf-accent-r), var(--sf-accent-g), var(--sf-accent-b), 0.15);
 }
 
-/* ================ 主按钮:流光扫过 + 霓虹辉光 ================ */
+/* ================ 主按钮:流光扫过 + 霓虹辉光(形状由 tokens.css 统一,此处仅效果) ================ */
 [data-theme="scifi"] .sf-btn {
-  border-radius: 4px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -148,9 +152,8 @@
 }
 [data-theme="scifi"] .sf-btn:hover::before { left: 100%; }
 
-/* ================ 标签:尖锐角度 ================ */
+/* ================ 标签:尖锐角度(形状由 tokens.css 统一胶囊,此处仅文字处理) ================ */
 [data-theme="scifi"] .sf-chip {
-  border-radius: 2px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }

@@ -218,46 +218,6 @@ export async function deleteChapter(id) {
   return data;
 }
 
-/* ============== 人物 ============== */
-
-/** 列出当前小说全部。 */
-export async function listCharacters(novelId) {
-  const { data } = await api.get(path('/data/character', novelId));
-  return data;
-}
-
-/** 批量保存。 */
-export async function saveCharactersBatch(characters, novelId) {
-  const { data } = await api.post('/data/character/save-batch', { novelId, characters });
-  return data;
-}
-
-/** 删除。 */
-export async function deleteCharacter(id) {
-  const { data } = await api.delete(`/data/character/${id}`);
-  return data;
-}
-
-/**
- * 按名字模糊搜索人物(UX-06 写作侧边栏 @人物检索)。
- * @param {string} [name] 姓名片段,空串返回全部
- * @returns {Promise<Array>} 匹配的人物列表
- */
-export async function searchCharactersByName(name) {
-  const { data } = await api.get('/data/character/by-name', { params: { name } });
-  return data;
-}
-
-/**
- * 列出某人物出现的章节摘要(UX-06 人物卡片点击查看出现位置)。
- * @param {number} characterId 人物 ID
- * @returns {Promise<Array>} 章节摘要列表(按章节序号升序)
- */
-export async function listCharacterAppears(characterId) {
-  const { data } = await api.get('/data/character/appears', { params: { characterId } });
-  return data;
-}
-
 /* ============== 世界观设定 ============== */
 
 /** 列出当前小说全部。 */
@@ -279,12 +239,43 @@ export async function deleteSetting(id) {
 }
 
 /**
- * 按关键词模糊搜索世界观设定(UX-06 写作侧边栏设定 RAG 检索)。
+ * 按关键词模糊搜索世界观设定(UX-06 写作侧边栏设定检索)。
  * @param {string} [keyword] 关键词片段,空串返回全部
+ * @param {string} [category] 限定分类(如 '人物'),不传则返回全部分类
  * @returns {Promise<Array>} 匹配的设定列表
  */
-export async function searchSettings(keyword) {
-  const { data } = await api.get('/data/setting/search', { params: { keyword } });
+export async function searchSettings(keyword, category) {
+  const params = {};
+  if (keyword != null) params.keyword = keyword;
+  if (category != null) params.category = category;
+  const { data } = await api.get('/data/setting/search', { params });
+  return data;
+}
+
+/**
+ * 检索设定集「人物」分类(写作侧栏 @人物 / 记忆面板复用)。
+ * @param {string} [keyword] 姓名片段,空串返回全部人物
+ * @returns {Promise<Array>} 人物设定列表(WorldSettingVo)
+ */
+export async function searchSettingCharacters(keyword) {
+  return searchSettings(keyword, '人物');
+}
+
+/**
+ * 列出设定集「人物」分类全部条目。
+ * @returns {Promise<Array>} 人物设定列表(WorldSettingVo)
+ */
+export async function listSettingCharacters() {
+  return searchSettings(undefined, '人物');
+}
+
+/**
+ * 批量保存设定集条目(覆盖式 upsert,供 AI 生成设定集后“保存入库”)。
+ * @param {Array<{keyword:string,category?:string,description?:string}>} payload 条目数组
+ * @returns {Promise<Array>} 各条保存结果(id 列表)
+ */
+export async function batchSaveSettings(payload) {
+  const { data } = await api.post('/data/setting/batch', payload);
   return data;
 }
 
