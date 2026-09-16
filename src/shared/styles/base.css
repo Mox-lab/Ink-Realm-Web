@@ -1,0 +1,136 @@
+/**
+ * 全局基础样式 —— reset、body 背景、滚动条、表单元素 reset、keyframes。
+ * 不包含任何主题变量,所有颜色通过 --sf-* 变量引用。
+ *
+ * @author Moma
+ */
+
+/* ================ Reset ================ */
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  font-family: var(--sf-font-base);
+  color: var(--sf-text);
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(var(--sf-glow1-r), var(--sf-glow1-g), var(--sf-glow1-b), var(--sf-glow-opacity, 0.08)) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(var(--sf-glow2-r), var(--sf-glow2-g), var(--sf-glow2-b), var(--sf-glow-opacity, 0.08)) 0%, transparent 50%),
+    linear-gradient(180deg, var(--sf-bg-2) 0%, var(--sf-bg) 100%);
+  background-attachment: fixed;
+  transition: background 0.4s ease, color 0.3s ease;
+}
+
+#root {
+  position: relative;
+  z-index: 2;
+}
+
+/* ================ 滚动条 ================ */
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(var(--sf-accent-r), var(--sf-accent-g), var(--sf-accent-b), 0.25);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--sf-accent-r), var(--sf-accent-g), var(--sf-accent-b), 0.5);
+}
+
+/* ================ 表单元素 reset ================ */
+
+button { cursor: pointer; }
+input, textarea, select {
+  font-family: inherit;
+  outline: none;
+}
+
+/* ================ 全局 keyframes ================ */
+
+/* 状态点脉冲 */
+@keyframes sf-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* 加载条流光 */
+@keyframes sf-slide {
+  0% { left: -40%; }
+  100% { left: 100%; }
+}
+
+/* 标题入场 */
+@keyframes sf-title-glow {
+  0% { opacity: 0; transform: translateY(10px); filter: blur(8px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+/* 入场动画工具类(250ms 快节奏,延迟按比例压缩保留分层渐入) */
+/* 组件类进 @layer components(同 components.css 契约),否则 unlayered 优先级压过 utilities */
+@layer components {
+  .sf-animate-in { animation: sf-title-glow 250ms ease-out both; }
+  .sf-animate-in-delay-1 { animation: sf-title-glow 250ms ease-out 80ms both; }
+  .sf-animate-in-delay-2 { animation: sf-title-glow 250ms ease-out 160ms both; }
+
+  .sf-h-screen-dynamic {
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  .sf-scroll-x {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  /* 触控目标最小尺寸(44px iOS HIG / 48dp Material),保证 sf-btn 在小屏可点 */
+  @media (max-width: 640px) {
+    .sf-btn {
+      min-height: 40px;
+      padding: 8px 14px;
+      font-size: 12px;
+    }
+    .sf-btn-ghost {
+      min-height: 40px;
+      padding: 8px 14px;
+    }
+    .sf-input {
+      padding: 9px 12px;
+      font-size: 14px; /* ≥16px 防 iOS Safari 自动放大,这里用 14 + -webkit-text-size-adjust 兜底 */
+    }
+    /* 输入框聚焦时禁止 iOS 缩放 */
+    .sf-input:focus {
+      font-size: 14px;
+    }
+    /* sf-heading 标题在小屏缩小 */
+    .sf-heading {
+      font-size: 17px;
+    }
+  }
+}
+
+/* ================ 移动端适配 ================ */
+
+/* 桌面端(≥641px)放大基准字号,100% 缩放下整体更易读(影响所有 rem 单位文本) */
+@media (min-width: 641px) {
+  html {
+    font-size: 17px;
+  }
+}
+
+/* 100vh 修正 / 触控目标最小尺寸 / 组件类移动端调整:已统一收进上方 @layer components */
+
+/* 禁止 iOS 在输入聚焦时自动放大 */
+@supports (-webkit-touch-callout: none) {
+  input, textarea, select {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+}
+
+/* 横向滚动容器:用于 tab / 流程图等小屏需横向滚动的区域(已收进 @layer components) */

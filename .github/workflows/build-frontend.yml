@@ -1,0 +1,69 @@
+# ============================================================
+# Ink Realm 前端镜像构建 + 推送阿里云 ACR
+# ============================================================
+# 触发:
+#   - push 到 main 分支
+#   - 手动触发
+#
+# 产物:
+#   - <ACR_REGISTRY>/<命名空间>/ink-realm-web:<短SHA>
+#   - <ACR_REGISTRY>/<命名空间>/ink-realm-web:latest
+# ============================================================
+name: Build Frontend Image
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'Dockerfile'
+      - 'nginx.conf'
+      - '.github/workflows/build-frontend.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Aliyun ACR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ACR_REGISTRY }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Extract metadata
+        id: meta
+        run: |
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "image=${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/ink-realm-web" >> $GITHUB_OUTPUT
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.image }}:latest
+            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.sha_short }}
+          # 注意:阿里云 ACR 个人版不支持 buildkit cacheconfig manifest,
+          # 不能用 cache-from/cache-to type=registry,这里用 inline 内联缓存(写在镜像 manifest 里)
+          cache-from: type=registry,ref=${{ steps.meta.outputs.image }}:latest
+          cache-to: type=inline
+
+      - name: Summary
+        run: |
+          echo "### 前端镜像构建成功 ✅" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- 镜像地址:\`${{ steps.meta.outputs.image }}:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "- 提交 SHA:\`${{ steps.meta.outputs.sha_short }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- 服务器更新命令:\`./deploy.sh\`" >> $GITHUB_STEP_SUMMARY

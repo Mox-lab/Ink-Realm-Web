@@ -1,0 +1,40 @@
+# ============================================================
+# Ink Realm 前端 .gitignore
+# ============================================================
+
+# 依赖
+node_modules
+
+# 构建产物(vite 打包输出 + tsc -b 增量编译信息)
+dist
+dist-ssr
+*.tsbuildinfo
+
+# 测试覆盖率
+coverage
+
+# Vite / Vitest 缓存
+.vite
+
+# 日志
+*.log
+logs
+
+# 环境变量(敏感,严禁入库;*.local 兜底 .env.local / .env.prod.local 等)
+.env
+.env.*
+!.env.example
+*.local
+
+# 缓存
+.eslintcache
+
+# IDE
+.idea
+.vscode
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini

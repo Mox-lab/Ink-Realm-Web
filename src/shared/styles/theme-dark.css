@@ -1,0 +1,161 @@
+/**
+ * 石墨主题(dark) —— 深灰底 + 柔光浮雕(neumorphism 暗色形态) + 暖白文字 + 青瓷点缀。
+ *
+ * 设计语言:与纸墨同构的浮雕体系,暗色下亮部阴影换为极淡白光、
+ * 暗部为深黑,形成"石墨柔光"质感;长时间码字护眼。
+ *
+ * @author Moma
+ */
+
+[data-theme="dark"] {
+  /* ============ 底色与面板(石墨同色系) ============ */
+  --sf-bg: #212429;
+  --sf-bg-2: #26292f;
+  --sf-panel: #26292f;
+  --sf-panel-solid: #2a2d34;
+  --sf-inkstone: #1d2025;       /* 砚台面板(登录框):比面板深一档 */
+  --sf-inkstone-pool: #15171b;  /* 墨池:砚身再深一档 */
+  --sf-border: rgba(255, 255, 255, 0.06);
+  --sf-border-strong: rgba(255, 255, 255, 0.16);
+
+  /* ============ 品牌色板(青瓷/雾蓝/苔绿/暖琥珀) ============ */
+  --sf-cyan: #8fb8a8;           /* 青瓷(主强调) */
+  --sf-cyan-soft: #a8cbbc;
+  --sf-blue: #8fa8c4;           /* 雾蓝 */
+  --sf-purple: #a89bc4;
+  --sf-green: #8fbf9a;
+  --sf-amber: #d4b078;
+
+  /* ============ 文字(暖白/灰) ============ */
+  --sf-text: #e6e4df;
+  --sf-text-dim: #8a8d94;
+
+  /* ============ 强调色 ============ */
+  --sf-accent: #8fb8a8;
+  --sf-accent-soft: #a8cbbc;
+  --sf-accent-2: #8fa8c4;
+  --sf-heading-color: #f2f0eb;
+
+  /* ============ 语义状态色(柔和化) ============ */
+  --sf-status-error: #d47a6e;
+  --sf-status-success: #7fb892;
+  --sf-status-warning: #d4b078;
+  --sf-status-info: #9d8cd8;
+  /* 组件层语义别名(历史引用名统一指向状态色板,随主题联动) */
+  --sf-error: var(--sf-status-error);
+  --sf-success: var(--sf-status-success);
+  --sf-warning: var(--sf-status-warning);
+  --sf-info: var(--sf-status-info);
+
+  /* ============ RGB 三元组 ============ */
+  --sf-accent-r: 143;
+  --sf-accent-g: 184;
+  --sf-accent-b: 168;
+  --sf-accent2-r: 143;
+  --sf-accent2-g: 168;
+  --sf-accent2-b: 196;
+  --sf-glow1-r: 143;
+  --sf-glow1-g: 184;
+  --sf-glow1-b: 168;
+  --sf-glow2-r: 143;
+  --sf-glow2-g: 168;
+  --sf-glow2-b: 196;
+
+  /* ============ 输入框(内凹:比底深) ============ */
+  --sf-input-bg: #1d2025;
+  --sf-input-bg-focus: #22252b;
+
+  /* ============ 浮雕阴影令牌(暗色:亮部为极淡白光) ============ */
+  --sf-surface: #24272d;
+  --sf-shadow-out: 6px 6px 14px rgba(0, 0, 0, 0.45), -4px -4px 12px rgba(255, 255, 255, 0.04);
+  --sf-shadow-out-sm: 3px 3px 8px rgba(0, 0, 0, 0.4), -2px -2px 6px rgba(255, 255, 255, 0.035);
+  --sf-shadow-in: inset 3px 3px 7px rgba(0, 0, 0, 0.45), inset -2px -2px 6px rgba(255, 255, 255, 0.04);
+  --sf-shadow-in-sm: inset 2px 2px 4px rgba(0, 0, 0, 0.4), inset -2px -2px 4px rgba(255, 255, 255, 0.03);
+  --sf-focus-ring: 0 0 0 3px rgba(143, 184, 168, 0.16);
+
+  /* ============ 背景装饰 ============ */
+  --sf-glow-opacity: 0.07;
+
+  /* ============ 字体 ============ */
+  --sf-font-base: var(--app-font-sans);
+  --sf-font-title: var(--app-font-title);
+  --sf-font-display: var(--app-font-display);
+}
+
+/* ================ 背景效果:青瓷/雾蓝柔光斑 ================ */
+[data-theme="dark"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(50% 40% at 15% 12%, rgba(143, 184, 168, 0.05), transparent 70%),
+    radial-gradient(45% 35% at 88% 22%, rgba(143, 168, 196, 0.045), transparent 70%),
+    radial-gradient(55% 45% at 78% 82%, rgba(143, 184, 168, 0.04), transparent 70%),
+    radial-gradient(40% 30% at 30% 85%, rgba(143, 168, 196, 0.035), transparent 70%);
+  background-attachment: fixed;
+}
+[data-theme="dark"] body::after {
+  display: none;
+}
+
+/* ================ 面板:石墨微浮起 ================ */
+[data-theme="dark"] .sf-panel {
+  background: var(--sf-panel);
+  box-shadow: var(--sf-shadow-out-sm);
+}
+[data-theme="dark"] .sf-panel::before {
+  background: radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, 0.03), transparent 60%);
+}
+
+/* ================ 输入框:内凹 + 聚焦青瓷细环 ================ */
+[data-theme="dark"] .sf-input:focus {
+  border-color: rgba(143, 184, 168, 0.35);
+  box-shadow: var(--sf-shadow-in), var(--sf-focus-ring);
+  background: var(--sf-input-bg-focus);
+}
+
+/* ================ 主按钮:外凸浮雕,悬停微沉,按下内凹 ================ */
+[data-theme="dark"] .sf-btn:hover {
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.35), -1px -1px 4px rgba(255, 255, 255, 0.03);
+  transform: translateY(1px);
+}
+[data-theme="dark"] .sf-btn:active:not(:disabled) {
+  box-shadow: var(--sf-shadow-in);
+  transform: none;
+}
+
+/* ================ 次级按钮:素面,悬停浮起 ================ */
+[data-theme="dark"] .sf-btn-ghost:hover {
+  background: var(--sf-surface);
+  box-shadow: var(--sf-shadow-out-sm);
+}
+
+/* ================ 标签:内凹微胶囊 ================ */
+[data-theme="dark"] .sf-chip {
+  background: var(--sf-input-bg);
+  border-color: transparent;
+  box-shadow: var(--sf-shadow-in-sm);
+}
+
+/* ================ 标题:青瓷圆角竖条 ================ */
+[data-theme="dark"] .sf-heading::before {
+  border-radius: 999px;
+  background: linear-gradient(180deg, #a8cbbc, #8fb8a8);
+  box-shadow: none;
+}
+
+/* ================ 状态点:苔绿 ================ */
+[data-theme="dark"] .sf-dot {
+  background: var(--sf-green);
+  box-shadow: 0 0 6px rgba(143, 191, 154, 0.35);
+}
+
+/* ================ 大标题:暖白 + 柔影 ================ */
+[data-theme="dark"] .sf-ink-title {
+  letter-spacing: 0.25em;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  -webkit-text-stroke: 0;
+  filter: none;
+}

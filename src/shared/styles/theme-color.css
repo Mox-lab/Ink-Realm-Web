@@ -1,0 +1,195 @@
+/**
+ * 晨彩主题(color) —— 淡彩底 + 玻璃拟态面板 + 柔彩光斑缓慢漂浮 + 柔紫点缀。
+ *
+ * 设计语言:柔和多彩但不甜腻——大而淡的光斑、低饱和点缀色、
+ * 玻璃面板 + 柔彩双向阴影(彩影 + 白光),传递轻盈愉悦的氛围。
+ *
+ * @author Moma
+ */
+
+[data-theme="color"] {
+  /* ============ 底色与面板(淡彩 + 玻璃) ============ */
+  --sf-bg: #f2eff6;
+  --sf-bg-2: #eef1f8;
+  --sf-panel: rgba(255, 255, 255, 0.6);
+  --sf-panel-solid: rgba(255, 255, 255, 0.88);
+  --sf-inkstone: #dcd9ec;       /* 砚台面板(登录框):比面板深一档,带主题紫调(不透明,石质感) */
+  --sf-inkstone-pool: #c9c5e0;  /* 墨池:砚身再深一档 */
+  --sf-border: rgba(255, 255, 255, 0.7);
+  --sf-border-strong: rgba(157, 140, 216, 0.4);
+  --sf-border-bright: rgba(157, 140, 216, 0.65); /* 浅底加亮边框 */
+
+  /* ============ 品牌色板(低饱和柔彩) ============ */
+  --sf-cyan: #9d8cd8;           /* 柔紫(主强调) */
+  --sf-cyan-soft: #b8abe8;
+  --sf-blue: #8ab0e6;           /* 柔蓝 */
+  --sf-purple: #d8a0c8;         /* 柔粉 */
+  --sf-green: #98d4b4;          /* 柔绿 */
+  --sf-amber: #f0c890;          /* 柔黄 */
+
+  /* ============ 文字(深灰紫) ============ */
+  --sf-text: #3a3450;
+  --sf-text-dim: #75708c;
+
+  /* ============ 强调色 ============ */
+  --sf-accent: #9d8cd8;
+  --sf-accent-soft: #b8abe8;
+  --sf-accent-2: #8ab0e6;
+  --sf-heading-color: #453d63;
+
+  /* ============ 语义状态色 ============ */
+  --sf-status-error: #d86e88;
+  --sf-status-success: #4da87e;
+  --sf-status-warning: #c9963e;
+  --sf-status-info: #8a6fc8;
+  /* 组件层语义别名(历史引用名统一指向状态色板,随主题联动) */
+  --sf-error: var(--sf-status-error);
+  --sf-success: var(--sf-status-success);
+  --sf-warning: var(--sf-status-warning);
+  --sf-info: var(--sf-status-info);
+
+  /* ============ RGB 三元组 ============ */
+  --sf-accent-r: 157;
+  --sf-accent-g: 140;
+  --sf-accent-b: 216;
+  --sf-accent2-r: 138;
+  --sf-accent2-g: 176;
+  --sf-accent2-b: 230;
+  --sf-glow1-r: 157;
+  --sf-glow1-g: 140;
+  --sf-glow1-b: 216;
+  --sf-glow2-r: 138;
+  --sf-glow2-g: 176;
+  --sf-glow2-b: 230;
+
+  /* ============ 输入框(玻璃内凹) ============ */
+  --sf-input-bg: rgba(255, 255, 255, 0.55);
+  --sf-input-bg-focus: rgba(255, 255, 255, 0.9);
+
+  /* ============ 浮雕阴影令牌(柔彩:彩影 + 白光) ============ */
+  --sf-surface: rgba(255, 255, 255, 0.5);
+  --sf-shadow-out: 8px 8px 20px rgba(157, 140, 216, 0.16), -6px -6px 16px rgba(255, 255, 255, 0.9);
+  --sf-shadow-out-sm: 4px 4px 10px rgba(157, 140, 216, 0.14), -3px -3px 8px rgba(255, 255, 255, 0.85);
+  --sf-shadow-in: inset 3px 3px 8px rgba(157, 140, 216, 0.12), inset -3px -3px 8px rgba(255, 255, 255, 0.8);
+  --sf-shadow-in-sm: inset 2px 2px 5px rgba(157, 140, 216, 0.1), inset -2px -2px 5px rgba(255, 255, 255, 0.75);
+  --sf-focus-ring: 0 0 0 3px rgba(157, 140, 216, 0.16);
+
+  /* ============ 背景装饰 ============ */
+  --sf-glow-opacity: 0.1;
+
+  /* ============ 字体 ============ */
+  --sf-font-base: var(--app-font-sans);
+  --sf-font-title: var(--app-font-title);
+  --sf-font-display: var(--app-font-display);
+}
+
+/* ================ 关键帧:柔彩光斑漂浮 ================ */
+@keyframes sf-aurora-float {
+  0%   { transform: translate(0, 0); }
+  50%  { transform: translate(12px, -18px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ================ 背景效果:大而淡的柔彩光斑(底层) ================ */
+[data-theme="color"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(42% 36% at 12% 18%, rgba(216, 160, 200, 0.16), transparent 70%),
+    radial-gradient(40% 34% at 85% 22%, rgba(138, 176, 230, 0.15), transparent 70%),
+    radial-gradient(44% 38% at 70% 82%, rgba(152, 212, 180, 0.13), transparent 70%),
+    radial-gradient(38% 32% at 22% 80%, rgba(157, 140, 216, 0.14), transparent 70%),
+    radial-gradient(36% 30% at 50% 50%, rgba(240, 200, 144, 0.1), transparent 70%);
+  background-attachment: fixed;
+}
+
+/* ================ 背景效果:白色高光层(缓慢漂浮) ================ */
+[data-theme="color"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 50% 12%, rgba(255, 255, 255, 0.5), transparent 12%),
+    radial-gradient(circle at 22% 60%, rgba(255, 255, 255, 0.4), transparent 10%),
+    radial-gradient(circle at 85% 65%, rgba(255, 255, 255, 0.45), transparent 11%);
+  background-attachment: fixed;
+  animation: sf-aurora-float 16s ease-in-out infinite;
+}
+
+/* ================ 面板:玻璃拟态 + 柔彩双向阴影 ================ */
+[data-theme="color"] .sf-panel {
+  border-radius: 20px;
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: var(--sf-shadow-out-sm);
+  backdrop-filter: blur(16px);
+}
+[data-theme="color"] .sf-panel::before {
+  background: radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, 0.4), transparent 60%);
+}
+
+/* ================ 输入框:玻璃内凹 + 聚焦柔紫细环 ================ */
+[data-theme="color"] .sf-input:focus {
+  border-color: rgba(157, 140, 216, 0.4);
+  box-shadow: var(--sf-shadow-in), var(--sf-focus-ring);
+  background: var(--sf-input-bg-focus);
+}
+
+/* ================ 主按钮:柔紫→柔蓝渐变浮雕,悬停微沉 ================ */
+[data-theme="color"] .sf-btn {
+  background: linear-gradient(135deg, #b8abe8, #8ab0e6);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 4px 4px 12px rgba(157, 140, 216, 0.3), -3px -3px 8px rgba(255, 255, 255, 0.7);
+}
+[data-theme="color"] .sf-btn:hover {
+  box-shadow: 2px 2px 6px rgba(157, 140, 216, 0.28), -2px -2px 5px rgba(255, 255, 255, 0.6);
+  transform: translateY(1px);
+}
+[data-theme="color"] .sf-btn:active:not(:disabled) {
+  box-shadow: var(--sf-shadow-in);
+  transform: none;
+}
+
+/* ================ 次级按钮:玻璃素面,悬停浮起 ================ */
+[data-theme="color"] .sf-btn-ghost {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+[data-theme="color"] .sf-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: var(--sf-shadow-out-sm);
+}
+
+/* ================ 标签:柔彩玻璃胶囊 ================ */
+[data-theme="color"] .sf-chip {
+  background: linear-gradient(135deg, rgba(216, 160, 200, 0.14), rgba(138, 176, 230, 0.14));
+  border-color: rgba(157, 140, 216, 0.3);
+  color: #5f4f8a;
+}
+
+/* ================ 标题:柔彩渐变圆角竖条 ================ */
+[data-theme="color"] .sf-heading::before {
+  width: 6px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #d8a0c8, #9d8cd8, #8ab0e6);
+  box-shadow: 0 0 10px rgba(157, 140, 216, 0.4);
+}
+
+/* ================ 状态点:柔绿 ================ */
+[data-theme="color"] .sf-dot {
+  background: var(--sf-green);
+  box-shadow: 0 0 8px rgba(152, 212, 180, 0.5);
+}
+
+/* ================ 大标题:深灰紫 + 柔彩投影 ================ */
+[data-theme="color"] .sf-ink-title {
+  letter-spacing: 0.12em;
+  text-shadow: 0 2px 16px rgba(157, 140, 216, 0.28);
+  -webkit-text-stroke: 0;
+  filter: none;
+}

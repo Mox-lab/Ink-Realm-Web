@@ -1,0 +1,161 @@
+/**
+ * 纸墨主题(light,默认) —— 宣纸暖白底 + 同色系浮雕(neumorphism) + 浓墨文字 + 朱砂点缀。
+ *
+ * 设计语言:柔和质感、舒适放松。控件与底色同色系,靠"外凸/内凹"双色阴影
+ * 塑造体积感(亮部高光 + 暗部暖灰),无霓虹、无网格、无扫描线。
+ *
+ * @author Moma
+ */
+
+[data-theme="light"] {
+  /* ============ 底色与面板(同色系,浮雕的前提) ============ */
+  --sf-bg: #e9e6df;             /* 宣纸暖灰白(页面底) */
+  --sf-bg-2: #f1eee8;           /* 更亮一层(顶部渐变) */
+  --sf-panel: #efece6;          /* 面板底(与底同系微亮) */
+  --sf-panel-solid: #f2efe9;    /* 不透明面板 */
+  --sf-inkstone: #e9e6df;       /* 砚台面板(登录框):与页面底色一致,靠阴影浮起 */
+  --sf-inkstone-pool: #ccc8be;  /* 墨池:比页面深一档,凹陷层次 */
+  --sf-border: rgba(43, 39, 34, 0.08);
+  --sf-border-strong: rgba(43, 39, 34, 0.22);
+
+  /* ============ 品牌色板(墨域意象:朱砂/黛青/苔绿/秋香) ============ */
+  --sf-cyan: #c25e4c;           /* 朱砂(主强调,印章红柔和化) */
+  --sf-cyan-soft: #d4826f;
+  --sf-blue: #6b7a8f;           /* 黛青 */
+  --sf-purple: #8a7a9e;         /* 藤紫 */
+  --sf-green: #7a9b7e;          /* 苔绿 */
+  --sf-amber: #c9974f;          /* 秋香 */
+
+  /* ============ 文字(浓墨/淡墨) ============ */
+  --sf-text: #2b2722;
+  --sf-text-dim: #7d766a;
+
+  /* ============ 强调色 ============ */
+  --sf-accent: #c25e4c;
+  --sf-accent-soft: #d4826f;
+  --sf-accent-2: #6b7a8f;
+  --sf-heading-color: #2b2722;
+
+  /* ============ 语义状态色(柔和化) ============ */
+  --sf-status-error: #c0564a;
+  --sf-status-success: #5f8f6b;
+  --sf-status-warning: #b98a3e;
+  --sf-status-info: #7a6fa8;
+  /* 组件层语义别名(历史引用名统一指向状态色板,随主题联动) */
+  --sf-error: var(--sf-status-error);
+  --sf-success: var(--sf-status-success);
+  --sf-warning: var(--sf-status-warning);
+  --sf-info: var(--sf-status-info);
+
+  /* ============ RGB 三元组(供 rgba(var(--sf-*-r), ...) 场景) ============ */
+  --sf-accent-r: 194;
+  --sf-accent-g: 94;
+  --sf-accent-b: 76;
+  --sf-accent2-r: 107;
+  --sf-accent2-g: 122;
+  --sf-accent2-b: 143;
+  --sf-glow1-r: 194;
+  --sf-glow1-g: 94;
+  --sf-glow1-b: 76;
+  --sf-glow2-r: 107;
+  --sf-glow2-g: 122;
+  --sf-glow2-b: 143;
+
+  /* ============ 输入框(内凹:比底略深) ============ */
+  --sf-input-bg: #e2dfd8;
+  --sf-input-bg-focus: #f2efe9;
+
+  /* ============ 浮雕阴影令牌(neumorphism 核心) ============ */
+  --sf-surface: #eae7e0;        /* 控件面(与底同系) */
+  --sf-shadow-out: 6px 6px 14px rgba(163, 155, 141, 0.5), -6px -6px 14px rgba(255, 255, 255, 0.9);
+  --sf-shadow-out-sm: 3px 3px 8px rgba(163, 155, 141, 0.45), -3px -3px 8px rgba(255, 255, 255, 0.85);
+  --sf-shadow-in: inset 3px 3px 7px rgba(163, 155, 141, 0.4), inset -3px -3px 7px rgba(255, 255, 255, 0.85);
+  --sf-shadow-in-sm: inset 2px 2px 4px rgba(163, 155, 141, 0.35), inset -2px -2px 4px rgba(255, 255, 255, 0.8);
+  --sf-focus-ring: 0 0 0 3px rgba(194, 94, 76, 0.14);
+
+  /* ============ 背景装饰 ============ */
+  --sf-glow-opacity: 0.05;      /* body 双光晕强度(浅色下要淡) */
+
+  /* ============ 字体 ============ */
+  --sf-font-base: var(--app-font-sans);
+  --sf-font-title: var(--app-font-title);
+  --sf-font-display: var(--app-font-display);
+}
+
+/* ================ 背景效果:极淡墨晕(宣纸留白感) ================ */
+[data-theme="light"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(50% 40% at 15% 12%, rgba(43, 39, 34, 0.045), transparent 70%),
+    radial-gradient(45% 35% at 88% 22%, rgba(43, 39, 34, 0.035), transparent 70%),
+    radial-gradient(55% 45% at 78% 82%, rgba(194, 94, 76, 0.03), transparent 70%),
+    radial-gradient(40% 30% at 30% 85%, rgba(43, 39, 34, 0.03), transparent 70%);
+  background-attachment: fixed;
+}
+[data-theme="light"] body::after {
+  display: none;
+}
+
+/* ================ 面板:同色系微浮起 ================ */
+[data-theme="light"] .sf-panel {
+  background: var(--sf-panel);
+  box-shadow: var(--sf-shadow-out-sm);
+}
+[data-theme="light"] .sf-panel::before {
+  background: radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, 0.5), transparent 60%);
+}
+
+/* ================ 输入框:内凹 + 聚焦朱砂细环 ================ */
+[data-theme="light"] .sf-input:focus {
+  border-color: rgba(194, 94, 76, 0.35);
+  box-shadow: var(--sf-shadow-in), var(--sf-focus-ring);
+  background: var(--sf-input-bg-focus);
+}
+
+/* ================ 主按钮:外凸浮雕,悬停微沉,按下内凹 ================ */
+[data-theme="light"] .sf-btn:hover {
+  box-shadow: 2px 2px 5px rgba(163, 155, 141, 0.4), -2px -2px 5px rgba(255, 255, 255, 0.8);
+  transform: translateY(1px);
+}
+[data-theme="light"] .sf-btn:active:not(:disabled) {
+  box-shadow: var(--sf-shadow-in);
+  transform: none;
+}
+
+/* ================ 次级按钮:素面,悬停浮起 ================ */
+[data-theme="light"] .sf-btn-ghost:hover {
+  background: var(--sf-surface);
+  box-shadow: var(--sf-shadow-out-sm);
+}
+
+/* ================ 标签:内凹微胶囊 ================ */
+[data-theme="light"] .sf-chip {
+  background: var(--sf-input-bg);
+  border-color: transparent;
+  box-shadow: var(--sf-shadow-in-sm);
+}
+
+/* ================ 标题:朱砂圆角竖条 ================ */
+[data-theme="light"] .sf-heading::before {
+  border-radius: 999px;
+  background: linear-gradient(180deg, #d4826f, #c25e4c);
+  box-shadow: none;
+}
+
+/* ================ 状态点:苔绿 ================ */
+[data-theme="light"] .sf-dot {
+  background: var(--sf-green);
+  box-shadow: 0 0 6px rgba(122, 155, 126, 0.4);
+}
+
+/* ================ 大标题:浓墨 + 淡墨投影 ================ */
+[data-theme="light"] .sf-ink-title {
+  letter-spacing: 0.25em;
+  text-shadow: 0 2px 10px rgba(43, 39, 34, 0.14);
+  -webkit-text-stroke: 0;
+  filter: none;
+}

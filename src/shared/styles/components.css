@@ -1,0 +1,393 @@
+/**
+ * 组件结构基类 —— 仅定义布局结构和通过 CSS 变量驱动的视觉属性。
+ * 每套主题在各自的 theme-*.css 文件中对视觉细节进行重新设计。
+ * 扩展视觉一律加新主题 CSS 规则或新令牌,不修改基类结构(规范 §5.3)。
+ *
+ * @author Moma
+ */
+
+/* Tailwind v4 层级契约:组件类必须进 @layer components——
+ * unlayered CSS 优先级高于所有 layer,会导致 utilities(md:hidden/pl-8 等)静默失效
+ * (实测坑:汉堡按钮 md:hidden 被 .sf-icon-btn 的 display 覆盖、搜索框 pl-8 被 .sf-input 的 padding 覆盖) */
+@layer components {
+
+/* ================ 系统 Logo ================ */
+
+/* 颜色继承 currentColor,默认取主题强调色,随三套主题自动变色 */
+.sf-logo {
+  color: var(--sf-accent);
+  display: block;
+  flex-shrink: 0;
+}
+
+/* ================ 品牌印章(顶栏"墨域"标识) ================ */
+
+/* 方形印章块:accent 渐变底 + 展示字体单字,微旋转模拟钤印 */
+.sf-brand-seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--sf-accent), var(--sf-accent-2));
+  color: var(--sf-bg);
+  font-family: var(--app-font-display);
+  font-size: 20px;
+  font-weight: 700;
+  transform: rotate(-3deg);
+  box-shadow: var(--sf-shadow-out-sm);
+  user-select: none;
+}
+
+/* 品牌名文字:展示字体(华文新魏栈),随主题标题色 */
+.sf-brand-name {
+  font-family: var(--app-font-display);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--sf-heading-color);
+  line-height: 1;
+}
+
+/* ================ 浮层(下拉菜单/气泡,脱离文档流) ================
+ * 专用浮层容器:勿用 .sf-panel 充当——其自带 position:relative 会
+ * 覆盖 Tailwind absolute(未分层样式优先于 @layer),导致浮层挤入
+ * 文档流把顶栏撑变形。视觉与 sf-panel 同源,定位/阴影为浮层特化。 */
+.sf-popover {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 12px;
+  z-index: 40;
+  background: var(--sf-panel);
+  border: 1px solid var(--sf-border);
+  border-radius: 12px;
+  box-shadow: var(--sf-shadow-out);
+  backdrop-filter: blur(14px);
+}
+
+/* 指示箭头:指向触发器(旋转方块,继承面板底色与描边) */
+.sf-popover::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  right: 22px;
+  width: 10px;
+  height: 10px;
+  transform: rotate(45deg);
+  background: var(--sf-panel);
+  border-left: 1px solid var(--sf-border);
+  border-top: 1px solid var(--sf-border);
+  border-radius: 2px;
+}
+
+/* ================ 圆形头像(首字占位,上传接入后替换 img) ================ */
+
+.sf-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--sf-accent), var(--sf-accent-2));
+  color: var(--sf-bg);
+  font-weight: 700;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* ================ 柔和面板(neumorphism:同色系微浮起) ================ */
+
+.sf-panel {
+  background: var(--sf-panel);
+  border: 1px solid var(--sf-border);
+  border-radius: 16px;
+  box-shadow: var(--sf-shadow-out-sm);
+  backdrop-filter: blur(14px);
+  position: relative;
+}
+
+/* ================ 输入框(内凹浮雕) ================ */
+
+.sf-input {
+  background: var(--sf-input-bg);
+  border: 1px solid transparent;
+  color: var(--sf-text);
+  border-radius: var(--sf-radius-input, 12px);
+  padding: 10px 14px;
+  font-size: 14px;
+  box-shadow: var(--sf-shadow-in);
+  transition: all 0.2s ease;
+}
+.sf-input::placeholder { color: var(--sf-text-dim); }
+.sf-input:focus {
+  border-color: rgba(var(--sf-accent-r), var(--sf-accent-g), var(--sf-accent-b), 0.35);
+  background: var(--sf-input-bg-focus);
+  box-shadow: var(--sf-shadow-in), var(--sf-focus-ring);
+}
+/* 字段校验错误态:红边压过 focus 强调色(错误未修正前保持警示) */
+.sf-input-invalid {
+  border-color: var(--sf-error) !important;
+}
+
+/* ================ 下拉选择(去原生箭头,包裹层伪元素画 chevron 随主题变色) ================ */
+
+/* 包裹层:伪元素箭头(select 为替换元素,自身伪元素不可靠) */
+.sf-select-group {
+  position: relative;
+  display: block;
+}
+.sf-select-group::after {
+  content: '';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-right: 1.6px solid var(--sf-text-dim);
+  border-bottom: 1.6px solid var(--sf-text-dim);
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+
+/* 双类 specificity 压过 .sf-input 的 padding 简写(含移动端 media 规则);
+ * width 撑满包裹层——select 默认 shrink-to-fit,否则箭头(定位在包裹层右缘)会脱离输入框 */
+.sf-input.sf-select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  padding-right: 38px;
+  text-overflow: ellipsis;
+}
+
+/* ================ 按钮(外凸浮雕,悬停微沉,按下内凹) ================ */
+
+/* 主按钮 */
+.sf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--sf-surface);
+  border: none;
+  color: var(--sf-accent);
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: var(--sf-radius-btn, 12px);
+  box-shadow: var(--sf-shadow-out-sm);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.sf-btn:hover {
+  color: var(--sf-accent);
+}
+.sf-btn:active:not(:disabled) {
+  box-shadow: var(--sf-shadow-in);
+  transform: none;
+}
+.sf-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* 次级按钮:与主按钮(.sf-btn)统一高度与字号,素面无边框,悬停浮起 */
+.sf-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  color: var(--sf-text-dim);
+  padding: 10px 14px;
+  font-size: 14px;
+  border-radius: var(--sf-radius-btn-ghost, 12px);
+  transition: all 0.2s ease;
+}
+.sf-btn-ghost:hover {
+  color: var(--sf-accent);
+  background: var(--sf-surface);
+  box-shadow: var(--sf-shadow-out-sm);
+}
+
+/* 无边框图标按钮:顶栏/侧栏的铃铛、主题、语言等纯图标操作(无框、悬停淡底) */
+.sf-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--sf-text-dim);
+  border-radius: var(--sf-radius-btn-ghost, 4px);
+  transition: all 0.2s ease;
+}
+.sf-icon-btn:hover {
+  color: var(--sf-accent);
+  background: rgba(var(--sf-accent-r), var(--sf-accent-g), var(--sf-accent-b), 0.06);
+}
+
+/* ================ 标签 / chip ================ */
+
+.sf-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--sf-input-bg);
+  border: none;
+  box-shadow: var(--sf-shadow-in-sm);
+  color: var(--sf-accent);
+  border-radius: var(--sf-radius-chip, 999px);
+}
+
+/* ================ 标题装饰 ================ */
+
+.sf-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--sf-heading-color);
+}
+.sf-heading::before {
+  content: "";
+  width: 4px;
+  height: 20px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--sf-accent), var(--sf-accent-2));
+}
+
+/* ================ 状态点 ================ */
+
+.sf-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sf-green);
+  animation: sf-pulse 2s ease-in-out infinite;
+}
+
+/* ================ 加载条 ================ */
+
+.sf-loader-bar {
+  position: relative;
+  height: 2px;
+  width: 100%;
+  background: rgba(var(--sf-accent-r), var(--sf-accent-g), var(--sf-accent-b), 0.1);
+  overflow: hidden;
+}
+.sf-loader-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -40%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--sf-accent), transparent);
+  animation: sf-slide 1.4s ease-in-out infinite;
+}
+
+/* ================ 登录页大标题 ================ */
+
+.sf-ink-title {
+  font-family: var(--sf-font-title);
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  color: var(--sf-heading-color);
+}
+
+/* ================ 砚台面板(登录框专用) ================ */
+/* 砚身/墨池颜色随主题(--sf-inkstone/-pool,见各 theme-*.css,比面板深一档) */
+
+/* 砚身:主题砚色渐变(末端仅轻微加深,保证"砚身=主题底色"的主题不露馅) + 砚缘高光 + 主题浮起阴影 */
+.sf-inkstone {
+  border-radius: 36px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.07), transparent 55%),
+    linear-gradient(165deg, var(--sf-inkstone) 0%, color-mix(in srgb, var(--sf-inkstone) 86%, black) 100%);
+  border: 1px solid var(--sf-border);
+  box-shadow:
+    var(--sf-shadow-out),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* 墨池:砚身再深一档,主题内凹阴影 */
+.sf-inkstone-pool {
+  border-radius: 24px;
+  background: var(--sf-inkstone-pool);
+  box-shadow: var(--sf-shadow-in);
+}
+
+/* ================ 登录输入框组 ================ */
+
+.sf-input-group {
+  position: relative;
+}
+.sf-input-group .sf-input {
+  padding-left: 40px;
+}
+.sf-input-group > svg {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--sf-text-dim);
+  transition: color 0.2s ease;
+  pointer-events: none;
+}
+.sf-input-group:focus-within > svg {
+  color: var(--sf-accent);
+}
+
+/* ================ 小说卡片墙 ================ */
+
+/* 自适应多列网格:窄屏单列,中屏两列,宽屏三列 */
+.novel-card-wall {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  align-items: stretch;
+}
+/* 折叠态侧栏宽度收起(由 MainLayout 通过 w-0 控制,此处仅作语义占位) */
+.sidebar-collapsed { width: 0; overflow: hidden; }
+
+/* ================ 统一页面内容容器 ================
+ * 限宽居中,避免超宽屏内容被拉伸过宽、阅读疲劳;
+ * 各主页面最外层 flex 容器复用此类,保证全站阅读宽度一致。
+ * 水平内边距仍由各页面 header / 内容区自行控制(不在此处重复设定)。 */
+.sf-page {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+}
+
+/* ================ 全局 Toast(sonner 主题化) ================
+ * 对齐 sf-panel 浮雕语言:实底面板 + 主题边框/圆角/阴影;
+ * 语义色仅用于左侧强调条与图标,正文用主题文字色(三主题自动适配) */
+.sf-toast {
+  background: var(--sf-panel-solid) !important;
+  border: 1px solid var(--sf-border) !important;
+  color: var(--sf-text) !important;
+  border-radius: 14px !important;
+  box-shadow: var(--sf-shadow-out-sm) !important;
+}
+.sf-toast-error { border-left: 3px solid var(--sf-error) !important; }
+.sf-toast-error svg { color: var(--sf-error) !important; }
+.sf-toast-success { border-left: 3px solid var(--sf-success) !important; }
+.sf-toast-success svg { color: var(--sf-success) !important; }
+.sf-toast-warning { border-left: 3px solid var(--sf-warning) !important; }
+.sf-toast-warning svg { color: var(--sf-warning) !important; }
+.sf-toast-info { border-left: 3px solid var(--sf-info) !important; }
+.sf-toast-info svg { color: var(--sf-info) !important; }
+
+} /* end @layer components */

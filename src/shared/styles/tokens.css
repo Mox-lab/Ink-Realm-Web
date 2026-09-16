@@ -1,0 +1,77 @@
+/**
+ * 设计令牌中心 —— 全站可统一管理的基础配置。
+ *
+ * 目标:字体、字号、圆角等"可统一管理的样式配置"集中在此,后续
+ * 调整只改这一处即可全局生效;个别页面/组件如需偏离,可在其自身
+ * 样式或元素上局部覆盖(特例)。
+ *
+ * 说明:
+ *   - 字号阶梯(--text-*)在 index.css 的 @theme 中定义,因为需要
+ *     Tailwind 据此生成 text-2xs / text-xs / text-sm ... 工具类;
+ *     业务代码统一使用这些语义类,不再写 text-[13px] 之类硬编码。
+ *   - 本文件集中管理"主题无关"的可调项:字体族、组件圆角。
+ *   - 桌面端根字号在 base.css 的 `html { font-size }` 处统一设定,
+ *     所有 rem 单位(含上述字号阶梯)会随之等比缩放。
+ *
+ * @author Moma
+ */
+
+:root {
+  /* ============ 字体族(全站统一) ============
+   * 三套主题默认引用此变量;某个主题若想用不同字体,
+   * 可在对应 theme-*.css 中覆盖 --sf-font-base / --sf-font-title。 */
+  --app-font-sans: "Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif;
+  --app-font-title: "Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif;
+  /* 品牌/大标题展示字体(华为新魏栈):专供 LOGO、书名、角色名等大字号展示,
+     与正文字体(--app-font-sans)分离,便于单独调整;各页面须引用此变量,勿再硬编码字体栈 */
+  --app-font-display: "Arial", "STXinwei", "华文新魏", "XinWei", "华为新魏", "KaiTi", "STKaiti", sans-serif;
+
+  /* ============ 组件圆角(三主题统一,柔和设计加大圆角) ============
+   * 按钮 / 输入框 / 次级按钮共用同一圆角,跨三主题保持一致的形状,
+   * 仅颜色、阴影等效果随主题变化(见各 theme-*.css)。
+   * 如需整体调整控件圆角,只改 --sf-radius-control 一处即可全局生效。 */
+  --sf-radius-control: 12px;
+  --sf-radius-input: var(--sf-radius-control);
+  --sf-radius-btn: var(--sf-radius-control);
+  --sf-radius-btn-ghost: var(--sf-radius-control);
+  --sf-radius-chip: 999px; /* 标签统一为胶囊形,三主题一致 */
+  --sf-radius-card: 16px;
+
+  /* ============ 设定页 · 展示字段色(统一在此管理,组件勿硬编码) ============ */
+  --sf-setting-label: rgba(34, 211, 238, 0.6);    /* 字段名/小标签前景(青 60%) */
+  --sf-setting-tag-fg: rgb(34, 211, 238);          /* 标签文字 */
+  --sf-setting-tag-bg: rgba(34, 211, 238, 0.1);    /* 标签背景 */
+  --sf-setting-tag-border: rgba(34, 211, 238, 0.4);/* 标签边框 */
+  --sf-setting-fg: rgba(255, 255, 255, 0.75);      /* 主要字段值 */
+  --sf-setting-fg-soft: rgba(255, 255, 255, 0.55); /* 次要字段值 */
+  --sf-setting-faint: rgba(255, 255, 255, 0.45);   /* 字段 key/极淡 */
+  --sf-setting-muted: rgba(255, 255, 255, 0.3);    /* 占位/空值 */
+  --sf-setting-bar-bg: rgba(255, 255, 255, 0.05);  /* 进度条底 */
+  --sf-setting-bar-fg: rgba(34, 211, 238, 0.7);    /* 进度条填充(青) */
+
+  /* 物品品质色(暗背景可读;深色品质已提亮:黑→亮金) */
+  --sf-quality-white: #e5e7eb;
+  --sf-quality-green: #4ade80;
+  --sf-quality-blue: #60a5fa;
+  --sf-quality-purple: #c084fc;
+  --sf-quality-silver: #cbd5e1;
+  --sf-quality-gold: #fbbf24;
+  --sf-quality-platinum: #f1f5f9;
+  --sf-quality-black: #f5d061;   /* 原 #111827 太深不可读 → 亮金 */
+  --sf-quality-low: #cbd5e1;
+  --sf-quality-mid: #4ade80;
+  --sf-quality-high: #60a5fa;
+  --sf-quality-perfect: #c084fc;
+  --sf-quality-supreme: #fbbf24;
+  --sf-quality-default: #94a3b8;
+}
+
+/* 设定页 · 展示字段语义类(集中引用上方令牌,组件勿再硬编码) */
+.sf-setting-label { color: var(--sf-setting-label); }
+.sf-setting-tag { color: var(--sf-setting-tag-fg); background: var(--sf-setting-tag-bg); border: 1px solid var(--sf-setting-tag-border); }
+.sf-setting-fg { color: var(--sf-setting-fg); }
+.sf-setting-fg-soft { color: var(--sf-setting-fg-soft); }
+.sf-setting-faint { color: var(--sf-setting-faint); }
+.sf-setting-muted { color: var(--sf-setting-muted); }
+.sf-setting-bar { background: var(--sf-setting-bar-bg); }
+.sf-setting-bar-fill { background: var(--sf-setting-bar-fg); }

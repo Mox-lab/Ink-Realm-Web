@@ -1,0 +1,83 @@
+/**
+ * 样式入口 —— 统一导入 Tailwind、全局基础、组件基类与三套主题。
+ *
+ * 文件结构:
+ *   index.css        — 本文件,聚合入口
+ *   tokens.css       — 设计令牌中心(主题无关可调项:字体族/圆角/品质色)
+ *   base.css         — 全局 reset / body / 滚动条 / keyframes
+ *   components.css   — 组件结构基类(使用 CSS 变量,主题无关)
+ *   theme-light.css  — 纸墨(默认):宣纸暖白 + 同色系浮雕 + 朱砂点缀
+ *   theme-dark.css   — 石墨:深灰柔光浮雕 + 青瓷点缀
+ *   theme-color.css  — 晨彩:淡彩光斑 + 玻璃拟态 + 柔紫点缀
+ *
+ * 注:旧版 theme-readable.css(稀释类补救生成物)不再迁移——
+ *     新规范 §5.4 已禁止写 text-white/* 等语义错位类,从源头杜绝。
+ *
+ * @author Moma
+ */
+
+@import "tailwindcss";
+@import "./tokens.css";
+@import "./base.css";
+@import "./components.css";
+@import "./theme-light.css";
+@import "./theme-dark.css";
+@import "./theme-color.css";
+
+/* ================================================================
+ * Tailwind 颜色令牌 → CSS 变量映射(兜底防误写)
+ * 覆盖 Tailwind 的 cyan/white/black 等颜色令牌,使误写的工具类
+ * 仍跟随主题而非回归 Tailwind 默认色;新代码应直接写
+ * text-[var(--sf-*)] 或语义类(规范 §5.4),此映射不是使用许可。
+ * ================================================================ */
+@theme {
+  --color-cyan-300: var(--sf-accent);
+  --color-cyan-400: var(--sf-accent);
+  --color-cyan-500: var(--sf-accent);
+  --color-cyan-600: var(--sf-accent);
+  --color-cyan-700: var(--sf-accent);
+  --color-white: var(--sf-text);
+  --color-black: var(--sf-bg);
+
+  /* 语义状态色 → 主题感知令牌(错误/成功/警告/信息跟随主题) */
+  --color-red-300: var(--sf-status-error);
+  --color-red-400: var(--sf-status-error);
+  --color-red-500: var(--sf-status-error);
+  --color-red-600: var(--sf-status-error);
+  --color-red-700: var(--sf-status-error);
+  --color-rose-300: var(--sf-status-error);
+  --color-rose-400: var(--sf-status-error);
+  --color-rose-500: var(--sf-status-error);
+  --color-amber-200: var(--sf-status-warning);
+  --color-amber-300: var(--sf-status-warning);
+  --color-amber-400: var(--sf-status-warning);
+  --color-amber-500: var(--sf-status-warning);
+  --color-emerald-300: var(--sf-status-success);
+  --color-emerald-400: var(--sf-status-success);
+  --color-emerald-500: var(--sf-status-success);
+  --color-violet-300: var(--sf-status-info);
+  --color-violet-400: var(--sf-status-info);
+  --color-violet-500: var(--sf-status-info);
+  --color-purple-300: var(--sf-status-info);
+  --color-purple-400: var(--sf-status-info);
+  --color-purple-500: var(--sf-status-info);
+
+  /* ================================================================
+   * 字号阶梯(集中管理,改此处即全局生效)
+   * 业务统一使用 text-2xs / text-xs / text-sm / ... 语义类,
+   * 禁止 text-[13px] 之类硬编码(规范 §5.4)。
+   * ================================================================ */
+  --text-2xs: 0.6875rem;          /* ≈11px:角标 / 次要标签 / 元信息 */
+  --text-2xs--line-height: 1.5;
+  --text-xs: 0.75rem;             /* ≈12px:说明文字 / 卡片正文 */
+  --text-xs--line-height: 1.5;
+  --text-sm: 0.875rem;            /* ≈14px:正文 / 输入框 */
+  --text-sm--line-height: 1.5;
+  --text-base: 1rem;              /* ≈16px:强调正文 */
+  --text-lg: 1.125rem;            /* ≈18px:小标题 */
+  --text-xl: 1.25rem;             /* ≈20px:标题 */
+  --text-2xl: 1.5rem;             /* ≈24px:大标题 */
+
+  /* 字体族 → 与令牌中心同源,使 Tailwind font-sans 类保持一致 */
+  --font-sans: var(--app-font-sans);
+}

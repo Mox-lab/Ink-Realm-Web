@@ -1,0 +1,286 @@
+/**
+ * 英文字典(G0 骨架最小集;G1 起按模块拆分,与 zh 键同步维护)。
+ *
+ * @author Moma
+ */
+
+/** 英文键值表 */
+export const dict: Record<string, string> = {
+  // Common
+  'common.confirm': 'Confirm',
+  'common.cancel': 'Cancel',
+  'common.save': 'Save',
+  'common.delete': 'Delete',
+  'common.loading': 'Loading…',
+  'common.networkError': 'Network error, please try again later',
+  'common.back': 'Back',
+  'common.close': 'Close',
+  'common.forbidden': 'You do not have access to this page',
+
+  // Brand
+  'brand.name': 'Ink Realm',
+
+  // Theme
+  'theme.light': 'Paper',
+  'theme.dark': 'Graphite',
+  'theme.color': 'Dawn',
+  'theme.switch': 'Switch theme',
+
+  // Language
+  'lang.switch': 'Switch language',
+
+  // Nav
+  'nav.menu': 'Menu',
+  'nav.novels': 'My Novels',
+
+  // Auth
+  'auth.username': 'Username',
+  'auth.password': 'Password',
+  'auth.confirmPassword': 'Confirm password',
+  'auth.login': 'Sign in',
+  'auth.register': 'Sign up',
+  'auth.logout': 'Sign out',
+  'auth.viewRegister': 'No account? Sign up',
+  'auth.viewLogin': 'Have an account? Sign in',
+  'auth.required': 'Please fill in all required fields',
+  'auth.passwordMismatch': 'Passwords do not match',
+  'auth.usernameHint': 'Username must be 3-64 characters',
+  'auth.passwordMin': 'Password must be at least 6 characters',
+  'auth.strength.weak': 'Weak',
+  'auth.strength.medium': 'Medium',
+  'auth.strength.strong': 'Strong',
+
+  // User menu
+  'user.menu.profile': 'Profile',
+  'user.menu.password': 'Change password',
+  'user.menu.language': 'Language',
+  'user.role.USER': 'Member',
+  'user.role.ADMIN': 'Admin',
+
+  // Profile dialog
+  'profile.title': 'Profile',
+  'profile.username': 'Username',
+  'profile.nickname': 'Nickname',
+  'profile.role': 'Role',
+  'profile.userId': 'User ID',
+  'profile.tip': 'Profile editing and avatar upload arrive in a later batch',
+
+  // Password dialog
+  'password.title': 'Change password',
+  'password.old': 'Current password',
+  'password.new': 'New password',
+  'password.confirmNew': 'Confirm new password',
+  'password.required': 'Please fill in all fields',
+  'password.mismatch': 'Passwords do not match',
+  'password.tooShort': 'New password must be at least 6 characters',
+  'password.tip': 'Password change API arrives in a later batch',
+
+  // Novel list
+  'novels.list.new': 'New Novel',
+  'novels.list.search': 'Search novels…',
+  'novels.list.empty': 'No novels yet — start from a single spark of inspiration',
+  'novels.list.emptyCta': 'Create your first novel',
+  'novels.list.loadFailed': 'Failed to load novels',
+  'novels.list.retry': 'Retry',
+  'novels.card.enter': 'Open',
+  'novels.card.edit': 'Edit',
+  'novels.card.delete': 'Delete',
+  'novels.card.export': 'Export',
+  'novels.card.words': 'words',
+  'novels.card.noGenre': 'No genre',
+
+  // Novel form
+  'novels.form.createTitle': 'Create Novel',
+  'novels.form.editTitle': 'Edit Novel',
+  'novels.form.title': 'Title',
+  'novels.form.titleRequired': 'Title is required',
+  'novels.form.titleMax': 'Title must be at most 128 characters',
+  'novels.form.genre': 'Genre',
+  'novels.form.description': 'Description',
+  'novels.form.descPlaceholder': 'A one-line spark, or the synopsis…',
+  'novels.form.template': 'Genre templates',
+  'novels.form.templateHint': 'Pick one to prefill, then edit freely; blank starts from scratch',
+  'novels.form.unsavedTitle': 'Unsaved changes',
+  'novels.form.unsavedText': 'Leaving now will discard unsaved content. Leave anyway?',
+  'novels.form.unsavedLeave': 'Leave',
+  'novels.form.unsavedStay': 'Keep editing',
+  'novels.form.saveFailed': 'Failed to save',
+
+  // Delete confirm
+  'novels.delete.title': 'Delete novel',
+  'novels.delete.text':
+    'This will permanently delete "{title}" and all its content ({chapters} chapters, {lores} lore entries). This cannot be undone.',
+  'novels.delete.confirm': 'Delete permanently',
+  'novels.delete.failed': 'Failed to delete',
+
+  // Novel overview
+  'novels.overview.title': 'Overview',
+  'novels.overview.info': 'Novel info',
+  'novels.overview.genre': 'Genre',
+  'novels.overview.status': 'Status',
+  'novels.overview.status.draft': 'Draft',
+  'novels.overview.words': 'Word count',
+  'novels.overview.chapters': 'Chapters',
+  'novels.overview.lores': 'Lore entries',
+  'novels.overview.createdAt': 'Created',
+  'novels.overview.updatedAt': 'Updated',
+  'novels.overview.continue': 'Continue writing',
+  'novels.overview.manageLore': 'Manage lore',
+  'novels.overview.collab': 'Invite collaborators',
+  'novels.overview.export': 'Export',
+  'novels.overview.exportTxt': 'Export TXT',
+  'novels.overview.exportMd': 'Export Markdown',
+  'novels.overview.exportTip': 'Exports novel info for now; chapter content export arrives in a later batch',
+  'novels.overview.exportFailed': 'Export failed',
+  'novels.overview.timeline': 'Plot timeline',
+  'novels.overview.timelineEmpty': 'The plot timeline appears after your first chapter is generated',
+  'novels.overview.suggest': 'AI continuation ideas',
+  'novels.overview.suggestEmpty': 'AI continuation ideas arrive with the pipeline',
+  'novels.overview.notFound': 'Novel not found or deleted',
+  'novels.overview.backToList': 'Back to novels',
+  'novels.overview.wip': 'Arrives in a later batch',
+
+  // Genre templates
+  'novels.tpl.fantasy.name': 'Eastern Fantasy',
+  'novels.tpl.fantasy.genre': 'Eastern Fantasy',
+  'novels.tpl.fantasy.desc':
+    'An ordinary youth seizes a heaven-defying opportunity and steps into the world of cultivation. Among sects and strict realms, he cleaves the shackles of fate with the sword in hand.',
+  'novels.tpl.urban.name': 'Urban Fantasy',
+  'novels.tpl.urban.genre': 'Urban Supernatural',
+  'novels.tpl.urban.desc':
+    'An office worker awakens a supernatural power, shattering his ordinary life. Undercurrents surge beneath the city — he must balance daily life and secrets.',
+  'novels.tpl.scifi.name': 'Sci-Fi Future',
+  'novels.tpl.scifi.genre': 'Sci-Fi',
+  'novels.tpl.scifi.desc':
+    'In the Star Calendar era, humanity reaches for deep space. A lone ship and a mysterious signal unveil a secret spanning light-years.',
+  'novels.tpl.history.name': 'Alternate History',
+  'novels.tpl.history.genre': 'Historical Fantasy',
+  'novels.tpl.history.desc':
+    'Transported to a chaotic age, he plays the game of thrones with modern insight. Court and jianghu alike are his chessboard.',
+  'novels.tpl.mystery.name': 'Mystery',
+  'novels.tpl.mystery.genre': 'Mystery & Detective',
+  'novels.tpl.mystery.desc':
+    'A seemingly perfect locked-room case unravels events buried for years. As the truth peels away layer by layer, the culprit is closer than ever.',
+  'novels.tpl.blank.name': 'Start blank',
+
+  // ===== Lore (G3) =====
+  'lore.title': 'Lore',
+  'lore.backToOverview': 'Back to overview',
+  'lore.tab.settings': 'Entries',
+  'lore.tab.dicts': 'Dicts',
+  'lore.tab.relations': 'Relations',
+  'lore.tab.candidates': 'Candidates',
+  'lore.edit': 'Edit',
+  'lore.updatedAt': 'Updated',
+  'lore.delete.title': 'Confirm deletion',
+  'lore.delete.confirm': 'Delete',
+
+  // Categories (10)
+  'lore.category.all': 'All',
+  'lore.category.worldview': 'Worldview',
+  'lore.category.character': 'Character',
+  'lore.category.faction': 'Faction',
+  'lore.category.item': 'Item',
+  'lore.category.geography': 'Geography',
+  'lore.category.ability': 'Ability',
+  'lore.category.profession': 'Profession',
+  'lore.category.technique': 'Technique',
+  'lore.category.beast': 'Beast',
+  'lore.category.event': 'Event',
+
+  // Dict types (7)
+  'lore.dictType.realm': 'Realm',
+  'lore.dictType.item_tier': 'Item Tier',
+  'lore.dictType.item_quality': 'Item Quality',
+  'lore.dictType.race': 'Race',
+  'lore.dictType.currency': 'Currency',
+  'lore.dictType.technique_rank': 'Technique Rank',
+  'lore.dictType.ability_rank': 'Ability Rank',
+
+  // Settings
+  'lore.setting.new': 'New entry',
+  'lore.setting.createTitle': 'New lore entry',
+  'lore.setting.editTitle': 'Edit lore entry',
+  'lore.setting.search': 'Search lore…',
+  'lore.setting.category': 'Category',
+  'lore.setting.name': 'Name',
+  'lore.setting.nameRequired': 'Name is required',
+  'lore.setting.nameMax': 'Name is limited to 128 characters',
+  'lore.setting.content': 'Content (JSON)',
+  'lore.setting.contentPlaceholder': '{"_struct":"character", …}',
+  'lore.setting.contentHint': 'JSON format with a _struct discriminator; structured editors arrive later',
+  'lore.setting.contentInvalidJson': 'Content is not valid JSON',
+  'lore.setting.sortOrder': 'Sort order',
+  'lore.setting.structType': 'Struct',
+  'lore.setting.noContent': '(no content)',
+  'lore.setting.empty': 'No entries in this category yet',
+  'lore.setting.loadFailed': 'Failed to load entries',
+  'lore.setting.saveFailed': 'Save failed',
+  'lore.setting.deleteFailed': 'Delete failed',
+  'lore.setting.deleteText': 'This deletes "{name}" and its relations. This cannot be undone.',
+
+  // Dicts
+  'lore.dict.new': 'New term',
+  'lore.dict.createTitle': 'New dict term',
+  'lore.dict.editTitle': 'Edit dict term',
+  'lore.dict.dictType': 'Dict type',
+  'lore.dict.term': 'Term',
+  'lore.dict.termRequired': 'Term is required',
+  'lore.dict.termMax': 'Term is limited to 128 characters',
+  'lore.dict.definition': 'Definition',
+  'lore.dict.definitionPlaceholder': 'Semantic boundary and calibration notes…',
+  'lore.dict.tierNo': 'Tier order',
+  'lore.dict.tierNoPlaceholder': 'Leave empty to append at the end',
+  'lore.dict.orderHint': 'Drag or use arrows to reorder; tier order is the AI injection order',
+  'lore.dict.moveUp': 'Move up',
+  'lore.dict.moveDown': 'Move down',
+  'lore.dict.enable': 'Enable',
+  'lore.dict.disable': 'Disable',
+  'lore.dict.disabledTag': 'Disabled',
+  'lore.dict.statusFailed': 'Failed to change status',
+  'lore.dict.empty': 'No terms in this dict yet',
+  'lore.dict.loadFailed': 'Failed to load dict',
+  'lore.dict.saveFailed': 'Save failed',
+  'lore.dict.deleteFailed': 'Delete failed',
+  'lore.dict.reorderFailed': 'Failed to save order',
+  'lore.dict.deleteText': 'This deletes dict term "{term}". This cannot be undone.',
+
+  // Relations
+  'lore.relation.new': 'New relation',
+  'lore.relation.createTitle': 'New relation',
+  'lore.relation.editTitle': 'Edit relation',
+  'lore.relation.from': 'From',
+  'lore.relation.to': 'To',
+  'lore.relation.pickSetting': 'Pick an entry…',
+  'lore.relation.type': 'Relation type',
+  'lore.relation.typePlaceholder': 'Mentor / Rival / Family…',
+  'lore.relation.typeRequired': 'Relation type is required',
+  'lore.relation.typeMax': 'Type is limited to 64 characters',
+  'lore.relation.bothRequired': 'Pick both ends of the relation',
+  'lore.relation.sameEnds': 'Both ends cannot be the same entry',
+  'lore.relation.seed': 'Seed lock',
+  'lore.relation.seedHint': 'When locked, AI reads this relation only; unlock anytime',
+  'lore.relation.seedOn': 'Locked',
+  'lore.relation.seedOff': 'Unlocked',
+  'lore.relation.seedFailed': 'Failed to save seed state',
+  'lore.relation.hint': 'Relations reference entries by ID; display names sync on rename',
+  'lore.relation.empty': 'No relations yet',
+  'lore.relation.loadFailed': 'Failed to load relations',
+  'lore.relation.saveFailed': 'Save failed',
+  'lore.relation.deleteFailed': 'Delete failed',
+  'lore.relation.deleteText': 'This deletes the relation between "{from}" and "{to}". This cannot be undone.',
+
+  // Candidates
+  'lore.candidate.statusAll': 'All',
+  'lore.candidate.status.PENDING': 'Pending',
+  'lore.candidate.status.APPLIED': 'Adopted',
+  'lore.candidate.status.REJECTED': 'Rejected',
+  'lore.candidate.adopt': 'Adopt',
+  'lore.candidate.adoptTitle': 'Adopt candidate into dict',
+  'lore.candidate.reject': 'Reject',
+  'lore.candidate.reason': 'Reason',
+  'lore.candidate.empty': 'Candidate queue is empty; AI extraction arrives in a later batch',
+  'lore.candidate.loadFailed': 'Failed to load candidates',
+  'lore.candidate.rejectFailed': 'Reject failed',
+  'lore.candidate.adoptFailed': 'Adopt failed',
+};
