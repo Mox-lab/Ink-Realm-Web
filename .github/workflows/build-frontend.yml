@@ -14,13 +14,9 @@ name: Build Frontend Image
 on:
   push:
     branches: [main]
-    paths:
-      - 'src/**'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - 'Dockerfile'
-      - 'nginx.conf'
-      - '.github/workflows/build-frontend.yml'
+    # 不使用 paths 过滤:历史压缩/force push 场景下 before 与 after commit 无共同祖先,
+    # GitHub 的 changed files 计算结果不可靠(可能为空),paths 会静默不匹配导致不触发。
+    # 代价是任何 push 到 main 都构建,对本单服务仓库可接受。
   workflow_dispatch:
 
 jobs:
