@@ -129,19 +129,21 @@ export default function NovelListPage() {
         </button>
       </div>
 
-      {/* 状态区:L 骨架 / X 错误 / E 空态 / 数据网格 */}
-      {filtered === null && !failed ? (
-        <div className="novel-card-wall">
-          <CardSkeleton />
-          <CardSkeleton />
-          <CardSkeleton />
-        </div>
-      ) : failed ? (
+      {/* 状态区:错误 / L 骨架 / E 空态 / 数据网格。
+          failed 分支必须放在 filtered === null 之前:复合条件(failed && filtered===null)
+          会让 TS 无法在后续分支收窄 filtered 为非空(TS18047),先判 failed 即可链式收窄 */}
+      {failed ? (
         <div className="sf-panel p-8 text-center">
           <p className="mb-3 text-sm text-[var(--sf-text-dim)]">{t('novels.list.loadFailed')}</p>
           <button type="button" className="sf-btn sf-btn-primary min-h-10 px-5" onClick={load}>
             {t('novels.list.retry')}
           </button>
+        </div>
+      ) : filtered === null ? (
+        <div className="novel-card-wall">
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
         </div>
       ) : filtered.length === 0 ? (
         <div className="sf-panel p-10 text-center">

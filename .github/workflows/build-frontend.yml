@@ -48,6 +48,10 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
+          # 阿里云 ACR 个人版不识别 buildx 的 provenance/SBOM 证明清单
+          # (application/vnd.oci.empty.v1+json),会报 denied: unknown manifest class,必须关闭
+          provenance: false
+          sbom: false
           tags: |
             ${{ steps.meta.outputs.image }}:latest
             ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.sha_short }}
